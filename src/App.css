@@ -1,38 +1,75 @@
 .App {
-  text-align: center;
+  min-height: 100vh;
+  background-color: #f5f3f0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.main-content {
+  width: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.app-loading,
+.app-error {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 20px;
+  background: #f5f3f0;
 }
 
-.App-link {
-  color: #61dafb;
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #e8e2d5;
+  border-top-color: #8b5a3c;
+  border-right-color: #d35400;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
+@keyframes spin {
   to {
     transform: rotate(360deg);
   }
+}
+
+.app-loading p,
+.app-error p {
+  margin-top: 24px;
+  font-size: 18px;
+  color: #6b5d54;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.app-error h2 {
+  color: #2c1810;
+  margin-bottom: 12px;
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+.app-error button {
+  margin-top: 24px;
+  padding: 14px 32px;
+  background: #d35400;
+  color: white;
+  border: 2px solid #b74700;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.app-error button:hover {
+  background: #b74700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }

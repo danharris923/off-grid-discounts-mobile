@@ -1,24 +1,62 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useMemo } from 'react';
+import { Header } from './components/Header';
+import { ProductGrid } from './components/ProductGrid';
+import { useDeals } from './hooks/useDeals';
 import './App.css';
 
 function App() {
+  const { deals, loading, error } = useDeals();
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredDeals = useMemo(() => {
+    let filtered = deals;
+
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(deal => deal.category === selectedCategory);
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(deal => 
+        deal.productName.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return filtered;
+  }, [deals, selectedCategory, searchTerm]);
+
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading deals...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="app-error">
+        <h2>Oops! Something went wrong</h2>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Try Again</button>
+      </div>
+    );
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header 
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        onSearch={setSearchTerm}
+      />
+      <main className="main-content">
+        <ProductGrid deals={filteredDeals} />
+      </main>
     </div>
   );
 }
