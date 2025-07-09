@@ -13,6 +13,14 @@ export class GoogleSheetsService {
     // Add timestamp to prevent caching
     const timestamp = Date.now();
     this.apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET_RANGE}?key=${GOOGLE_SHEETS_API_KEY}&_t=${timestamp}`;
+    
+    // Log configuration for debugging
+    console.log('Google Sheets configuration:', {
+      hasApiKey: !!GOOGLE_SHEETS_API_KEY,
+      hasSheetId: !!GOOGLE_SHEETS_ID,
+      apiKeyLength: GOOGLE_SHEETS_API_KEY?.length || 0,
+      sheetIdLength: GOOGLE_SHEETS_ID?.length || 0
+    });
   }
 
   async fetchDeals(): Promise<Deal[]> {

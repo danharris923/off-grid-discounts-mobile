@@ -20,8 +20,9 @@ export const useDeals = (): UseDealsResult => {
       setError(null);
       const fetchedDeals = await googleSheetsService.fetchDeals();
       setDeals(fetchedDeals);
-    } catch (err) {
-      setError('Failed to load deals. Please try again later.');
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.error?.message || err?.message || 'Failed to load deals. Please try again later.';
+      setError(errorMessage);
       console.error('Error fetching deals:', err);
     } finally {
       setLoading(false);
