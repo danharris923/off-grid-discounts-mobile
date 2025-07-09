@@ -58,11 +58,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
   const groupedDeals = useMemo(() => {
     const groups = [];
     let currentIndex = 0;
+    let rowIndex = 0;
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
-      // Randomly choose between 2 or 3 cards per row
-      const cardsPerRow = Math.random() > 0.5 ? 3 : 2;
+      // Use a stable pattern based on row index instead of Math.random()
+      // Pattern: 3, 2, 3, 2, 3, 2...
+      const cardsPerRow = rowIndex % 2 === 0 ? 3 : 2;
+      rowIndex++;
       
       // Add up to cardsPerRow deals (or remaining deals)
       for (let i = 0; i < cardsPerRow && currentIndex < displayedDeals.length; i++) {
