@@ -3,7 +3,7 @@ import { Deal } from '../types/Deal';
 
 const GOOGLE_SHEETS_API_KEY = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
 const GOOGLE_SHEETS_ID = process.env.REACT_APP_GOOGLE_SHEETS_ID;
-const SHEET_RANGE = 'Sheet1!A2:J1000'; // Skip header row, include card type column
+const SHEET_RANGE = 'Sheet1!A2:J1000'; // Skip header row, include card type column (A-J = 10 columns)
 
 
 export class GoogleSheetsService {
