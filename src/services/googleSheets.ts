@@ -93,11 +93,17 @@ export class GoogleSheetsService {
         fullError: JSON.stringify(error?.response?.data || error)
       });
       
+      // Check for specific API errors
+      if (error?.response?.status === 400 && error?.response?.data?.error?.message?.includes('API key not valid')) {
+        console.error('API Key Error: The Google Sheets API key is invalid or doesn\'t have access to Google Sheets API');
+        console.error('To fix: Enable Google Sheets API in Google Cloud Console for this API key');
+      }
+      
       // Return sample data with warning
       const sampleDeals = this.getSampleDeals();
       return sampleDeals.map(deal => ({
         ...deal,
-        productName: `[DEMO] ${deal.productName}`
+        productName: `[DEMO - API ERROR] ${deal.productName}`
       }));
     }
   }
