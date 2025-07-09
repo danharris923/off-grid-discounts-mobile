@@ -9,8 +9,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f3f0;
-  color: #2c1810;
+  background-color: #f0f2f5; /* Facebook gray background */
+  color: #1c1e21;
   line-height: 1.6;
 }
 
@@ -23,16 +23,17 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: 700;
   line-height: 1.2;
-  color: #2c1810;
+  color: #1c1e21;
 }
 
 button {
   font-family: inherit;
   outline: none;
+  cursor: pointer;
 }
 
 button:focus-visible {
-  outline: 3px solid #d35400;
+  outline: 3px solid #1877f2;
   outline-offset: 2px;
 }
 
@@ -46,7 +47,7 @@ input {
 }
 
 a {
-  color: #d35400;
+  color: #1877f2;
   text-decoration: none;
 }
 
@@ -55,7 +56,7 @@ a:hover {
 }
 
 ::selection {
-  background: #d35400;
+  background: #1877f2;
   color: white;
 }
 
@@ -65,14 +66,14 @@ a:hover {
 }
 
 ::-webkit-scrollbar-track {
-  background: #e8e2d5;
+  background: #f0f2f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #8b5a3c;
+  background: #bcc0c4;
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6b4423;
+  background: #8b8d91;
 }

@@ -1,6 +1,6 @@
 .App {
   min-height: 100vh;
-  background-color: #f5f3f0;
+  background-color: #f0f2f5;
 }
 
 .main-content {
@@ -15,17 +15,16 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: #f5f3f0;
+  background: #f0f2f5;
 }
 
 .loading-spinner {
   width: 60px;
   height: 60px;
-  border: 6px solid #e8e2d5;
-  border-top-color: #8b5a3c;
-  border-right-color: #d35400;
+  border: 4px solid #e4e6eb;
+  border-top-color: #1877f2;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -37,39 +36,33 @@
 .app-loading p,
 .app-error p {
   margin-top: 24px;
-  font-size: 18px;
-  color: #6b5d54;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 16px;
+  color: #65676b;
+  font-weight: 500;
 }
 
 .app-error h2 {
-  color: #2c1810;
+  color: #1c1e21;
   margin-bottom: 12px;
-  font-size: 28px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: -0.5px;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .app-error button {
   margin-top: 24px;
-  padding: 14px 32px;
-  background: #d35400;
+  padding: 12px 32px;
+  background: #1877f2;
   color: white;
-  border: 2px solid #b74700;
-  border-radius: 4px;
+  border: none;
+  border-radius: 6px;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .app-error button:hover {
-  background: #b74700;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: #166fe5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(24, 119, 242, 0.2);
 }
