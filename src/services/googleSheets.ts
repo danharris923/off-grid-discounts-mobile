@@ -82,8 +82,13 @@ export class GoogleSheetsService {
           };
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching deals from Google Sheets:', error);
+      console.error('Error details:', {
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        data: error?.response?.data
+      });
       throw error; // Throw error instead of returning sample data
     }
   }
