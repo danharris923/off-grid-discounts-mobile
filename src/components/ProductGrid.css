@@ -24,7 +24,7 @@
 
 .deal-row.row-2 {
   grid-template-columns: repeat(2, 1fr);
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 

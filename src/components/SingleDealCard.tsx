@@ -38,6 +38,10 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
           alt={deal.productName}
           className="deal-image"
           loading="lazy"
+          onError={(e) => {
+            console.error('Image failed to load:', deal.imageUrl);
+            e.currentTarget.style.display = 'none';
+          }}
         />
         {deal.featured && <span className="featured-badge">FEATURED</span>}
       </div>
@@ -45,29 +49,15 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
       <div className="deal-content">
         <h3 className="deal-title">{deal.productName}</h3>
         
-        {/* Social proof */}
-        <div className="social-proof">
-          <span className="viewing-now">{viewingCount} people viewing</span>
-        </div>
-        
         <div className="price-section">
           {deal.regularPrice && deal.regularPrice > deal.salePrice! && (
             <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
           )}
           <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
-          {deal.savings && deal.savings > 0 && (
-            <span className="savings-text">Save ${deal.savings.toFixed(0)}</span>
-          )}
         </div>
         
         <div className="retailer-info">
           <span className="retailer-name">{deal.retailer}</span>
-          <span className="shipping-info">Free shipping</span>
-        </div>
-        
-        {/* Countdown timer for urgency */}
-        <div className="deal-timer">
-          Deal ends in <span className="timer-urgent">2h 47m</span>
         </div>
         
         <div className="action-buttons">

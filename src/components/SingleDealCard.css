@@ -62,10 +62,10 @@
 }
 
 .single-deal-card .deal-content {
-  padding: 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -82,25 +82,11 @@
   letter-spacing: -0.01em;
 }
 
-.single-deal-card .social-proof {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: #757575;
-  margin-bottom: 8px;
-}
-
-.single-deal-card .viewing-now {
-  color: #d32f2f;
-  font-weight: 500;
-}
-
 .single-deal-card .price-section {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 12px;
-  margin: 16px 0;
+  margin: 8px 0;
 }
 
 .single-deal-card .regular-price {
@@ -111,58 +97,22 @@
 }
 
 .single-deal-card .sale-price {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
   color: #212121;
   letter-spacing: -0.01em;
 }
 
-.single-deal-card .savings-text {
-  font-size: 12px;
-  color: #4caf50;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 .single-deal-card .retailer-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-top: 1px solid #e5e5e5;
+  margin: 8px 0;
 }
 
 .single-deal-card .retailer-name {
   font-size: 12px;
-  color: #212121;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.single-deal-card .shipping-info {
-  font-size: 10px;
-  color: #4caf50;
+  color: #757575;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.single-deal-card .deal-timer {
-  background: #fff3e0;
-  color: #f57c00;
-  padding: 8px 12px;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 8px 0;
-}
-
-.single-deal-card .timer-urgent {
-  font-weight: 600;
+  letter-spacing: 0.1em;
 }
 
 .single-deal-card .action-buttons {

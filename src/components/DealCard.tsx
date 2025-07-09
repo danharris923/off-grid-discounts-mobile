@@ -35,6 +35,10 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
           alt={deal.productName}
           className="deal-image"
           loading="lazy"
+          onError={(e) => {
+            console.error('Image failed to load:', deal.imageUrl);
+            e.currentTarget.style.display = 'none';
+          }}
         />
 {deal.featured && <span className="featured-badge">FEATURED</span>}
       </div>
@@ -42,35 +46,22 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
       <div className="deal-content">
         <h3 className="deal-title">{deal.productName}</h3>
         
-        {/* Social proof */}
-        <div className="social-proof">
-          <span className="viewing-now">{viewingCount} people viewing</span>
-        </div>
-        
         <div className="price-comparison">
           <div className="retailer-price">
             <span className="retailer-name">Amazon</span>
             <span className="price">{formatPrice(deal.amazonPrice!)}</span>
-            <span className="shipping-info">Free Prime</span>
           </div>
           
           <div className="retailer-price">
             <span className="retailer-name">Cabela's</span>
             <span className="price">{formatPrice(deal.cabelasPrice!)}</span>
-            <span className="shipping-info">Free to Canada</span>
           </div>
         </div>
         
         <div className="best-deal-banner">
-          <span className="crown-icon">↓</span>
           <span className="best-deal-text">
-            Save {percentSaved}% • ${deal.savings!.toFixed(0)} Off
+            Save ${deal.savings!.toFixed(0)} • {deal.bestDealRetailer === 'amazon' ? 'Amazon' : "Cabela's"} wins
           </span>
-        </div>
-        
-        {/* Countdown timer for urgency */}
-        <div className="deal-timer">
-          Deal ends in <span className="timer-urgent">2h 47m</span>
         </div>
         
         <div className="action-buttons">
