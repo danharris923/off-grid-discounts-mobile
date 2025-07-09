@@ -36,7 +36,7 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
           className="deal-image"
           loading="lazy"
         />
-        {deal.featured && <span className="featured-badge">🔥 HOT DEAL</span>}
+{deal.featured && <span className="featured-badge">FEATURED</span>}
       </div>
       
       <div className="deal-content">
@@ -44,33 +44,33 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
         
         {/* Social proof */}
         <div className="social-proof">
-          <span className="viewing-now">🔥 {viewingCount} people viewing this now</span>
+          <span className="viewing-now">{viewingCount} people viewing</span>
         </div>
         
         <div className="price-comparison">
           <div className="retailer-price">
             <span className="retailer-name">Amazon</span>
             <span className="price">{formatPrice(deal.amazonPrice)}</span>
-            <span className="shipping-info">✓ FREE Prime</span>
+            <span className="shipping-info">Free Prime</span>
           </div>
           
           <div className="retailer-price">
             <span className="retailer-name">Cabela's</span>
             <span className="price">{formatPrice(deal.cabelasPrice)}</span>
-            <span className="shipping-info">✓ FREE to Canada</span>
+            <span className="shipping-info">Free to Canada</span>
           </div>
         </div>
         
         <div className="best-deal-banner">
-          <span className="crown-icon">💰</span>
+          <span className="crown-icon">↓</span>
           <span className="best-deal-text">
-            SAVE {percentSaved}% • ${deal.savings.toFixed(0)} OFF
+            Save {percentSaved}% • ${deal.savings.toFixed(0)} Off
           </span>
         </div>
         
         {/* Countdown timer for urgency */}
         <div className="deal-timer">
-          ⏰ Deal ends in <span className="timer-urgent">2h 47m</span>
+          Deal ends in <span className="timer-urgent">2h 47m</span>
         </div>
         
         <div className="action-buttons">
@@ -79,14 +79,14 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
             onClick={handleAmazonClick}
             rel="nofollow"
           >
-            GET DEAL →
+            <span>Shop Amazon</span>
           </button>
           <button 
             className="buy-button cabelas-button"
             onClick={handleCabelasClick}
             rel="nofollow"
           >
-            GET DEAL →
+            <span>Shop Cabela's</span>
           </button>
         </div>
       </div>

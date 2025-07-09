@@ -1,187 +1,153 @@
 .site-header {
   background: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e5e5e5;
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid #dddfe2;
+  padding: 20px 0;
 }
 
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 20px;
+  padding: 0 24px;
 }
 
 .header-top {
   text-align: center;
-  margin-bottom: 20px;
-  position: relative;
-}
-
-/* Urgency banner */
-.header-top::before {
-  content: '🔥 LIMITED TIME: Facebook Group Exclusive Prices 🔥';
-  position: absolute;
-  top: -16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ff4458;
-  color: white;
-  padding: 4px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  animation: pulse 2s infinite;
-  white-space: nowrap;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.05); }
+  margin-bottom: 32px;
 }
 
 .site-title {
   font-size: 32px;
-  font-weight: 800;
-  margin: 16px 0 8px 0;
-  color: #1c1e21;
-  letter-spacing: -0.5px;
+  font-weight: 300;
+  margin: 0 0 8px 0;
+  color: #212121;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 .site-tagline {
-  font-size: 16px;
-  color: #65676b;
+  font-size: 14px;
+  color: #757575;
   margin: 0;
   font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
-.site-tagline .savings-highlight {
-  color: #00a400;
-  font-weight: 600;
+.savings-highlight {
+  color: #d32f2f;
+  font-weight: 500;
 }
 
 .header-controls {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
   align-items: center;
 }
 
 .search-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
   position: relative;
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 20px;
-  font-size: 16px;
-  border: 1px solid #dddfe2;
-  border-radius: 50px;
-  background: #f0f2f5;
-  color: #1c1e21;
-  transition: all 0.2s;
+  padding: 16px 20px;
+  font-size: 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 0;
+  background: #ffffff;
+  color: #212121;
+  transition: border-color 0.2s ease;
+  font-weight: 400;
 }
 
 .search-input::placeholder {
-  color: #8a8d91;
+  color: #757575;
+  font-weight: 400;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #1877f2;
-  background: white;
-  box-shadow: 0 2px 8px rgba(24, 119, 242, 0.1);
+  border-color: #212121;
 }
 
 .category-filters {
   display: flex;
-  gap: 8px;
+  gap: 0;
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .category-button {
-  padding: 8px 20px;
-  background: #e4e6eb;
-  border: none;
-  color: #050505;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid #e5e5e5;
+  color: #757575;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-right: none;
+}
+
+.category-button:first-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.category-button:last-child {
+  border-right: 1px solid #e5e5e5;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .category-button:hover {
-  background: #d8dadf;
-  transform: translateY(-1px);
+  background: #f8f8f8;
+  color: #212121;
 }
 
 .category-button.active {
-  background: #1877f2;
-  color: white;
+  background: #212121;
+  color: #ffffff;
+  border-color: #212121;
 }
 
 .category-button.active:hover {
-  background: #166fe5;
-}
-
-/* Trust indicators */
-.trust-bar {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #dddfe2;
-  flex-wrap: wrap;
-}
-
-.trust-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #65676b;
-}
-
-.trust-item svg {
-  color: #00a400;
+  background: #424242;
+  border-color: #424242;
 }
 
 @media (max-width: 768px) {
   .header-container {
-    padding: 12px 16px;
+    padding: 0 16px;
   }
   
   .site-title {
     font-size: 24px;
   }
   
-  .header-top::before {
-    font-size: 11px;
-    padding: 3px 12px;
+  .site-tagline {
+    font-size: 12px;
   }
   
   .category-filters {
-    gap: 6px;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
   }
   
   .category-button {
-    padding: 6px 16px;
-    font-size: 14px;
+    border-right: 1px solid #e5e5e5;
+    border-bottom: none;
   }
   
-  .trust-bar {
-    gap: 16px;
-  }
-  
-  .trust-item {
-    font-size: 12px;
+  .category-button:last-child {
+    border-bottom: 1px solid #e5e5e5;
   }
 }
