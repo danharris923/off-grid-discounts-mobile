@@ -25,6 +25,7 @@ export class GoogleSheetsService {
 
   async fetchDeals(): Promise<Deal[]> {
     try {
+      console.log('Fetching from URL:', this.apiUrl);
       const response = await axios.get(this.apiUrl);
       const rows = response.data.values;
       
@@ -87,9 +88,17 @@ export class GoogleSheetsService {
       console.error('Error details:', {
         status: error?.response?.status,
         statusText: error?.response?.statusText,
-        data: error?.response?.data
+        data: error?.response?.data,
+        message: error?.message,
+        fullError: JSON.stringify(error?.response?.data || error)
       });
-      throw error; // Throw error instead of returning sample data
+      
+      // Return sample data with warning
+      const sampleDeals = this.getSampleDeals();
+      return sampleDeals.map(deal => ({
+        ...deal,
+        productName: `[DEMO] ${deal.productName}`
+      }));
     }
   }
 
