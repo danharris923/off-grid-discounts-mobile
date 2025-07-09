@@ -24,8 +24,6 @@
 
 .deal-row.row-2 {
   grid-template-columns: repeat(2, 1fr);
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
 .loading-container {
@@ -89,6 +87,12 @@
   }
 }
 
+.deal-row.row-1 {
+  grid-template-columns: 1fr;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 @media (min-width: 769px) and (max-width: 1024px) {
   .deal-row.row-3 {
     grid-template-columns: repeat(2, 1fr);
@@ -96,7 +100,5 @@
   
   .deal-row.row-2 {
     grid-template-columns: repeat(2, 1fr);
-    max-width: 1000px;
-    margin: 0 auto;
   }
 }

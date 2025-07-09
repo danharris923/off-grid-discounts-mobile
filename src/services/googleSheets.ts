@@ -76,8 +76,7 @@ export class GoogleSheetsService {
       });
     } catch (error) {
       console.error('Error fetching deals from Google Sheets:', error);
-      // Return sample data while API is being set up
-      return this.getSampleDeals();
+      throw error; // Throw error instead of returning sample data
     }
   }
 

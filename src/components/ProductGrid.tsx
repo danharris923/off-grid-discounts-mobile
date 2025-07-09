@@ -54,34 +54,24 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     </div>
   );
 
-  // Group deals into rows: 3 single, 2 comparison, 3 single, repeat
+  // Group deals into random rows of 2 or 3
   const groupedDeals = useMemo(() => {
     const groups = [];
     let currentIndex = 0;
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
+      // Randomly choose between 2 or 3 cards per row
+      const cardsPerRow = Math.random() > 0.5 ? 3 : 2;
       
-      // Add up to 3 deals for first row (or remaining deals)
-      for (let i = 0; i < 3 && currentIndex < displayedDeals.length; i++) {
+      // Add up to cardsPerRow deals (or remaining deals)
+      for (let i = 0; i < cardsPerRow && currentIndex < displayedDeals.length; i++) {
         group.push(displayedDeals[currentIndex]);
         currentIndex++;
       }
       
       if (group.length > 0) {
-        groups.push({ type: 'row-3', deals: group });
-      }
-      
-      // Add up to 2 deals for comparison row (if any remaining)
-      if (currentIndex < displayedDeals.length) {
-        const comparisonGroup = [];
-        for (let i = 0; i < 2 && currentIndex < displayedDeals.length; i++) {
-          comparisonGroup.push(displayedDeals[currentIndex]);
-          currentIndex++;
-        }
-        if (comparisonGroup.length > 0) {
-          groups.push({ type: 'row-2', deals: comparisonGroup });
-        }
+        groups.push({ type: `row-${group.length}`, deals: group });
       }
     }
     
