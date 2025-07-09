@@ -3,14 +3,16 @@ import { Deal } from '../types/Deal';
 
 const GOOGLE_SHEETS_API_KEY = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
 const GOOGLE_SHEETS_ID = process.env.REACT_APP_GOOGLE_SHEETS_ID;
-const SHEET_RANGE = 'Sheet1!A2:I1000'; // Skip header row
+const SHEET_RANGE = 'Sheet1!A2:J1000'; // Skip header row, include card type column
 
 
 export class GoogleSheetsService {
   private apiUrl: string;
 
   constructor() {
-    this.apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
+    // Add timestamp to prevent caching
+    const timestamp = Date.now();
+    this.apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET_RANGE}?key=${GOOGLE_SHEETS_API_KEY}&_t=${timestamp}`;
   }
 
   async fetchDeals(): Promise<Deal[]> {
@@ -24,25 +26,53 @@ export class GoogleSheetsService {
 
       // Map data (header already skipped in SHEET_RANGE)
       return rows.map((row: string[], index: number) => {
-        const amazonPrice = parseFloat(row[2]) || 0;
-        const cabelasPrice = parseFloat(row[3]) || 0;
-        const savings = Math.abs(amazonPrice - cabelasPrice);
-        const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
+        const cardType = row[9]?.toLowerCase() === 'comparison' ? 'comparison' : 'single';
+        
+        if (cardType === 'comparison') {
+          const amazonPrice = parseFloat(row[2]) || 0;
+          const cabelasPrice = parseFloat(row[3]) || 0;
+          const savings = Math.abs(amazonPrice - cabelasPrice);
+          const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
 
-        return {
-          id: `deal-${index}`,
-          productName: row[0] || '',
-          imageUrl: row[1] || '',
-          amazonPrice,
-          cabelasPrice,
-          amazonLink: row[4] || '',
-          cabelasLink: row[5] || '',
-          dealEndDate: row[6] || '',
-          category: this.parseCategory(row[7]),
-          featured: row[8]?.toLowerCase() === 'true' || false,
-          savings,
-          bestDealRetailer
-        };
+          return {
+            id: `deal-${index}`,
+            productName: row[0] || '',
+            imageUrl: row[1] || '',
+            amazonPrice,
+            cabelasPrice,
+            amazonLink: row[4] || '',
+            cabelasLink: row[5] || '',
+            dealEndDate: row[6] || '',
+            category: this.parseCategory(row[7]),
+            featured: row[8]?.toLowerCase() === 'true' || false,
+            savings,
+            bestDealRetailer,
+            cardType: 'comparison' as const
+          };
+        } else {
+          // Single deal card
+          const regularPrice = parseFloat(row[2]) || 0;
+          const salePrice = parseFloat(row[3]) || 0;
+          const savings = regularPrice - salePrice;
+          const discountPercent = regularPrice > 0 ? Math.round((savings / regularPrice) * 100) : 0;
+
+          return {
+            id: `deal-${index}`,
+            productName: row[0] || '',
+            imageUrl: row[1] || '',
+            regularPrice,
+            salePrice,
+            dealLink: row[4] || '',
+            retailer: row[5] || '',
+            dealEndDate: row[6] || '',
+            category: this.parseCategory(row[7]),
+            featured: row[8]?.toLowerCase() === 'true' || false,
+            savings,
+            discountPercent,
+            bestDealRetailer: 'single' as const,
+            cardType: 'single' as const
+          };
+        }
       });
     } catch (error) {
       console.error('Error fetching deals from Google Sheets:', error);
@@ -53,48 +83,57 @@ export class GoogleSheetsService {
 
   private getSampleDeals(): Deal[] {
     return [
+      // Row 1: 3 single deals
       {
         id: 'deal-1',
         productName: 'Goal Zero Yeti 1500X Portable Power Station',
         imageUrl: 'https://images.thdstatic.com/productImages/0e7b4b5c-d8a8-4e5f-8a2f-8b9c7d6e5f4a/svn/goal-zero-portable-generators-23000-64_1000.jpg',
-        amazonPrice: 1899.99,
-        cabelasPrice: 1999.99,
-        amazonLink: 'https://amazon.com/dp/B08FXQB4Z4',
-        cabelasLink: 'https://cabelas.com/shop/en/goal-zero-yeti-1500x',
+        regularPrice: 2199.99,
+        salePrice: 1899.99,
+        dealLink: 'https://amazon.com/dp/B08FXQB4Z4',
+        retailer: 'Amazon',
         dealEndDate: '2024-12-31',
         category: 'power',
         featured: true,
-        savings: 100.00,
-        bestDealRetailer: 'amazon'
+        savings: 300.00,
+        discountPercent: 14,
+        bestDealRetailer: 'single',
+        cardType: 'single'
       },
       {
         id: 'deal-2',
         productName: 'Jackery Solar Generator 1000 Pro',
         imageUrl: 'https://m.media-amazon.com/images/I/71K6I5u9EjL._AC_SL1500_.jpg',
-        amazonPrice: 1299.99,
-        cabelasPrice: 1349.99,
-        amazonLink: 'https://amazon.com/dp/B095GJLPRP',
-        cabelasLink: 'https://cabelas.com/shop/en/jackery-solar-generator-1000-pro',
+        regularPrice: 1499.99,
+        salePrice: 1299.99,
+        dealLink: 'https://amazon.com/dp/B095GJLPRP',
+        retailer: 'Amazon',
         dealEndDate: '2024-12-25',
         category: 'generators',
         featured: false,
-        savings: 50.00,
-        bestDealRetailer: 'amazon'
+        savings: 200.00,
+        discountPercent: 13,
+        bestDealRetailer: 'single',
+        cardType: 'single'
       },
       {
         id: 'deal-3',
-        productName: 'Renogy 100W Solar Panel Starter Kit',
+        productName: 'Renogy 100W Solar Panel Kit',
         imageUrl: 'https://m.media-amazon.com/images/I/81VLfpYgJgL._AC_SL1500_.jpg',
-        amazonPrice: 189.99,
-        cabelasPrice: 179.99,
-        amazonLink: 'https://amazon.com/dp/B07GF5JY35',
-        cabelasLink: 'https://cabelas.com/shop/en/renogy-100w-solar-panel-kit',
+        regularPrice: 229.99,
+        salePrice: 179.99,
+        dealLink: 'https://cabelas.com/shop/en/renogy-100w-solar-panel-kit',
+        retailer: "Cabela's",
         dealEndDate: '2024-12-28',
         category: 'power',
         featured: false,
-        savings: 10.00,
-        bestDealRetailer: 'cabelas'
+        savings: 50.00,
+        discountPercent: 22,
+        bestDealRetailer: 'single',
+        cardType: 'single'
       },
+      
+      // Row 2: 2 comparison deals
       {
         id: 'deal-4',
         productName: 'Champion 3800-Watt Dual Fuel Generator',
@@ -107,7 +146,8 @@ export class GoogleSheetsService {
         category: 'generators',
         featured: true,
         savings: 20.00,
-        bestDealRetailer: 'amazon'
+        bestDealRetailer: 'amazon',
+        cardType: 'comparison'
       },
       {
         id: 'deal-5',
@@ -121,21 +161,58 @@ export class GoogleSheetsService {
         category: 'batteries',
         featured: false,
         savings: 50.00,
-        bestDealRetailer: 'cabelas'
+        bestDealRetailer: 'cabelas',
+        cardType: 'comparison'
       },
+      
+      // Row 3: 3 single deals
       {
         id: 'deal-6',
-        productName: 'Dickinson Marine Diesel Stove',
-        imageUrl: 'https://m.media-amazon.com/images/I/71VYOPLJzDL._AC_SL1500_.jpg',
-        amazonPrice: 1299.99,
-        cabelasPrice: 1199.99,
-        amazonLink: 'https://amazon.com/dp/B01MXYBZWM',
-        cabelasLink: 'https://cabelas.com/shop/en/dickinson-marine-diesel-stove',
-        dealEndDate: '2024-12-29',
+        productName: 'Bluetti AC300 Power Station',
+        imageUrl: 'https://m.media-amazon.com/images/I/71QVTnWGAeL._AC_SL1500_.jpg',
+        regularPrice: 2999.99,
+        salePrice: 2599.99,
+        dealLink: 'https://amazon.com/dp/B09KQXDVHF',
+        retailer: 'Amazon',
+        dealEndDate: '2024-12-27',
+        category: 'power',
+        featured: true,
+        savings: 400.00,
+        discountPercent: 13,
+        bestDealRetailer: 'single',
+        cardType: 'single'
+      },
+      {
+        id: 'deal-7',
+        productName: 'Cubic Mini Wood Stove',
+        imageUrl: 'https://m.media-amazon.com/images/I/71dJKtGXkjL._AC_SL1500_.jpg',
+        regularPrice: 349.99,
+        salePrice: 289.99,
+        dealLink: 'https://cabelas.com/shop/en/cubic-mini-wood-stove',
+        retailer: "Cabela's",
+        dealEndDate: '2024-12-20',
         category: 'stoves',
         featured: false,
-        savings: 100.00,
-        bestDealRetailer: 'cabelas'
+        savings: 60.00,
+        discountPercent: 17,
+        bestDealRetailer: 'single',
+        cardType: 'single'
+      },
+      {
+        id: 'deal-8',
+        productName: 'Honda EU2200i Generator',
+        imageUrl: 'https://m.media-amazon.com/images/I/71xQnZGdg4L._AC_SL1500_.jpg',
+        regularPrice: 1399.99,
+        salePrice: 1199.99,
+        dealLink: 'https://amazon.com/dp/B073HWMVGR',
+        retailer: 'Amazon',
+        dealEndDate: '2024-12-18',
+        category: 'generators',
+        featured: false,
+        savings: 200.00,
+        discountPercent: 14,
+        bestDealRetailer: 'single',
+        cardType: 'single'
       }
     ];
   }

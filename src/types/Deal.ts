@@ -2,13 +2,19 @@ export interface Deal {
   id: string;
   productName: string;
   imageUrl: string;
-  amazonPrice: number;
-  cabelasPrice: number;
-  amazonLink: string;
-  cabelasLink: string;
+  amazonPrice?: number;
+  cabelasPrice?: number;
+  regularPrice?: number;
+  salePrice?: number;
+  amazonLink?: string;
+  cabelasLink?: string;
+  dealLink?: string;
   dealEndDate: string;
   category: 'power' | 'generators' | 'batteries' | 'stoves' | 'other';
   featured: boolean;
-  savings: number;
-  bestDealRetailer: 'amazon' | 'cabelas';
+  savings?: number;
+  discountPercent?: number;
+  bestDealRetailer?: 'amazon' | 'cabelas' | 'single';
+  cardType: 'comparison' | 'single';
+  retailer?: string;
 }

@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Deal } from '../types/Deal';
 import { DealCard } from './DealCard';
+import { SingleDealCard } from './SingleDealCard';
 import './ProductGrid.css';
 
 interface ProductGridProps {
@@ -53,6 +54,40 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     </div>
   );
 
+  // Group deals into rows: 3 single, 2 comparison, 3 single, repeat
+  const groupedDeals = useMemo(() => {
+    const groups = [];
+    let currentIndex = 0;
+    
+    while (currentIndex < displayedDeals.length) {
+      const group = [];
+      
+      // Add up to 3 deals for first row (or remaining deals)
+      for (let i = 0; i < 3 && currentIndex < displayedDeals.length; i++) {
+        group.push(displayedDeals[currentIndex]);
+        currentIndex++;
+      }
+      
+      if (group.length > 0) {
+        groups.push({ type: 'row-3', deals: group });
+      }
+      
+      // Add up to 2 deals for comparison row (if any remaining)
+      if (currentIndex < displayedDeals.length) {
+        const comparisonGroup = [];
+        for (let i = 0; i < 2 && currentIndex < displayedDeals.length; i++) {
+          comparisonGroup.push(displayedDeals[currentIndex]);
+          currentIndex++;
+        }
+        if (comparisonGroup.length > 0) {
+          groups.push({ type: 'row-2', deals: comparisonGroup });
+        }
+      }
+    }
+    
+    return groups;
+  }, [displayedDeals]);
+
   return (
     <InfiniteScroll
       dataLength={displayedDeals.length}
@@ -62,9 +97,17 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
       endMessage={<EndMessage />}
       className="product-grid-container"
     >
-      <div className="product-grid">
-        {displayedDeals.map((deal) => (
-          <DealCard key={deal.id} deal={deal} />
+      <div className="mixed-layout-grid">
+        {groupedDeals.map((group, groupIndex) => (
+          <div key={groupIndex} className={`deal-row ${group.type}`}>
+            {group.deals.map((deal) => (
+              deal.cardType === 'comparison' ? (
+                <DealCard key={deal.id} deal={deal} />
+              ) : (
+                <SingleDealCard key={deal.id} deal={deal} />
+              )
+            ))}
+          </div>
         ))}
       </div>
     </InfiniteScroll>

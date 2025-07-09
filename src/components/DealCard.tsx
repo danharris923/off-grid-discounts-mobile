@@ -14,15 +14,15 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
   const viewingCount = React.useMemo(() => Math.floor(Math.random() * 20) + 5, []);
   
   // Calculate percentage saved
-  const percentSaved = Math.round((deal.savings / Math.max(deal.amazonPrice, deal.cabelasPrice)) * 100);
+  const percentSaved = Math.round((deal.savings! / Math.max(deal.amazonPrice!, deal.cabelasPrice!)) * 100);
   
   const handleAmazonClick = () => {
-    const affiliateLink = buildAmazonAffiliateLink(deal.amazonLink);
+    const affiliateLink = buildAmazonAffiliateLink(deal.amazonLink!);
     window.open(affiliateLink, '_blank', 'noopener,noreferrer');
   };
   
   const handleCabelasClick = () => {
-    const affiliateLink = buildRakutenAffiliateLink(deal.cabelasLink);
+    const affiliateLink = buildRakutenAffiliateLink(deal.cabelasLink!);
     window.open(affiliateLink, '_blank', 'noopener,noreferrer');
   };
 
@@ -50,13 +50,13 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
         <div className="price-comparison">
           <div className="retailer-price">
             <span className="retailer-name">Amazon</span>
-            <span className="price">{formatPrice(deal.amazonPrice)}</span>
+            <span className="price">{formatPrice(deal.amazonPrice!)}</span>
             <span className="shipping-info">Free Prime</span>
           </div>
           
           <div className="retailer-price">
             <span className="retailer-name">Cabela's</span>
-            <span className="price">{formatPrice(deal.cabelasPrice)}</span>
+            <span className="price">{formatPrice(deal.cabelasPrice!)}</span>
             <span className="shipping-info">Free to Canada</span>
           </div>
         </div>
@@ -64,7 +64,7 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
         <div className="best-deal-banner">
           <span className="crown-icon">↓</span>
           <span className="best-deal-text">
-            Save {percentSaved}% • ${deal.savings.toFixed(0)} Off
+            Save {percentSaved}% • ${deal.savings!.toFixed(0)} Off
           </span>
         </div>
         

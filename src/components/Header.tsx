@@ -5,6 +5,7 @@ interface HeaderProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
   onSearch: (searchTerm: string) => void;
+  onRefresh?: () => void;
 }
 
 const categories = [
@@ -18,7 +19,8 @@ const categories = [
 export const Header: React.FC<HeaderProps> = ({ 
   selectedCategory, 
   onCategoryChange,
-  onSearch 
+  onSearch,
+  onRefresh
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
 
@@ -47,6 +49,15 @@ export const Header: React.FC<HeaderProps> = ({
               onChange={handleSearchChange}
               className="search-input"
             />
+            {onRefresh && (
+              <button 
+                onClick={onRefresh}
+                className="refresh-button"
+                title="Refresh deals"
+              >
+                ↻
+              </button>
+            )}
           </div>
           
           <div className="category-filters">
