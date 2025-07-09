@@ -35,9 +35,12 @@ export class GoogleSheetsService {
 
       // Map data (header already skipped in SHEET_RANGE)
       return rows.map((row: string[], index: number) => {
-        const cardType = row[9]?.toLowerCase() === 'comparison' ? 'comparison' : 'single';
+        // Auto-detect card type: if both Amazon and Cabela's data exist, it's a comparison
+        const hasAmazonData = row[2] && row[4]; // Price and link in columns C & E
+        const hasCabelasData = row[3] && row[5]; // Price and link in columns D & F
+        const isComparison = hasAmazonData && hasCabelasData;
         
-        if (cardType === 'comparison') {
+        if (isComparison) {
           const amazonPrice = parseFloat(row[2]) || 0;
           const cabelasPrice = parseFloat(row[3]) || 0;
           const savings = Math.abs(amazonPrice - cabelasPrice);
@@ -59,25 +62,24 @@ export class GoogleSheetsService {
             cardType: 'comparison' as const
           };
         } else {
-          // Single deal card
-          const regularPrice = parseFloat(row[2]) || 0;
-          const salePrice = parseFloat(row[3]) || 0;
-          const savings = regularPrice - salePrice;
-          const discountPercent = regularPrice > 0 ? Math.round((savings / regularPrice) * 100) : 0;
+          // Single deal card - use first available price/link data
+          const price = parseFloat(row[2]) || parseFloat(row[3]) || 0;
+          const link = row[4] || row[5] || '';
+          const retailer = row[4] ? 'Amazon' : row[5] ? "Cabela's" : 'Unknown';
 
           return {
             id: `deal-${index}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
-            regularPrice,
-            salePrice,
-            dealLink: row[4] || '',
-            retailer: row[5] || '',
+            regularPrice: price,
+            salePrice: price,
+            dealLink: link,
+            retailer: retailer,
             dealEndDate: row[6] || '',
             category: this.parseCategory(row[7]),
             featured: row[8]?.toLowerCase() === 'true' || false,
-            savings,
-            discountPercent,
+            savings: 0,
+            discountPercent: 0,
             bestDealRetailer: 'single' as const,
             cardType: 'single' as const
           };
