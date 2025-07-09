@@ -62,9 +62,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
-      // Use a stable pattern based on row index instead of Math.random()
-      // Pattern: 3, 2, 3, 2, 3, 2...
-      const cardsPerRow = rowIndex % 2 === 0 ? 3 : 2;
+      // Use a stable pseudo-random pattern based on row index
+      // Creates a varied but consistent pattern
+      const patterns = [3, 2, 2, 3, 2, 3, 3, 2];
+      const cardsPerRow = patterns[rowIndex % patterns.length];
       rowIndex++;
       
       // Add up to cardsPerRow deals (or remaining deals)
