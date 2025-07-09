@@ -157,10 +157,10 @@ interface Deal {
 
 ### Required in Vercel
 ```env
-REACT_APP_GOOGLE_SHEETS_API_KEY=AIzaSyBxVDY8ufnPl8oKz_L5gKJZl0TnCEsg9mY
-REACT_APP_GOOGLE_SHEETS_ID=1RU6FR-86YDlccVkeNCwlCmYkzKELj40Gr8RuNmnUpaY
-REACT_APP_AMAZON_AFFILIATE_TAG=offgriddisc06-20
-REACT_APP_RAKUTEN_AFFILIATE_ID=zfk8GYin9vz9mfukcRN8iD99jg2kb9PW
+REACT_APP_GOOGLE_SHEETS_API_KEY=your_google_sheets_api_key_here
+REACT_APP_GOOGLE_SHEETS_ID=your_google_sheet_id_here
+REACT_APP_AMAZON_AFFILIATE_TAG=your_amazon_affiliate_tag_here
+REACT_APP_RAKUTEN_AFFILIATE_ID=your_rakuten_affiliate_id_here
 ```
 
 ## Responsive Design
