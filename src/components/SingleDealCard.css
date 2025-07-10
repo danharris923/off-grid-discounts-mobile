@@ -65,19 +65,19 @@
 }
 
 .single-deal-card .deal-content {
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   flex: 1;
 }
 
 .single-deal-card .deal-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   color: #212121;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -88,8 +88,8 @@
 .single-deal-card .price-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin: 8px 0;
+  gap: 2px;
+  margin: 6px 0;
 }
 
 .single-deal-card .regular-price {
@@ -101,7 +101,7 @@
 }
 
 .single-deal-card .sale-price {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #c8102e;
   letter-spacing: -0.01em;
@@ -125,11 +125,11 @@
 }
 
 .single-deal-card .price-button {
-  background: linear-gradient(135deg, #c8102e 0%, #a0081f 100%);
+  background: #212121;
   color: white;
   border: none;
-  padding: 12px 24px;
-  font-size: 12px;
+  padding: 10px 20px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -137,7 +137,7 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  min-width: 160px;
+  min-width: 140px;
 }
 
 .single-deal-card .price-button::before {
@@ -147,7 +147,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #e6143a 0%, #c8102e 100%);
+  background: #c8102e;
   transition: left 0.3s ease;
   z-index: 0;
 }

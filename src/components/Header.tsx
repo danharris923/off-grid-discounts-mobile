@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="header-top">
           <h1 className="site-title">Off-Grid Discounts</h1>
           <p className="site-tagline">
-            Compare prices from Amazon & Cabela's - <span className="savings-highlight">Save up to 40%</span>
+            Compare prices from Amazon, Cabela's & more! - <span className="savings-highlight">Save up to 80%</span>
           </p>
         </div>
         

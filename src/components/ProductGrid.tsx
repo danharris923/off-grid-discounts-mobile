@@ -20,7 +20,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
   const allDeals = useMemo(() => {
     const featured = featuredDeals.filter(deal => deal.featured);
     const regular = deals.filter(deal => !deal.featured);
-    return [...featured, ...regular];
+    
+    // Shuffle the regular deals for randomized placement
+    const shuffledRegular = [...regular].sort(() => Math.random() - 0.5);
+    
+    return [...featured, ...shuffledRegular];
   }, [deals, featuredDeals]);
 
   React.useEffect(() => {
@@ -54,19 +58,24 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     </div>
   );
 
-  // Group deals into random rows of 2 or 3
+  // Group deals into randomized rows of 4 with occasional rows of 3 for aesthetics
   const groupedDeals = useMemo(() => {
     const groups = [];
     let currentIndex = 0;
-    let rowIndex = 0;
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
-      // Use a stable pseudo-random pattern based on row index
-      // Creates a varied but consistent pattern
-      const patterns = [3, 2, 2, 3, 2, 3, 3, 2];
-      const cardsPerRow = patterns[rowIndex % patterns.length];
-      rowIndex++;
+      // Randomize row sizes for organic layout
+      const random = Math.random();
+      let cardsPerRow;
+      
+      if (random < 0.7) {
+        cardsPerRow = 4; // 70% chance of 4 cards
+      } else if (random < 0.9) {
+        cardsPerRow = 3; // 20% chance of 3 cards
+      } else {
+        cardsPerRow = Math.random() < 0.5 ? 2 : 5; // 10% chance of 2 or 5 cards
+      }
       
       // Add up to cardsPerRow deals (or remaining deals)
       for (let i = 0; i < cardsPerRow && currentIndex < displayedDeals.length; i++) {

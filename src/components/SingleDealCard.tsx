@@ -101,15 +101,6 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
           <span className="retailer-name">{deal.retailer}</span>
         </div>
         
-        <div className="action-buttons">
-          <button 
-            className={`buy-button ${deal.retailer?.toLowerCase().includes('amazon') ? 'amazon-button' : 'cabelas-button'}`}
-            onClick={handleDealClick}
-            rel="nofollow"
-          >
-            <span>Get Deal</span>
-          </button>
-        </div>
       </div>
     </div>
   );
