@@ -9,11 +9,18 @@ interface HeaderProps {
 }
 
 const categories = [
-  { value: 'all', label: 'All Deals' },
+  { value: 'all', label: 'All Categories' },
   { value: 'power', label: 'Power' },
   { value: 'generators', label: 'Generators' },
   { value: 'batteries', label: 'Batteries' },
-  { value: 'stoves', label: 'Stoves' }
+  { value: 'stoves', label: 'Stoves' },
+  { value: 'camping', label: 'Camping' },
+  { value: 'clothing', label: 'Clothing' },
+  { value: 'tools', label: 'Tools' },
+  { value: 'navigation', label: 'Navigation' },
+  { value: 'water', label: 'Water' },
+  { value: 'food', label: 'Food' },
+  { value: 'other', label: 'Other' }
 ];
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -41,14 +48,31 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         
         <div className="header-controls">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search deals..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="search-input"
-            />
+          <div className="search-and-filter">
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search deals..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="search-input"
+              />
+            </div>
+            
+            <div className="filter-container">
+              <select
+                value={selectedCategory}
+                onChange={(e) => onCategoryChange(e.target.value)}
+                className="category-dropdown"
+              >
+                {categories.map(category => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
             {onRefresh && (
               <button 
                 onClick={onRefresh}
@@ -58,18 +82,6 @@ export const Header: React.FC<HeaderProps> = ({
                 ↻
               </button>
             )}
-          </div>
-          
-          <div className="category-filters">
-            {categories.map(category => (
-              <button
-                key={category.value}
-                className={`category-button ${selectedCategory === category.value ? 'active' : ''}`}
-                onClick={() => onCategoryChange(category.value)}
-              >
-                {category.label}
-              </button>
-            ))}
           </div>
         </div>
       </div>

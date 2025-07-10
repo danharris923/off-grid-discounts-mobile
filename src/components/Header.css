@@ -47,10 +47,23 @@
   align-items: center;
 }
 
-.search-container {
+.search-and-filter {
+  display: flex;
+  gap: 12px;
+  align-items: center;
   width: 100%;
+  max-width: 600px;
+  justify-content: center;
+}
+
+.search-container {
+  flex: 1;
   max-width: 400px;
   position: relative;
+}
+
+.filter-container {
+  flex-shrink: 0;
 }
 
 .search-input {
@@ -75,52 +88,46 @@
   border-color: #212121;
 }
 
-.category-filters {
-  display: flex;
-  gap: 0;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.category-button {
-  padding: 12px 24px;
-  background: transparent;
+.category-dropdown {
+  padding: 16px 20px;
+  font-size: 14px;
   border: 1px solid #e5e5e5;
-  color: #757575;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-right: none;
-}
-
-.category-button:first-child {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.category-button:last-child {
-  border-right: 1px solid #e5e5e5;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.category-button:hover {
-  background: #f8f8f8;
+  border-radius: 0;
+  background: #ffffff;
   color: #212121;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  font-weight: 400;
+  min-width: 150px;
 }
 
-.category-button.active {
-  background: #212121;
-  color: #ffffff;
+.category-dropdown:focus {
+  outline: none;
   border-color: #212121;
 }
 
-.category-button.active:hover {
-  background: #424242;
-  border-color: #424242;
+.category-dropdown:hover {
+  border-color: #212121;
+}
+
+.refresh-button {
+  padding: 16px 20px;
+  background: transparent;
+  border: 1px solid #e5e5e5;
+  color: #757575;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-button:hover {
+  background: #f8f8f8;
+  color: #212121;
+  border-color: #212121;
 }
 
 @media (max-width: 768px) {
@@ -136,18 +143,27 @@
     font-size: 12px;
   }
   
-  .category-filters {
+  .search-and-filter {
     flex-direction: column;
+    gap: 16px;
     width: 100%;
-    max-width: 300px;
+    max-width: 400px;
   }
   
-  .category-button {
-    border-right: 1px solid #e5e5e5;
-    border-bottom: none;
+  .search-container {
+    width: 100%;
+    max-width: none;
   }
   
-  .category-button:last-child {
-    border-bottom: 1px solid #e5e5e5;
+  .filter-container {
+    width: 100%;
+  }
+  
+  .category-dropdown {
+    width: 100%;
+  }
+  
+  .refresh-button {
+    width: 100%;
   }
 }

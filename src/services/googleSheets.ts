@@ -266,6 +266,12 @@ export class GoogleSheetsService {
       case 'generators':
       case 'batteries':
       case 'stoves':
+      case 'camping':
+      case 'clothing':
+      case 'tools':
+      case 'navigation':
+      case 'water':
+      case 'food':
         return category;
       default:
         return 'other';

@@ -10,7 +10,7 @@ export interface Deal {
   cabelasLink?: string;
   dealLink?: string;
   dealEndDate: string;
-  category: 'power' | 'generators' | 'batteries' | 'stoves' | 'other';
+  category: 'power' | 'generators' | 'batteries' | 'stoves' | 'camping' | 'clothing' | 'tools' | 'navigation' | 'water' | 'food' | 'other';
   featured: boolean;
   savings?: number;
   discountPercent?: number;
