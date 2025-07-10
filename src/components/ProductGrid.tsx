@@ -21,8 +21,13 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     const featured = featuredDeals.filter(deal => deal.featured);
     const regular = deals.filter(deal => !deal.featured);
     
-    // Shuffle the regular deals for randomized placement
-    const shuffledRegular = [...regular].sort(() => Math.random() - 0.5);
+    // Create a stable shuffle based on deal IDs (won't change on re-renders)
+    const shuffledRegular = [...regular].sort((a, b) => {
+      // Use deal IDs to create consistent but random-seeming order
+      const hashA = a.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const hashB = b.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return hashA - hashB;
+    });
     
     return [...featured, ...shuffledRegular];
   }, [deals, featuredDeals]);
@@ -58,24 +63,18 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     </div>
   );
 
-  // Group deals into randomized rows of 4 with occasional rows of 3 for aesthetics
+  // Group deals into stable randomized rows of 4 with occasional rows of 3 for aesthetics
   const groupedDeals = useMemo(() => {
     const groups = [];
     let currentIndex = 0;
+    let rowIndex = 0;
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
-      // Randomize row sizes for organic layout
-      const random = Math.random();
-      let cardsPerRow;
-      
-      if (random < 0.7) {
-        cardsPerRow = 4; // 70% chance of 4 cards
-      } else if (random < 0.9) {
-        cardsPerRow = 3; // 20% chance of 3 cards
-      } else {
-        cardsPerRow = Math.random() < 0.5 ? 2 : 5; // 10% chance of 2 or 5 cards
-      }
+      // Use stable pattern that won't change on re-renders
+      const patterns = [4, 4, 3, 4, 4, 4, 3, 4, 5, 4, 4, 3];
+      const cardsPerRow = patterns[rowIndex % patterns.length];
+      rowIndex++;
       
       // Add up to cardsPerRow deals (or remaining deals)
       for (let i = 0; i < cardsPerRow && currentIndex < displayedDeals.length; i++) {
