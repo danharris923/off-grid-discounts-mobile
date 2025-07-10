@@ -21,8 +21,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     const featured = featuredDeals.filter(deal => deal.featured);
     const regular = deals.filter(deal => !deal.featured);
     
-    // Proper random shuffle that changes on every refresh
-    const shuffledRegular = [...regular].sort(() => Math.random() - 0.5);
+    // Stable shuffle based on deal IDs (won't change on re-renders, but different each session)
+    const shuffledRegular = [...regular].sort((a, b) => {
+      // Create a session-specific seed by combining deal IDs with current date
+      const sessionSeed = new Date().toDateString();
+      const hashA = (a.id + sessionSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const hashB = (b.id + sessionSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return hashA - hashB;
+    });
     
     return [...featured, ...shuffledRegular];
   }, [deals, featuredDeals]);
