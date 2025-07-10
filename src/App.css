@@ -1,6 +1,35 @@
+:root {
+  /* Light theme variables */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --border-color: #e5e5e5;
+  --accent-color: #c8102e;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --button-bg: #212121;
+  --button-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  /* Dark theme variables */
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --border-color: #333333;
+  --accent-color: #ff6b6b;
+  --card-bg: #1e1e1e;
+  --input-bg: #2a2a2a;
+  --button-bg: #ffffff;
+  --button-text: #121212;
+}
+
 .App {
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .main-content {
@@ -15,14 +44,14 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 2px solid #e5e5e5;
-  border-top-color: #212121;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--text-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -37,14 +66,14 @@
 .app-error p {
   margin-top: 24px;
   font-size: 14px;
-  color: #757575;
+  color: var(--text-secondary);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .app-error h2 {
-  color: #212121;
+  color: var(--text-primary);
   margin-bottom: 16px;
   font-size: 20px;
   font-weight: 500;
@@ -56,8 +85,8 @@
   margin-top: 32px;
   padding: 16px 32px;
   background: transparent;
-  color: #212121;
-  border: 1px solid #212121;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -67,6 +96,6 @@
 }
 
 .app-error button:hover {
-  background: #212121;
-  color: #ffffff;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }

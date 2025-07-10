@@ -1,8 +1,9 @@
 .product-grid-container {
   width: 100%;
   padding: 32px 20px;
-  background: #ffffff;
+  background: var(--bg-primary);
   min-height: 100vh;
+  transition: background-color 0.3s ease;
 }
 
 .mixed-layout-grid {
@@ -18,20 +19,12 @@
   gap: 20px;
 }
 
-.deal-row.row-5 {
-  grid-template-columns: repeat(5, 1fr);
-}
-
 .deal-row.row-4 {
   grid-template-columns: repeat(4, 1fr);
 }
 
 .deal-row.row-3 {
   grid-template-columns: repeat(3, 1fr);
-}
-
-.deal-row.row-2 {
-  grid-template-columns: repeat(2, 1fr);
 }
 
 .loading-container {
@@ -46,8 +39,8 @@
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 2px solid #e5e5e5;
-  border-top-color: #212121;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--text-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -60,35 +53,36 @@
 
 .loading-container p {
   margin-top: 24px;
-  color: #757575;
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  transition: color 0.3s ease;
 }
 
 .end-message {
   text-align: center;
   padding: 80px 24px;
-  color: #757575;
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--border-color);
   margin-top: 40px;
+  transition: color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Mobile: Single column */
+/* Mobile: 2 columns for better filling */
 @media (max-width: 768px) {
   .product-grid-container {
     padding: 20px 16px;
   }
   
   .deal-row.row-4,
-  .deal-row.row-3,
-  .deal-row.row-2 {
-    grid-template-columns: 1fr;
+  .deal-row.row-3 {
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
   
@@ -97,17 +91,10 @@
   }
 }
 
-/* Tablet: 2 columns */
+/* Tablet: Keep 2 columns */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .deal-row.row-4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
+  .deal-row.row-4,
   .deal-row.row-3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .deal-row.row-2 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -115,6 +102,10 @@
 /* Large tablet: 3 columns */
 @media (min-width: 1025px) and (max-width: 1200px) {
   .deal-row.row-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .deal-row.row-3 {
     grid-template-columns: repeat(3, 1fr);
   }
 }

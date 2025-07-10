@@ -1,8 +1,8 @@
 .deal-card {
-  background: #ffffff;
+  background: var(--card-bg);
   border: none;
   overflow: hidden;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -17,7 +17,8 @@
   position: relative;
   padding-top: 75%;
   overflow: hidden;
-  background: #f8f8f8;
+  background: var(--bg-secondary);
+  transition: background-color 0.3s ease;
 }
 
 .deal-image {
@@ -39,7 +40,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #d32f2f;
+  background: var(--accent-color);
   color: white;
   padding: 4px 12px;
   font-size: 10px;
@@ -72,7 +73,7 @@
 .deal-title {
   font-size: 14px;
   font-weight: 400;
-  color: #212121;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.4;
   display: -webkit-box;
@@ -80,6 +81,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   letter-spacing: -0.01em;
+  transition: color 0.3s ease;
 }
 
 .price-comparison {
@@ -97,22 +99,24 @@
 
 .retailer-name {
   font-size: 12px;
-  color: #757575;
+  color: var(--text-secondary);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  transition: color 0.3s ease;
 }
 
 .price {
   font-size: 16px;
   font-weight: 500;
-  color: #212121;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
+  transition: color 0.3s ease;
 }
 
 .best-deal-banner {
-  background: #f8f8f8;
-  color: #212121;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   padding: 8px 12px;
   text-align: center;
   font-size: 12px;
@@ -120,6 +124,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 12px 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .action-buttons {
@@ -132,9 +137,9 @@
 .buy-button {
   width: 100%;
   padding: 16px;
-  border: 1px solid #212121;
+  border: 1px solid var(--text-primary);
   background: transparent;
-  color: #212121;
+  color: var(--text-primary);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -152,7 +157,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: #212121;
+  background: var(--text-primary);
   transition: left 0.3s ease;
   z-index: 0;
 }

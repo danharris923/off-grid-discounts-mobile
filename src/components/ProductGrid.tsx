@@ -21,13 +21,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     const featured = featuredDeals.filter(deal => deal.featured);
     const regular = deals.filter(deal => !deal.featured);
     
-    // Create a stable shuffle based on deal IDs (won't change on re-renders)
-    const shuffledRegular = [...regular].sort((a, b) => {
-      // Use deal IDs to create consistent but random-seeming order
-      const hashA = a.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const hashB = b.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      return hashA - hashB;
-    });
+    // Proper random shuffle that changes on every refresh
+    const shuffledRegular = [...regular].sort(() => Math.random() - 0.5);
     
     return [...featured, ...shuffledRegular];
   }, [deals, featuredDeals]);
@@ -71,8 +66,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
-      // Use stable pattern that won't change on re-renders
-      const patterns = [4, 4, 3, 4, 4, 4, 3, 4, 5, 4, 4, 3];
+      // Simple pattern: mostly 4 cards, occasionally 3
+      const patterns = [4, 4, 3, 4, 4, 4, 3, 4];
       const cardsPerRow = patterns[rowIndex % patterns.length];
       rowIndex++;
       

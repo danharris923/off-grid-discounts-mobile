@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { ProductGrid } from './components/ProductGrid';
 import { StructuredData } from './components/StructuredData';
 import { SEO } from './components/SEO';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { useDeals } from './hooks/useDeals';
 import './App.css';
 
@@ -50,21 +51,23 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <SEO 
-        category={selectedCategory !== 'all' ? selectedCategory : undefined}
-        dealCount={filteredDeals.length}
-      />
-      <StructuredData deals={filteredDeals} />
-      <Header 
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-        onSearch={setSearchTerm}
-      />
-      <main className="main-content">
-        <ProductGrid deals={filteredDeals} />
-      </main>
-    </div>
+    <ThemeProvider>
+      <div className="App">
+        <SEO 
+          category={selectedCategory !== 'all' ? selectedCategory : undefined}
+          dealCount={filteredDeals.length}
+        />
+        <StructuredData deals={filteredDeals} />
+        <Header 
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          onSearch={setSearchTerm}
+        />
+        <main className="main-content">
+          <ProductGrid deals={filteredDeals} />
+        </main>
+      </div>
+    </ThemeProvider>
   );
 }
 

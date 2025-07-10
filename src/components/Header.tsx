@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 import './Header.css';
 
 interface HeaderProps {
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onRefresh
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const { theme, toggleTheme } = useTheme();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -72,6 +74,14 @@ export const Header: React.FC<HeaderProps> = ({
                 ))}
               </select>
             </div>
+            
+            <button 
+              onClick={toggleTheme}
+              className="theme-toggle"
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             
             {onRefresh && (
               <button 
