@@ -16,22 +16,26 @@ const LOAD_MORE_COUNT = 15;
 export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals = [] }) => {
   const [displayedDeals, setDisplayedDeals] = useState<Deal[]>([]);
   const [hasMore, setHasMore] = useState(true);
+  const [allDeals, setAllDeals] = useState<Deal[]>([]);
 
-  const allDeals = useMemo(() => {
+  // Only shuffle once when deals change, not on every render
+  React.useEffect(() => {
+    if (deals.length === 0) return;
+    
     const featured = featuredDeals.filter(deal => deal.featured);
     const regular = deals.filter(deal => !deal.featured);
     
-    // Stable shuffle based on deal IDs (won't change on re-renders, but different each session)
+    // Stable shuffle based on deal IDs + current hour (changes every hour)
     const shuffledRegular = [...regular].sort((a, b) => {
-      // Create a session-specific seed by combining deal IDs with current date
-      const sessionSeed = new Date().toDateString();
-      const hashA = (a.id + sessionSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const hashB = (b.id + sessionSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      // Create a stable hash from deal IDs + current hour
+      const hourSeed = new Date().getHours().toString();
+      const hashA = (a.id + hourSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const hashB = (b.id + hourSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       return hashA - hashB;
     });
     
-    return [...featured, ...shuffledRegular];
-  }, [deals, featuredDeals]);
+    setAllDeals([...featured, ...shuffledRegular]);
+  }, [deals.length, featuredDeals.length]); // Only depend on length, not the arrays themselves
 
   React.useEffect(() => {
     if (allDeals.length > 0) {
