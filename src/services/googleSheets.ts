@@ -19,7 +19,8 @@ export class GoogleSheetsService {
       hasApiKey: !!GOOGLE_SHEETS_API_KEY,
       hasSheetId: !!GOOGLE_SHEETS_ID,
       apiKeyLength: GOOGLE_SHEETS_API_KEY?.length || 0,
-      sheetIdLength: GOOGLE_SHEETS_ID?.length || 0
+      sheetIdLength: GOOGLE_SHEETS_ID?.length || 0,
+      fullUrl: this.apiUrl
     });
   }
 
@@ -92,7 +93,8 @@ export class GoogleSheetsService {
         statusText: error?.response?.statusText,
         data: error?.response?.data,
         message: error?.message,
-        fullError: JSON.stringify(error?.response?.data || error)
+        fullError: JSON.stringify(error?.response?.data || error),
+        errorObject: error?.response?.data
       });
       
       // Check for specific API errors
