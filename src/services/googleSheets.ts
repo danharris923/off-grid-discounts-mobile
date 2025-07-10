@@ -10,9 +10,7 @@ export class GoogleSheetsService {
   private apiUrl: string;
 
   constructor() {
-    // Add timestamp to prevent caching
-    const timestamp = Date.now();
-    this.apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET_RANGE}?key=${GOOGLE_SHEETS_API_KEY}&_t=${timestamp}`;
+    this.apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
     
     // Log configuration for debugging
     console.log('Google Sheets configuration:', {
