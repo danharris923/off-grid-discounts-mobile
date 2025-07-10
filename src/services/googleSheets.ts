@@ -3,7 +3,7 @@ import { Deal } from '../types/Deal';
 
 const GOOGLE_SHEETS_API_KEY = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
 const GOOGLE_SHEETS_ID = process.env.REACT_APP_GOOGLE_SHEETS_ID;
-const SHEET_RANGE = 'Sheet1!A2:J1000'; // Skip header row, include card type column (A-J = 10 columns)
+const SHEET_RANGE = 'Sheet1!A2:L1000'; // Skip header row, include all columns (A-L = 12 columns)
 
 
 export class GoogleSheetsService {
@@ -42,7 +42,7 @@ export class GoogleSheetsService {
         if (isComparison) {
           const amazonPrice = parseFloat(row[2]) || 0;
           const cabelasPrice = parseFloat(row[3]) || 0;
-          const savings = Math.abs(amazonPrice - cabelasPrice);
+          const savings = parseFloat(row[11]) || 0;
           const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
 
           return {
@@ -61,28 +61,36 @@ export class GoogleSheetsService {
             cardType: 'comparison' as const
           };
         } else {
-          // Single deal card - use actual prices from sheet
-          const regularPrice = parseFloat(row[2]) || 0;
-          const salePrice = parseFloat(row[3]) || 0;
+          // Single deal card - direct mapping from sheet
+          const salePrice = parseFloat(row[2]) || 0;      // Column C - Amazon Price
+          const originalPrice = parseFloat(row[9]) || 0;  // Column J - Original Price
+          const discountPercent = parseInt(row[10]) || 0; // Column K - Discount %
+          
           const link = row[4] || row[5] || '';
           const retailer = row[4] ? 'Amazon' : row[5] ? "Cabela's" : 'Unknown';
           
-          // Calculate real savings and discount
-          const savings = Math.max(0, regularPrice - salePrice);
-          const discountPercent = regularPrice > 0 ? Math.round((savings / regularPrice) * 100) : 0;
+          // Debug logging for price issues
+          if (salePrice === 0) {
+            console.log(`Price issue for "${row[0]}"`, {
+              salePriceRaw: row[2],
+              originalPriceRaw: row[9],
+              discountPercentRaw: row[10],
+              fullRow: row
+            });
+          }
 
           return {
             id: `deal-${index}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
-            regularPrice: regularPrice,
-            salePrice: salePrice > 0 ? salePrice : regularPrice,
+            regularPrice: originalPrice,
+            salePrice: salePrice,
             dealLink: link,
             retailer: retailer,
             dealEndDate: row[6] || '',
             category: this.parseCategory(row[7]),
             featured: row[8]?.toLowerCase() === 'true' || false,
-            savings: savings,
+            savings: parseFloat(row[11]) || 0,
             discountPercent: discountPercent,
             bestDealRetailer: 'single' as const,
             cardType: 'single' as const
