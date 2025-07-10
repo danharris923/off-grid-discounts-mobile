@@ -61,24 +61,29 @@ export class GoogleSheetsService {
             cardType: 'comparison' as const
           };
         } else {
-          // Single deal card - use first available price/link data
-          const price = parseFloat(row[2]) || parseFloat(row[3]) || 0;
+          // Single deal card - use actual prices from sheet
+          const regularPrice = parseFloat(row[2]) || 0;
+          const salePrice = parseFloat(row[3]) || 0;
           const link = row[4] || row[5] || '';
           const retailer = row[4] ? 'Amazon' : row[5] ? "Cabela's" : 'Unknown';
+          
+          // Calculate real savings and discount
+          const savings = Math.max(0, regularPrice - salePrice);
+          const discountPercent = regularPrice > 0 ? Math.round((savings / regularPrice) * 100) : 0;
 
           return {
             id: `deal-${index}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
-            regularPrice: price,
-            salePrice: price,
+            regularPrice: regularPrice,
+            salePrice: salePrice > 0 ? salePrice : regularPrice,
             dealLink: link,
             retailer: retailer,
             dealEndDate: row[6] || '',
             category: this.parseCategory(row[7]),
             featured: row[8]?.toLowerCase() === 'true' || false,
-            savings: 0,
-            discountPercent: 0,
+            savings: savings,
+            discountPercent: discountPercent,
             bestDealRetailer: 'single' as const,
             cardType: 'single' as const
           };

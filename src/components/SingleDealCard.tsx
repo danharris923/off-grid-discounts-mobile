@@ -29,7 +29,7 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
 
   return (
     <div className="single-deal-card">
-      <div className="deal-image-container">
+      <div className="deal-image-container" onClick={handleDealClick} style={{ cursor: 'pointer' }}>
         {deal.discountPercent && deal.discountPercent > 15 && (
           <span className="discount-badge">{deal.discountPercent}% OFF</span>
         )}

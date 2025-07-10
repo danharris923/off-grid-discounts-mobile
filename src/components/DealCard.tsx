@@ -26,9 +26,18 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
     window.open(affiliateLink, '_blank', 'noopener,noreferrer');
   };
 
+  const handleImageClick = () => {
+    // Open the better deal for comparison cards
+    if (deal.bestDealRetailer === 'amazon') {
+      handleAmazonClick();
+    } else {
+      handleCabelasClick();
+    }
+  };
+
   return (
     <div className="deal-card">
-      <div className="deal-image-container">
+      <div className="deal-image-container" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
         {percentSaved > 20 && <span className="stock-warning">Only 3 left!</span>}
         <img 
           src={deal.imageUrl} 
@@ -40,7 +49,7 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
             e.currentTarget.style.display = 'none';
           }}
         />
-{deal.featured && <span className="featured-badge">FEATURED</span>}
+        {deal.featured && <span className="featured-badge">FEATURED</span>}
       </div>
       
       <div className="deal-content">
