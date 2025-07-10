@@ -83,27 +83,61 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
   }, [displayedDeals]);
 
   return (
-    <InfiniteScroll
-      dataLength={displayedDeals.length}
-      next={loadMore}
-      hasMore={hasMore}
-      loader={<LoadingComponent />}
-      endMessage={<EndMessage />}
-      className="product-grid-container"
+    <section 
+      className="product-grid-container" 
+      aria-label="Product deals and offers"
+      role="main"
     >
-      <div className="mixed-layout-grid">
-        {groupedDeals.map((group, groupIndex) => (
-          <div key={groupIndex} className={`deal-row ${group.type}`}>
-            {group.deals.map((deal) => (
-              deal.cardType === 'comparison' ? (
-                <DealCard key={deal.id} deal={deal} />
-              ) : (
-                <SingleDealCard key={deal.id} deal={deal} />
-              )
-            ))}
-          </div>
-        ))}
-      </div>
-    </InfiniteScroll>
+      <InfiniteScroll
+        dataLength={displayedDeals.length}
+        next={loadMore}
+        hasMore={hasMore}
+        loader={<LoadingComponent />}
+        endMessage={<EndMessage />}
+        className="product-grid-scroll"
+      >
+        <div 
+          className="mixed-layout-grid"
+          role="list"
+          aria-label={`${displayedDeals.length} product deals`}
+        >
+          {groupedDeals.map((group, groupIndex) => (
+            <div 
+              key={groupIndex} 
+              className={`deal-row ${group.type}`}
+              role="group"
+              aria-label={`Deal row ${groupIndex + 1} with ${group.deals.length} products`}
+            >
+              {group.deals.map((deal) => (
+                <article
+                  key={deal.id}
+                  role="listitem"
+                  className="deal-card-wrapper"
+                  itemScope
+                  itemType="https://schema.org/Product"
+                >
+                  <meta itemProp="name" content={deal.productName} />
+                  <meta itemProp="category" content={deal.category} />
+                  {deal.imageUrl && <meta itemProp="image" content={deal.imageUrl} />}
+                  {(deal.salePrice || deal.amazonPrice || deal.cabelasPrice) && (
+                    <div itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                      <meta itemProp="price" content={String(deal.salePrice || deal.amazonPrice || deal.cabelasPrice)} />
+                      <meta itemProp="priceCurrency" content="USD" />
+                      <meta itemProp="availability" content="https://schema.org/InStock" />
+                    </div>
+                  )}
+                  
+                  {deal.cardType === 'comparison' ? (
+                    <DealCard deal={deal} />
+                  ) : (
+                    <SingleDealCard deal={deal} />
+                  )}
+                </article>
+              ))}
+            </div>
+          ))}
+        </div>
+      </InfiniteScroll>
+    </section>
   );
 };

@@ -39,8 +39,32 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
           className="deal-image"
           loading="lazy"
           onError={(e) => {
-            console.error('Image failed to load:', deal.imageUrl);
-            e.currentTarget.style.display = 'none';
+            // Try fallback image sizes if the primary fails
+            const currentSrc = e.currentTarget.src;
+            let newSrc = '';
+            
+            if (currentSrc.includes('_SL500_')) {
+              // Try 300px version
+              newSrc = currentSrc.replace('_SL500_', '_SL300_');
+            } else if (currentSrc.includes('_SL300_')) {
+              // Try 1000px version
+              newSrc = currentSrc.replace('_SL300_', '_SL1000_');
+            } else if (currentSrc.includes('_SL1000_')) {
+              // Try removing size parameter entirely
+              newSrc = currentSrc.replace(/\._SL\d+_/, '');
+            } else {
+              // Hide image if all fallbacks fail
+              console.error('All image fallbacks failed for:', deal.imageUrl);
+              e.currentTarget.style.display = 'none';
+              return;
+            }
+            
+            if (newSrc && newSrc !== currentSrc) {
+              console.log('Trying fallback image:', newSrc);
+              e.currentTarget.src = newSrc;
+            } else {
+              e.currentTarget.style.display = 'none';
+            }
           }}
         />
         {deal.featured && <span className="featured-badge">FEATURED</span>}
@@ -50,10 +74,27 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
         <h3 className="deal-title">{deal.productName}</h3>
         
         <div className="price-section">
-          {deal.regularPrice && deal.regularPrice > deal.salePrice! && (
-            <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
+          {deal.salePrice === 0 ? (
+            <div className="click-for-price">
+              <button 
+                className="price-button"
+                onClick={handleDealClick}
+                rel="nofollow"
+              >
+                Click to See Price
+              </button>
+            </div>
+          ) : (
+            <>
+              {deal.regularPrice && deal.regularPrice > deal.salePrice! && (
+                <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
+              )}
+              <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
+              {deal.discountPercent && deal.discountPercent > 0 && (
+                <span className="savings-text">Save {deal.discountPercent}%</span>
+              )}
+            </>
           )}
-          <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
         </div>
         
         <div className="retailer-info">
