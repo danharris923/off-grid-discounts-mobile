@@ -13,24 +13,26 @@ interface ProductGridProps {
 const INITIAL_LOAD_COUNT = 20;
 const LOAD_MORE_COUNT = 15;
 
+// Generate a session-stable random seed once
+const SESSION_SEED = Math.random().toString(36).substring(7);
+
 export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals = [] }) => {
   const [displayedDeals, setDisplayedDeals] = useState<Deal[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
 
-  // Only shuffle once when deals change, not on every render
+  // Only shuffle once when deals change, using stable session seed
   React.useEffect(() => {
     if (deals.length === 0) return;
     
     const featured = featuredDeals.filter(deal => deal.featured);
     const regular = deals.filter(deal => !deal.featured);
     
-    // Stable shuffle based on deal IDs + current hour (changes every hour)
+    // Session-stable shuffle - same order throughout entire browsing session
     const shuffledRegular = [...regular].sort((a, b) => {
-      // Create a stable hash from deal IDs + current hour
-      const hourSeed = new Date().getHours().toString();
-      const hashA = (a.id + hourSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const hashB = (b.id + hourSeed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      // Create a stable hash from deal IDs + session seed (never changes during session)
+      const hashA = (a.id + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const hashB = (b.id + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       return hashA - hashB;
     });
     
