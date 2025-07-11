@@ -21,20 +21,51 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
   const [hasMore, setHasMore] = useState(true);
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
 
-  // Only shuffle once when deals change, using stable session seed
+  // Only shuffle once when deals change, using stable session seed with retailer distribution
   React.useEffect(() => {
     if (deals.length === 0) return;
     
     const featured = featuredDeals.filter(deal => deal.featured);
     const regular = deals.filter(deal => !deal.featured);
     
-    // Session-stable shuffle - same order throughout entire browsing session
-    const shuffledRegular = [...regular].sort((a, b) => {
-      // Create a stable hash from deal IDs + session seed (never changes during session)
-      const hashA = (a.id + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const hashB = (b.id + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      return hashA - hashB;
+    // Group by retailer for better distribution
+    const retailerGroups: { [key: string]: Deal[] } = {};
+    regular.forEach(deal => {
+      const retailer = deal.retailer || 'Other';
+      if (!retailerGroups[retailer]) {
+        retailerGroups[retailer] = [];
+      }
+      retailerGroups[retailer].push(deal);
     });
+    
+    // Shuffle each retailer group using session-stable seed
+    Object.keys(retailerGroups).forEach(retailer => {
+      retailerGroups[retailer] = retailerGroups[retailer].sort((a, b) => {
+        const hashA = (a.id + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const hashB = (b.id + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return hashA - hashB;
+      });
+    });
+    
+    // Interleave retailers to prevent clustering
+    const retailers = Object.keys(retailerGroups);
+    const shuffledRegular: Deal[] = [];
+    const maxGroupSize = Math.max(...retailers.map(r => retailerGroups[r].length));
+    
+    for (let i = 0; i < maxGroupSize; i++) {
+      // Rotate through retailers in a stable order
+      const retailerOrder = [...retailers].sort((a, b) => {
+        const hashA = (a + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const hashB = (b + SESSION_SEED).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return hashA - hashB;
+      });
+      
+      retailerOrder.forEach(retailer => {
+        if (retailerGroups[retailer][i]) {
+          shuffledRegular.push(retailerGroups[retailer][i]);
+        }
+      });
+    }
     
     setAllDeals([...featured, ...shuffledRegular]);
   }, [deals.length, featuredDeals.length]); // Only depend on length, not the arrays themselves

@@ -14,6 +14,14 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   onDealClick 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Stable random factor for this deal to determine if compare should show
+  const shouldShowCompare = useMemo(() => {
+    // Create a stable hash from deal ID to get consistent behavior per deal
+    const dealHash = currentDeal.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Show compare for approximately 40% of eligible deals
+    return (dealHash % 100) < 40;
+  }, [currentDeal.id]);
 
   const similarDeals = useMemo(() => {
     if (!isExpanded) return [];
@@ -124,8 +132,8 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  // Only render the component if we have tight matches
-  if (similarDeals.length === 0) {
+  // Only render the component if we have tight matches AND should show compare
+  if (similarDeals.length === 0 || !shouldShowCompare) {
     return null;
   }
 
