@@ -19,8 +19,8 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   const shouldShowCompare = useMemo(() => {
     // Create a stable hash from deal ID to get consistent behavior per deal
     const dealHash = currentDeal.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    // Show compare for approximately 40% of eligible deals
-    return (dealHash % 100) < 40;
+    // Show compare for approximately 70% of eligible deals
+    return (dealHash % 100) < 70;
   }, [currentDeal.id]);
 
   const similarDeals = useMemo(() => {
@@ -56,6 +56,24 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
       }
       if (lower.includes('walkie') || lower.includes('two way radio') || lower.includes('2-way radio')) {
         return 'radio';
+      }
+      if (lower.includes('carhartt')) {
+        return 'carhartt';
+      }
+      if (lower.includes('power supply') || lower.includes('power adapter')) {
+        return 'power-supply';
+      }
+      if (lower.includes('charger') && (lower.includes('usb') || lower.includes('battery'))) {
+        return 'charger';
+      }
+      if (lower.includes('cooler') || lower.includes('ice chest')) {
+        return 'cooler';
+      }
+      if (lower.includes('tent') || lower.includes('shelter')) {
+        return 'tent';
+      }
+      if (lower.includes('sleeping bag') || lower.includes('sleep system')) {
+        return 'sleeping-bag';
       }
       
       return null; // No comparable type found

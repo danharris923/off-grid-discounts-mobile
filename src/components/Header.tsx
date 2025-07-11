@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { Disclaimer } from './Disclaimer';
 import './Header.css';
 
 interface HeaderProps {
@@ -12,6 +13,7 @@ export const Header: React.FC<HeaderProps> = ({
   onRefresh
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,6 +21,10 @@ export const Header: React.FC<HeaderProps> = ({
     setSearchTerm(value);
     onSearch(value);
   };
+
+  if (showDisclaimer) {
+    return <Disclaimer onBack={() => setShowDisclaimer(false)} />;
+  }
 
   return (
     <header className="site-header">
@@ -31,16 +37,24 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         
         <div className="header-controls">
-          <div className="search-and-controls">
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Search deals..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="search-input"
-              />
-            </div>
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search deals..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="search-input"
+            />
+          </div>
+          
+          <div className="right-controls">
+            <button 
+              onClick={() => setShowDisclaimer(true)}
+              className="disclaimer-button"
+              title="View disclaimer"
+            >
+              Disclaimer
+            </button>
             
             <button 
               onClick={toggleTheme}

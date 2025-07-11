@@ -106,15 +106,28 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     const groups = [];
     let currentIndex = 0;
     let rowIndex = 0;
+    const remainingDeals = displayedDeals.length - currentIndex;
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
-      // Simple pattern: mostly 4 cards, occasionally 3
-      const patterns = [4, 4, 3, 4, 4, 4, 3, 4];
-      const cardsPerRow = patterns[rowIndex % patterns.length];
+      const remainingCount = displayedDeals.length - currentIndex;
+      
+      // Avoid single card rows by adjusting the pattern near the end
+      let cardsPerRow;
+      if (remainingCount <= 8 && remainingCount > 4) {
+        // If we have 5-8 cards left, split them into reasonable groups
+        cardsPerRow = remainingCount <= 6 ? 3 : 4;
+      } else if (remainingCount <= 4) {
+        // For 4 or fewer cards, take them all
+        cardsPerRow = remainingCount;
+      } else {
+        // Normal pattern for bulk of content
+        const patterns = [4, 4, 3, 4, 4, 4, 3, 4];
+        cardsPerRow = patterns[rowIndex % patterns.length];
+      }
       rowIndex++;
       
-      // Add up to cardsPerRow deals (or remaining deals)
+      // Add up to cardsPerRow deals
       for (let i = 0; i < cardsPerRow && currentIndex < displayedDeals.length; i++) {
         group.push(displayedDeals[currentIndex]);
         currentIndex++;
