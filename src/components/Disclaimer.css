@@ -6,11 +6,11 @@
 }
 
 .disclaimer-container {
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  padding: 40px;
+  padding: 32px;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -18,10 +18,13 @@
   background: none;
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   cursor: pointer;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   transition: all 0.2s ease;
 }
 
@@ -32,32 +35,36 @@
 }
 
 .disclaimer-page h1 {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 300;
-  margin: 0 0 32px 0;
+  margin: 0 0 24px 0;
   color: var(--text-primary);
   text-align: center;
   letter-spacing: -0.02em;
+  text-transform: uppercase;
   transition: color 0.3s ease;
 }
 
 .disclaimer-content {
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--text-secondary);
   transition: color 0.3s ease;
 }
 
 .disclaimer-content p {
-  margin: 0 0 20px 0;
-  font-size: 15px;
+  margin: 0 0 16px 0;
+  font-size: 13px;
   font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .disclaimer-content h3 {
-  font-size: 18px;
-  font-weight: 400;
-  margin: 32px 0 16px 0;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 24px 0 12px 0;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   transition: color 0.3s ease;
 }
 
@@ -67,20 +74,31 @@
 
 @media (max-width: 768px) {
   .disclaimer-page {
-    padding: 20px 16px;
+    padding: 16px 12px;
   }
   
   .disclaimer-container {
-    padding: 24px;
+    padding: 20px;
   }
   
   .disclaimer-page h1 {
-    font-size: 24px;
-    margin-bottom: 24px;
+    font-size: 20px;
+    margin-bottom: 20px;
   }
   
   .disclaimer-content p {
-    font-size: 14px;
-    margin-bottom: 16px;
+    font-size: 12px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  
+  .disclaimer-content h3 {
+    font-size: 13px;
+    margin: 20px 0 10px 0;
+  }
+  
+  .back-button {
+    font-size: 11px;
+    padding: 10px 14px;
   }
 }
