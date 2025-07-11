@@ -56,8 +56,10 @@ export class GoogleSheetsService {
         return this.getSampleDeals();
       }
 
-      // Process Sheet1 (Amazon deals)
+      // Process Sheet1 (Amazon deals) 
       const amazonDeals = sheet1Rows.map((row: string[], index: number) => {
+        // Add random component to ID for better mixing
+        const randomSuffix = Math.floor(Math.random() * 9000) + 1000;
         // Auto-detect card type: if both Amazon and Cabela's data exist, it's a comparison
         const hasAmazonData = row[2] && row[4]; // Price and link in columns C & E
         const hasCabelasData = row[3] && row[5]; // Price and link in columns D & F
@@ -70,7 +72,7 @@ export class GoogleSheetsService {
           const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
 
           return {
-            id: `amazon-${index}`,
+            id: `deal-amz-${randomSuffix}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
             amazonPrice,
@@ -120,7 +122,7 @@ export class GoogleSheetsService {
           const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
           
           return {
-            id: `amazon-${index}`,
+            id: `deal-amz-${randomSuffix}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
             regularPrice: originalPrice,
@@ -140,6 +142,8 @@ export class GoogleSheetsService {
 
       // Process Sheet2 (Cabela's deals)
       const cabelasDeals = sheet2Rows.map((row: string[], index: number) => {
+        // Add random component to ID for better mixing
+        const randomSuffix = Math.floor(Math.random() * 9000) + 1000;
         const salePrice = this.cleanPrice(row[3]);  // Column D - Cabela's price
         let originalPrice = this.cleanPrice(row[9]);  // Column J - Original Price
         let discountPercent = this.cleanPercentage(row[10]); // Column K - Discount %
@@ -162,7 +166,7 @@ export class GoogleSheetsService {
         const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
         
         return {
-          id: `cabelas-${index}`,
+          id: `deal-cab-${randomSuffix}`,
           productName: row[0] || '',
           imageUrl: row[1] || '',
           regularPrice: originalPrice,
@@ -470,7 +474,7 @@ export class GoogleSheetsService {
         const savings = Math.abs(amazonPrice - cabelasPrice);
         
         comparisons.push({
-          id: `comparison-${amazonIndex}-${cabelasMatch.index}`,
+          id: `deal-cmp-${amazonIndex}-${cabelasMatch.index}`,
           productName: amazonDeal.productName, // Use Amazon name as primary
           imageUrl: amazonDeal.imageUrl,
           amazonPrice,
