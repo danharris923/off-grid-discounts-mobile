@@ -3,14 +3,17 @@ import { Deal } from '../types/Deal';
 
 const GOOGLE_SHEETS_API_KEY = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
 const GOOGLE_SHEETS_ID = process.env.REACT_APP_GOOGLE_SHEETS_ID;
-const SHEET_RANGE = 'Sheet1!A2:L1000'; // Skip header row, include all columns (A-L = 12 columns)
+const SHEET1_RANGE = 'Sheet1!A2:L1000'; // Amazon deals - Skip header row, include all columns (A-L = 12 columns)
+const SHEET2_RANGE = 'Sheet2!A2:L1000'; // Cabela's deals - Skip header row, include all columns (A-L = 12 columns)
 
 
 export class GoogleSheetsService {
-  private apiUrl: string;
+  private sheet1ApiUrl: string;
+  private sheet2ApiUrl: string;
 
   constructor() {
-    this.apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
+    this.sheet1ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET1_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
+    this.sheet2ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET2_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
     
     // Log configuration for debugging
     console.log('Google Sheets configuration:', {
@@ -18,22 +21,37 @@ export class GoogleSheetsService {
       hasSheetId: !!GOOGLE_SHEETS_ID,
       apiKeyLength: GOOGLE_SHEETS_API_KEY?.length || 0,
       sheetIdLength: GOOGLE_SHEETS_ID?.length || 0,
-      fullUrl: this.apiUrl
+      sheet1Url: this.sheet1ApiUrl,
+      sheet2Url: this.sheet2ApiUrl
     });
   }
 
   async fetchDeals(): Promise<Deal[]> {
     try {
-      console.log('Fetching from URL:', this.apiUrl);
-      const response = await axios.get(this.apiUrl);
-      const rows = response.data.values;
+      // Fetch from both sheets in parallel
+      console.log('Fetching from Sheet1 (Amazon):', this.sheet1ApiUrl);
+      console.log('Fetching from Sheet2 (Cabela\'s):', this.sheet2ApiUrl);
       
-      if (!rows || rows.length === 0) {
+      const [sheet1Response, sheet2Response] = await Promise.all([
+        axios.get(this.sheet1ApiUrl),
+        axios.get(this.sheet2ApiUrl).catch(error => {
+          console.log('Sheet2 fetch failed, continuing with Sheet1 only:', error);
+          return { data: { values: [] } };
+        })
+      ]);
+      
+      const sheet1Rows = sheet1Response.data.values || [];
+      const sheet2Rows = sheet2Response.data.values || [];
+      
+      console.log('Sheet1 rows:', sheet1Rows.length);
+      console.log('Sheet2 rows:', sheet2Rows.length);
+      
+      if (sheet1Rows.length === 0 && sheet2Rows.length === 0) {
         return this.getSampleDeals();
       }
 
-      // Map data (header already skipped in SHEET_RANGE)
-      return rows.map((row: string[], index: number) => {
+      // Process Sheet1 (Amazon deals)
+      const amazonDeals = sheet1Rows.map((row: string[], index: number) => {
         // Auto-detect card type: if both Amazon and Cabela's data exist, it's a comparison
         const hasAmazonData = row[2] && row[4]; // Price and link in columns C & E
         const hasCabelasData = row[3] && row[5]; // Price and link in columns D & F
@@ -46,7 +64,7 @@ export class GoogleSheetsService {
           const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
 
           return {
-            id: `deal-${index}`,
+            id: `amazon-${index}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
             amazonPrice,
@@ -80,7 +98,7 @@ export class GoogleSheetsService {
           }
 
           return {
-            id: `deal-${index}`,
+            id: `amazon-${index}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
             regularPrice: originalPrice,
@@ -96,6 +114,41 @@ export class GoogleSheetsService {
             cardType: 'single' as const
           };
         }
+      });
+
+      // Process Sheet2 (Cabela's deals)
+      const cabelasDeals = sheet2Rows.map((row: string[], index: number) => {
+        const salePrice = parseFloat(row[3]) || parseFloat(row[2]) || 0;  // Try Cabela's price first, then Amazon column
+        const originalPrice = parseFloat(row[9]) || 0;  // Column J - Original Price
+        const discountPercent = parseInt(row[10]) || 0; // Column K - Discount %
+        const link = row[5] || row[4] || '';  // Prefer Cabela's link
+        
+        return {
+          id: `cabelas-${index}`,
+          productName: row[0] || '',
+          imageUrl: row[1] || '',
+          regularPrice: originalPrice,
+          salePrice: salePrice,
+          dealLink: link,
+          retailer: "Cabela's",
+          dealEndDate: row[6] || '',
+          category: this.parseCategory(row[7]),
+          featured: row[8]?.toLowerCase() === 'true' || false,
+          savings: parseFloat(row[11]) || 0,
+          discountPercent: discountPercent,
+          bestDealRetailer: 'single' as const,
+          cardType: 'single' as const
+        };
+      });
+
+      // Merge and sort deals by featured status and savings
+      const allDeals = [...amazonDeals, ...cabelasDeals];
+      return allDeals.sort((a, b) => {
+        // Featured deals first
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        // Then by savings amount
+        return b.savings - a.savings;
       });
     } catch (error: any) {
       console.error('Error fetching deals from Google Sheets:', error);
