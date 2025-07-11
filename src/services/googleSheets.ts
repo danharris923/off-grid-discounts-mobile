@@ -12,10 +12,8 @@ export class GoogleSheetsService {
   private sheet2ApiUrl: string;
 
   constructor() {
-    // Add cache-busting timestamp to force fresh data
-    const cacheBuster = `&_t=${Date.now()}`;
-    this.sheet1ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET1_RANGE}?key=${GOOGLE_SHEETS_API_KEY}${cacheBuster}`;
-    this.sheet2ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET2_RANGE}?key=${GOOGLE_SHEETS_API_KEY}${cacheBuster}`;
+    this.sheet1ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET1_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
+    this.sheet2ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET2_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
     
     // Log configuration for debugging
     console.log('Google Sheets configuration:', {
