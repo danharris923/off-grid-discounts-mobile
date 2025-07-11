@@ -64,9 +64,9 @@ export class GoogleSheetsService {
         const isComparison = hasAmazonData && hasCabelasData;
         
         if (isComparison) {
-          const amazonPrice = parseFloat(row[2]) || 0;
-          const cabelasPrice = parseFloat(row[3]) || 0;
-          const savings = parseFloat(row[11]) || 0;
+          const amazonPrice = this.cleanPrice(row[2]);   // Column C - Amazon price
+          const cabelasPrice = this.cleanPrice(row[3]);  // Column D - Cabela's price
+          const savings = this.cleanPrice(row[11]);      // Column L - Savings
           const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
 
           return {
