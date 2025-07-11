@@ -149,6 +149,15 @@ export class GoogleSheetsService {
         let discountPercent = this.cleanPercentage(row[10]); // Column K - Discount %
         const link = row[5] || row[4] || '';  // Prefer Cabela's link
         
+        // Debug logging for Cabela's links
+        if (row[0]) {
+          console.log(`Cabela's Link Debug - Product: "${row[0]}"`, {
+            columnE: row[4],
+            columnF: row[5], 
+            finalLink: link
+          });
+        }
+        
         // Calculate missing values for better price display
         if (originalPrice > 0 && salePrice > 0 && discountPercent === 0) {
           // Calculate discount percentage if missing
