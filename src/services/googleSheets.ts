@@ -103,16 +103,20 @@ export class GoogleSheetsService {
             });
           }
 
+          // Determine if price should be hidden using strategic logic
+          const category = this.parseCategory(row[7]);
+          const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice);
+          
           return {
             id: `amazon-${index}`,
             productName: row[0] || '',
             imageUrl: row[1] || '',
             regularPrice: originalPrice,
-            salePrice: salePrice,
+            salePrice: shouldHidePrice ? 0 : salePrice,
             dealLink: link,
             retailer: retailer,
             dealEndDate: row[6] || '',
-            category: this.parseCategory(row[7]),
+            category: category,
             featured: row[8]?.toLowerCase() === 'true' || false,
             savings: parseFloat(row[11]) || 0,
             discountPercent: discountPercent,
@@ -129,16 +133,20 @@ export class GoogleSheetsService {
         const discountPercent = parseInt(row[10]) || 0; // Column K - Discount %
         const link = row[5] || row[4] || '';  // Prefer Cabela's link
         
+        // Determine if price should be hidden using strategic logic
+        const category = this.parseCategory(row[7]);
+        const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice);
+        
         return {
           id: `cabelas-${index}`,
           productName: row[0] || '',
           imageUrl: row[1] || '',
           regularPrice: originalPrice,
-          salePrice: salePrice,
+          salePrice: shouldHidePrice ? 0 : salePrice,
           dealLink: link,
           retailer: "Cabela's",
           dealEndDate: row[6] || '',
-          category: this.parseCategory(row[7]),
+          category: category,
           featured: row[8]?.toLowerCase() === 'true' || false,
           savings: parseFloat(row[11]) || 0,
           discountPercent: discountPercent,
@@ -330,6 +338,37 @@ export class GoogleSheetsService {
         cardType: 'single'
       }
     ];
+  }
+
+  private shouldHidePrice(price: number, category: Deal['category'], originalPrice?: number): boolean {
+    // Strategic price hiding based on modern e-commerce psychology
+    
+    // Always hide if price is 0 (already means "click for price")
+    if (price === 0) return true;
+    
+    // High-value items (>$300) - hide 60% of the time
+    if (price > 300) {
+      return Math.random() < 0.6;
+    }
+    
+    // Premium categories - hide 40% of the time
+    if (['power', 'generators', 'batteries', 'tools'].includes(category)) {
+      return Math.random() < 0.4;
+    }
+    
+    // High discount items (>25%) - show price to highlight deal
+    const discount = originalPrice ? ((originalPrice - price) / originalPrice) * 100 : 0;
+    if (discount > 25) {
+      return false; // Always show great deals
+    }
+    
+    // Medium-priced items ($100-$300) - hide 25% of the time
+    if (price > 100) {
+      return Math.random() < 0.25;
+    }
+    
+    // Low-priced items (<$100) - hide 15% of the time
+    return Math.random() < 0.15;
   }
 
   private parseCategory(categoryStr: string): Deal['category'] {
