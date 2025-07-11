@@ -162,11 +162,30 @@ export class GoogleSheetsService {
       const featuredDeals = allDeals.filter(deal => deal.featured);
       const regularDeals = allDeals.filter(deal => !deal.featured);
       
-      // Shuffle function using Fisher-Yates algorithm
+      // Create session-based shuffle seed for consistent but random layout
+      const getSessionSeed = () => {
+        let seed = sessionStorage.getItem('shuffleSeed');
+        if (!seed) {
+          seed = Math.random().toString();
+          sessionStorage.setItem('shuffleSeed', seed);
+        }
+        return parseFloat(seed);
+      };
+      
+      // Seeded random function for consistent shuffle during session
+      const seededRandom = (seed: number) => {
+        const x = Math.sin(seed) * 10000;
+        return x - Math.floor(x);
+      };
+      
+      // Shuffle function using Fisher-Yates algorithm with session seed
       const shuffle = (array: any[]) => {
         const shuffled = [...array];
+        let currentSeed = getSessionSeed();
+        
         for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
+          currentSeed = seededRandom(currentSeed * 9301 + 49297); // Update seed
+          const j = Math.floor(currentSeed * (i + 1));
           [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
         return shuffled;
