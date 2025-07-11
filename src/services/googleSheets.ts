@@ -140,7 +140,7 @@ export class GoogleSheetsService {
 
       // Process Sheet2 (Cabela's deals)
       const cabelasDeals = sheet2Rows.map((row: string[], index: number) => {
-        const salePrice = this.cleanPrice(row[3]) || this.cleanPrice(row[2]) || 0;  // Try Cabela's price first, then Amazon column
+        const salePrice = this.cleanPrice(row[3]);  // Column D - Cabela's price
         let originalPrice = this.cleanPrice(row[9]);  // Column J - Original Price
         let discountPercent = this.cleanPercentage(row[10]); // Column K - Discount %
         const link = row[5] || row[4] || '';  // Prefer Cabela's link
