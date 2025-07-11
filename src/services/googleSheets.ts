@@ -85,10 +85,21 @@ export class GoogleSheetsService {
             cardType: 'comparison' as const
           };
         } else {
-          // Single deal card - direct mapping from sheet
-          const salePrice = parseFloat(row[2]) || 0;      // Column C - Amazon Price
-          const originalPrice = parseFloat(row[9]) || 0;  // Column J - Original Price
-          const discountPercent = parseInt(row[10]) || 0; // Column K - Discount %
+          // Single deal card - improved price processing
+          const salePrice = parseFloat(row[2]) || 0;      // Column C - Current/Sale Price
+          let originalPrice = parseFloat(row[9]) || 0;    // Column J - Original Price
+          let discountPercent = parseInt(row[10]) || 0;   // Column K - Discount %
+          
+          // Calculate missing values for better price display
+          if (originalPrice > 0 && salePrice > 0 && discountPercent === 0) {
+            // Calculate discount percentage if missing
+            discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+          }
+          
+          if (salePrice > 0 && originalPrice === 0 && discountPercent > 0) {
+            // Calculate original price if missing but we have discount %
+            originalPrice = Math.round((salePrice / (1 - discountPercent / 100)) * 100) / 100;
+          }
           
           const link = row[4] || row[5] || '';
           const retailer = row[4] ? 'Amazon' : row[5] ? "Cabela's" : 'Unknown';
@@ -119,7 +130,7 @@ export class GoogleSheetsService {
             dealEndDate: row[6] || '',
             category: category,
             featured: row[8]?.toLowerCase() === 'true' || false,
-            savings: parseFloat(row[11]) || 0,
+            savings: originalPrice > salePrice ? Math.round((originalPrice - salePrice) * 100) / 100 : parseFloat(row[11]) || 0,
             discountPercent: discountPercent,
             bestDealRetailer: 'single' as const,
             cardType: 'single' as const
@@ -130,9 +141,20 @@ export class GoogleSheetsService {
       // Process Sheet2 (Cabela's deals)
       const cabelasDeals = sheet2Rows.map((row: string[], index: number) => {
         const salePrice = parseFloat(row[3]) || parseFloat(row[2]) || 0;  // Try Cabela's price first, then Amazon column
-        const originalPrice = parseFloat(row[9]) || 0;  // Column J - Original Price
-        const discountPercent = parseInt(row[10]) || 0; // Column K - Discount %
+        let originalPrice = parseFloat(row[9]) || 0;  // Column J - Original Price
+        let discountPercent = parseInt(row[10]) || 0; // Column K - Discount %
         const link = row[5] || row[4] || '';  // Prefer Cabela's link
+        
+        // Calculate missing values for better price display
+        if (originalPrice > 0 && salePrice > 0 && discountPercent === 0) {
+          // Calculate discount percentage if missing
+          discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+        }
+        
+        if (salePrice > 0 && originalPrice === 0 && discountPercent > 0) {
+          // Calculate original price if missing but we have discount %
+          originalPrice = Math.round((salePrice / (1 - discountPercent / 100)) * 100) / 100;
+        }
         
         // Determine if price should be hidden using strategic logic
         const category = this.parseCategory(row[7]);
@@ -150,7 +172,7 @@ export class GoogleSheetsService {
           dealEndDate: row[6] || '',
           category: category,
           featured: row[8]?.toLowerCase() === 'true' || false,
-          savings: parseFloat(row[11]) || 0,
+          savings: originalPrice > salePrice ? Math.round((originalPrice - salePrice) * 100) / 100 : parseFloat(row[11]) || 0,
           discountPercent: discountPercent,
           bestDealRetailer: 'single' as const,
           cardType: 'single' as const
