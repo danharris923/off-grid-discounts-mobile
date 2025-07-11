@@ -7,9 +7,9 @@
 
 .compare-toggle {
   width: 100%;
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
+  background: #B8860B;
+  border: 1px solid #B8860B;
+  color: white;
   padding: 8px 12px;
   font-size: 11px;
   font-weight: 500;
@@ -20,17 +20,39 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.compare-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: #DAA520;
+  transition: left 0.3s ease;
+  z-index: 0;
+}
+
+.compare-toggle:hover::before {
+  left: 0;
 }
 
 .compare-toggle:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border-color: var(--text-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.compare-toggle > * {
+  position: relative;
+  z-index: 1;
 }
 
 .compare-toggle .count {
   font-size: 10px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 400;
 }
 

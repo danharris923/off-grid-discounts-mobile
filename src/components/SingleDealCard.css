@@ -129,7 +129,7 @@
 }
 
 .single-deal-card .price-button {
-  background: #212121;
+  background: #1877F2;
   color: white !important;
   border: none;
   padding: 10px 20px;
@@ -151,7 +151,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: #c8102e;
+  background: #166FE5;
   transition: left 0.3s ease;
   z-index: 0;
 }
@@ -162,7 +162,7 @@
 
 .single-deal-card .price-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(200, 16, 46, 0.3);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
   color: white !important;
 }
 
