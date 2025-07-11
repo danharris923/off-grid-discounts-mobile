@@ -1,13 +1,16 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
 import { buildAmazonAffiliateLink, buildRakutenAffiliateLink } from '../utils/affiliateLinks';
+import { CompareSimilar } from './CompareSimilar';
 import './SingleDealCard.css';
 
 interface SingleDealCardProps {
   deal: Deal;
+  allDeals?: Deal[];
+  onDealClick?: (deal: Deal) => void;
 }
 
-export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
+export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals = [], onDealClick }) => {
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
   
   // Generate random viewing count for social proof
@@ -100,6 +103,14 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal }) => {
         <div className="retailer-info">
           <span className="retailer-name">{deal.retailer}</span>
         </div>
+        
+        {allDeals.length > 1 && (
+          <CompareSimilar 
+            currentDeal={deal}
+            allDeals={allDeals}
+            onDealClick={onDealClick || (() => {})}
+          />
+        )}
         
       </div>
     </div>

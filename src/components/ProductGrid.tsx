@@ -128,6 +128,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
                   key={deal.id}
                   role="listitem"
                   className="deal-card-wrapper"
+                  data-deal-id={deal.id}
                   itemScope
                   itemType="https://schema.org/Product"
                 >
@@ -145,7 +146,17 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
                   {deal.cardType === 'comparison' ? (
                     <DealCard deal={deal} />
                   ) : (
-                    <SingleDealCard deal={deal} />
+                    <SingleDealCard 
+                      deal={deal} 
+                      allDeals={allDeals}
+                      onDealClick={(clickedDeal) => {
+                        // Scroll to the clicked deal
+                        const element = document.querySelector(`[data-deal-id="${clickedDeal.id}"]`);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                    />
                   )}
                 </article>
               ))}
