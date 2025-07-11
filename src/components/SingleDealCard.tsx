@@ -21,9 +21,10 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
     
     let affiliateLink = deal.dealLink;
     
-    if (deal.retailer?.toLowerCase().includes('amazon')) {
+    // Only process affiliate links if they're not already affiliate links
+    if (deal.retailer?.toLowerCase().includes('amazon') && !deal.dealLink.includes('tag=')) {
       affiliateLink = buildAmazonAffiliateLink(deal.dealLink);
-    } else if (deal.retailer?.toLowerCase().includes('cabela')) {
+    } else if (deal.retailer?.toLowerCase().includes('cabela') && !deal.dealLink.includes('linksynergy.com')) {
       affiliateLink = buildRakutenAffiliateLink(deal.dealLink);
     }
     
