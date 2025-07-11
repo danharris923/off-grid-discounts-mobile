@@ -157,29 +157,11 @@ export class GoogleSheetsService {
         };
       });
 
-      // Merge and shuffle deals for random appearance
+      // Merge deals - let ProductGrid handle stable shuffling
       const allDeals = [...amazonDeals, ...cabelasDeals];
       
-      // Separate featured and regular deals
-      const featuredDeals = allDeals.filter(deal => deal.featured);
-      const regularDeals = allDeals.filter(deal => !deal.featured);
-      
-      // Simple but effective shuffle function
-      const shuffle = (array: any[]) => {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-      };
-      
-      // Shuffle both groups separately
-      const shuffledFeatured = shuffle(featuredDeals);
-      const shuffledRegular = shuffle(regularDeals);
-      
-      // Combine with featured deals first, then shuffled regular deals
-      return [...shuffledFeatured, ...shuffledRegular];
+      // Return all deals, ProductGrid will handle stable session-based shuffling
+      return allDeals;
     } catch (error: any) {
       console.error('Error fetching deals from Google Sheets:', error);
       console.error('Error details:', {
