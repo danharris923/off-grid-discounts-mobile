@@ -105,7 +105,8 @@ export class GoogleSheetsService {
 
           // Determine if price should be hidden using strategic logic
           const category = this.parseCategory(row[7]);
-          const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice);
+          const productName = row[0] || '';
+          const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
           
           return {
             id: `amazon-${index}`,
@@ -135,7 +136,8 @@ export class GoogleSheetsService {
         
         // Determine if price should be hidden using strategic logic
         const category = this.parseCategory(row[7]);
-        const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice);
+        const productName = row[0] || '';
+        const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
         
         return {
           id: `cabelas-${index}`,
@@ -359,20 +361,24 @@ export class GoogleSheetsService {
     ];
   }
 
-  private shouldHidePrice(price: number, category: Deal['category'], originalPrice?: number): boolean {
+  private shouldHidePrice(price: number, category: Deal['category'], originalPrice?: number, productName?: string): boolean {
     // Strategic price hiding based on modern e-commerce psychology
     
     // Always hide if price is 0 (already means "click for price")
     if (price === 0) return true;
     
+    // Create deterministic "random" based on product name hash
+    const hash = productName ? this.hashString(productName) : 0;
+    const pseudoRandom = (hash % 100) / 100; // 0-0.99
+    
     // High-value items (>$300) - hide 60% of the time
     if (price > 300) {
-      return Math.random() < 0.6;
+      return pseudoRandom < 0.6;
     }
     
     // Premium categories - hide 40% of the time
     if (['power', 'generators', 'batteries', 'tools'].includes(category)) {
-      return Math.random() < 0.4;
+      return pseudoRandom < 0.4;
     }
     
     // High discount items (>25%) - show price to highlight deal
@@ -383,11 +389,21 @@ export class GoogleSheetsService {
     
     // Medium-priced items ($100-$300) - hide 25% of the time
     if (price > 100) {
-      return Math.random() < 0.25;
+      return pseudoRandom < 0.25;
     }
     
     // Low-priced items (<$100) - hide 15% of the time
-    return Math.random() < 0.15;
+    return pseudoRandom < 0.15;
+  }
+
+  private hashString(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
   }
 
   private parseCategory(categoryStr: string): Deal['category'] {
