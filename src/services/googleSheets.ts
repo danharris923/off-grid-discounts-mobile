@@ -359,29 +359,29 @@ export class GoogleSheetsService {
     const hash = productName ? this.hashString(productName) : 0;
     const pseudoRandom = (hash % 100) / 100; // 0-0.99
     
-    // High-value items (>$300) - hide 60% of the time
+    // High-value items (>$300) - hide 80% of the time (increased from 60%)
     if (price > 300) {
-      return pseudoRandom < 0.6;
+      return pseudoRandom < 0.8;
     }
     
-    // Premium categories - hide 40% of the time
+    // Premium categories - hide 65% of the time (increased from 40%)
     if (['power', 'generators', 'batteries', 'tools'].includes(category)) {
-      return pseudoRandom < 0.4;
+      return pseudoRandom < 0.65;
     }
     
-    // High discount items (>25%) - show price to highlight deal
+    // High discount items (>30%) - show price to highlight great deals (increased threshold)
     const discount = originalPrice ? ((originalPrice - price) / originalPrice) * 100 : 0;
-    if (discount > 25) {
+    if (discount > 30) {
       return false; // Always show great deals
     }
     
-    // Medium-priced items ($100-$300) - hide 25% of the time
+    // Medium-priced items ($100-$300) - hide 50% of the time (increased from 25%)
     if (price > 100) {
-      return pseudoRandom < 0.25;
+      return pseudoRandom < 0.5;
     }
     
-    // Low-priced items (<$100) - hide 15% of the time
-    return pseudoRandom < 0.15;
+    // Low-priced items (<$100) - hide 35% of the time (increased from 15%)
+    return pseudoRandom < 0.35;
   }
 
   private hashString(str: string): number {

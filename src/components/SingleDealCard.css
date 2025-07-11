@@ -96,7 +96,7 @@
 
 .single-deal-card .regular-price {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: #c8102e;
   text-decoration: line-through;
   font-weight: 400;
   order: 1;
@@ -106,9 +106,10 @@
 .single-deal-card .sale-price {
   font-size: 16px;
   font-weight: 600;
-  color: #c8102e;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
   order: 2;
+  transition: color 0.3s ease;
 }
 
 .single-deal-card .savings-text {
