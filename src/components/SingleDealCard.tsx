@@ -84,7 +84,7 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
                 onClick={handleDealClick}
                 rel="nofollow"
               >
-                Click to See Price
+                <span>See Price on {deal.retailer}</span>
               </button>
             </div>
           ) : (
@@ -96,12 +96,17 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
               {deal.discountPercent && deal.discountPercent > 0 && (
                 <span className="savings-text">Save {deal.discountPercent}%</span>
               )}
+              <div className="get-deal-button-container">
+                <button 
+                  className="get-deal-button"
+                  onClick={handleDealClick}
+                  rel="nofollow"
+                >
+                  <span>Get Deal on {deal.retailer}</span>
+                </button>
+              </div>
             </>
           )}
-        </div>
-        
-        <div className="retailer-info">
-          <span className="retailer-name">{deal.retailer}</span>
         </div>
         
         {allDeals.length > 1 && (

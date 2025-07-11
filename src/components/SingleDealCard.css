@@ -169,20 +169,57 @@
 .single-deal-card .price-button > * {
   position: relative;
   z-index: 1;
+  color: white !important;
 }
 
-.single-deal-card .retailer-info {
-  margin: 8px 0;
+.get-deal-button-container {
+  margin-top: 8px;
 }
 
-.single-deal-card .retailer-name {
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 400;
+.single-deal-card .get-deal-button {
+  background: #B8860B;
+  color: white !important;
+  border: none;
+  padding: 8px 16px;
+  font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  transition: color 0.3s ease;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
 }
+
+.single-deal-card .get-deal-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: #DAA520;
+  transition: left 0.3s ease;
+  z-index: 0;
+}
+
+.single-deal-card .get-deal-button:hover::before {
+  left: 0;
+}
+
+.single-deal-card .get-deal-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(184, 134, 11, 0.3);
+  color: white !important;
+}
+
+.single-deal-card .get-deal-button > * {
+  position: relative;
+  z-index: 1;
+  color: white !important;
+}
+
 
 .single-deal-card .action-buttons {
   display: flex;
