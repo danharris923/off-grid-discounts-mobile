@@ -35,7 +35,13 @@ export class GoogleSheetsService {
       const [sheet1Response, sheet2Response] = await Promise.all([
         axios.get(this.sheet1ApiUrl),
         axios.get(this.sheet2ApiUrl).catch(error => {
-          console.log('Sheet2 fetch failed, continuing with Sheet1 only:', error);
+          console.error('Sheet2 fetch failed, continuing with Sheet1 only:', error);
+          console.error('Sheet2 URL:', this.sheet2ApiUrl);
+          console.error('Error details:', {
+            status: error?.response?.status,
+            statusText: error?.response?.statusText,
+            data: error?.response?.data
+          });
           return { data: { values: [] } };
         })
       ]);
