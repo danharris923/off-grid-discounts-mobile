@@ -87,11 +87,18 @@
   transition: color 0.3s ease;
 }
 
-.single-deal-card .price-section {
+.single-deal-card .price-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin: 6px 0;
+  margin: 8px 0;
+}
+
+.single-deal-card .button-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
 }
 
 .single-deal-card .regular-price {
@@ -121,18 +128,12 @@
   order: 3;
 }
 
-.single-deal-card .click-for-price {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 8px 0;
-}
 
 .single-deal-card .price-button {
   background: #1877F2;
   color: white !important;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 16px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -141,7 +142,7 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  min-width: 140px;
+  width: 100%;
 }
 
 .single-deal-card .price-button::before {
@@ -172,16 +173,13 @@
   color: white !important;
 }
 
-.get-deal-button-container {
-  margin-top: 8px;
-}
 
 .single-deal-card .get-deal-button {
-  background: #B8860B;
+  background: #1877F2;
   color: white !important;
   border: none;
-  padding: 8px 16px;
-  font-size: 10px;
+  padding: 10px 16px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -199,7 +197,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: #DAA520;
+  background: #166FE5;
   transition: left 0.3s ease;
   z-index: 0;
 }
@@ -209,8 +207,8 @@
 }
 
 .single-deal-card .get-deal-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(184, 134, 11, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
   color: white !important;
 }
 

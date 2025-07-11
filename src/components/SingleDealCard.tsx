@@ -77,44 +77,43 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
       <div className="deal-content">
         <h3 className="deal-title">{deal.productName}</h3>
         
-        <div className="price-section">
-          {deal.salePrice === 0 ? (
-            <div className="click-for-price">
-              <button 
-                className="price-button"
-                onClick={handleDealClick}
-                rel="nofollow"
-              >
-                <span>See Price on {deal.retailer}</span>
-              </button>
-            </div>
-          ) : (
-            <>
-              {deal.regularPrice && deal.regularPrice > deal.salePrice! && (
-                <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
-              )}
-              <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
-              {deal.discountPercent && deal.discountPercent > 0 && (
-                <span className="savings-text">Save {deal.discountPercent}%</span>
-              )}
-              <div className="get-deal-button-container">
-                <button 
-                  className="get-deal-button"
-                  onClick={handleDealClick}
-                  rel="nofollow"
-                >
-                  <span>Get Deal on {deal.retailer}</span>
-                </button>
-              </div>
-            </>
+        <div className="price-info">
+          {deal.regularPrice && deal.regularPrice > deal.salePrice! && deal.salePrice !== 0 && (
+            <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
+          )}
+          {deal.salePrice !== 0 && (
+            <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
+          )}
+          {deal.discountPercent && deal.discountPercent > 0 && (
+            <span className="savings-text">Save {deal.discountPercent}%</span>
           )}
         </div>
         
-        <CompareSimilar 
-          currentDeal={deal}
-          allDeals={allDeals}
-          onDealClick={onDealClick || (() => {})}
-        />
+        <div className="button-section">
+          {deal.salePrice === 0 ? (
+            <button 
+              className="price-button"
+              onClick={handleDealClick}
+              rel="nofollow"
+            >
+              <span>See Price on {deal.retailer}</span>
+            </button>
+          ) : (
+            <button 
+              className="get-deal-button"
+              onClick={handleDealClick}
+              rel="nofollow"
+            >
+              <span>Get Deal on {deal.retailer}</span>
+            </button>
+          )}
+          
+          <CompareSimilar 
+            currentDeal={deal}
+            allDeals={allDeals}
+            onDealClick={onDealClick || (() => {})}
+          />
+        </div>
         
       </div>
     </div>
