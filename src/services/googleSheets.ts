@@ -179,8 +179,11 @@ export class GoogleSheetsService {
         };
       });
 
-      // Merge deals - let ProductGrid handle stable shuffling
-      const allDeals = [...amazonDeals, ...cabelasDeals];
+      // Create comparison cards for matching products
+      const comparisonDeals = this.createComparisonDeals(amazonDeals, cabelasDeals);
+      
+      // Merge all deals - comparisons + remaining singles
+      const allDeals = [...comparisonDeals.comparisons, ...comparisonDeals.singles];
       
       // Return all deals, ProductGrid will handle stable session-based shuffling
       return allDeals;
@@ -414,6 +417,90 @@ export class GoogleSheetsService {
       .replace(/['%\s]/g, ''); // Remove apostrophes, percentage signs, spaces
     
     return parseInt(cleaned) || 0;
+  }
+
+  private extractModelKey(productName: string): string {
+    const name = productName.toLowerCase();
+    
+    // Extract power station models
+    const powerStationMatch = name.match(/(?:yeti|explorer|eb|ac|river|delta|portable power)\s*(\d+[xpros]*)/);
+    if (powerStationMatch) return powerStationMatch[1];
+    
+    // Extract generator models  
+    const generatorMatch = name.match(/(?:eu|gp|dg|champion|honda|predator)\s*(\d+[wi]*)/);
+    if (generatorMatch) return generatorMatch[1];
+    
+    // Extract solar panel wattage
+    const solarMatch = name.match(/(\d+)w/);
+    if (solarMatch) return `solar${solarMatch[1]}w`;
+    
+    // Extract brand + first significant number
+    const brandMatch = name.match(/^(\w+).*?(\d+)/);
+    if (brandMatch) return `${brandMatch[1]}-${brandMatch[2]}`;
+    
+    // Fallback to first word + numbers
+    const fallbackMatch = name.match(/(\w+).*?(\d+)/);
+    return fallbackMatch ? `${fallbackMatch[1]}-${fallbackMatch[2]}` : name.slice(0, 10);
+  }
+
+  private createComparisonDeals(amazonDeals: Deal[], cabelasDeals: Deal[]): { comparisons: Deal[], singles: Deal[] } {
+    const comparisons: Deal[] = [];
+    const usedAmazon = new Set<number>();
+    const usedCabelas = new Set<number>();
+    
+    // Create lookup map for Cabela's deals by model key
+    const cabelasMap = new Map<string, { deal: Deal, index: number }>();
+    cabelasDeals.forEach((deal, index) => {
+      const modelKey = this.extractModelKey(deal.productName);
+      cabelasMap.set(modelKey, { deal, index });
+    });
+    
+    // Find matching Amazon deals
+    amazonDeals.forEach((amazonDeal, amazonIndex) => {
+      const amazonModelKey = this.extractModelKey(amazonDeal.productName);
+      const cabelasMatch = cabelasMap.get(amazonModelKey);
+      
+      if (cabelasMatch && !usedCabelas.has(cabelasMatch.index)) {
+        const cabelas = cabelasMatch.deal;
+        
+        // Create comparison deal
+        const amazonPrice = amazonDeal.salePrice || 0;
+        const cabelasPrice = cabelas.salePrice || 0;
+        const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
+        const savings = Math.abs(amazonPrice - cabelasPrice);
+        
+        comparisons.push({
+          id: `comparison-${amazonIndex}-${cabelasMatch.index}`,
+          productName: amazonDeal.productName, // Use Amazon name as primary
+          imageUrl: amazonDeal.imageUrl,
+          amazonPrice,
+          cabelasPrice,
+          amazonLink: amazonDeal.dealLink || '',
+          cabelasLink: cabelas.dealLink || '',
+          dealEndDate: amazonDeal.dealEndDate,
+          category: amazonDeal.category,
+          featured: amazonDeal.featured || cabelas.featured,
+          savings,
+          bestDealRetailer,
+          cardType: 'comparison' as const
+        });
+        
+        usedAmazon.add(amazonIndex);
+        usedCabelas.add(cabelasMatch.index);
+      }
+    });
+    
+    // Collect unused deals as singles
+    const singles: Deal[] = [];
+    amazonDeals.forEach((deal, index) => {
+      if (!usedAmazon.has(index)) singles.push(deal);
+    });
+    cabelasDeals.forEach((deal, index) => {
+      if (!usedCabelas.has(index)) singles.push(deal);
+    });
+    
+    console.log(`Created ${comparisons.length} comparison cards, ${singles.length} single cards`);
+    return { comparisons, singles };
   }
 
   private parseCategory(categoryStr: string): Deal['category'] {
