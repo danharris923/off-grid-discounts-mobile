@@ -28,13 +28,18 @@ export class GoogleSheetsService {
 
   async fetchDeals(): Promise<Deal[]> {
     try {
+      // Add cache-buster to force fresh data
+      const cacheBuster = `&_cb=${Date.now()}`;
+      const sheet1Url = this.sheet1ApiUrl + cacheBuster;
+      const sheet2Url = this.sheet2ApiUrl + cacheBuster;
+      
       // Fetch from both sheets in parallel
-      console.log('Fetching from Sheet1 (Amazon):', this.sheet1ApiUrl);
-      console.log('Fetching from Sheet2 (Cabela\'s):', this.sheet2ApiUrl);
+      console.log('Fetching from Sheet1 (Amazon):', sheet1Url);
+      console.log('Fetching from Sheet2 (Cabela\'s):', sheet2Url);
       
       const [sheet1Response, sheet2Response] = await Promise.all([
-        axios.get(this.sheet1ApiUrl),
-        axios.get(this.sheet2ApiUrl).catch(error => {
+        axios.get(sheet1Url),
+        axios.get(sheet2Url).catch(error => {
           console.error('Sheet2 fetch failed, continuing with Sheet1 only:', error);
           console.error('Sheet2 URL:', this.sheet2ApiUrl);
           console.error('Error details:', {
