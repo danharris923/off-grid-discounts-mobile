@@ -1,0 +1,86 @@
+.disclaimer-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: 40px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.disclaimer-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 40px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.back-button {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.disclaimer-page h1 {
+  font-size: 28px;
+  font-weight: 300;
+  margin: 0 0 32px 0;
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+
+.disclaimer-content {
+  line-height: 1.7;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.disclaimer-content p {
+  margin: 0 0 20px 0;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.disclaimer-content h3 {
+  font-size: 18px;
+  font-weight: 400;
+  margin: 32px 0 16px 0;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.disclaimer-content p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .disclaimer-page {
+    padding: 20px 16px;
+  }
+  
+  .disclaimer-container {
+    padding: 24px;
+  }
+  
+  .disclaimer-page h1 {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .disclaimer-content p {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+}

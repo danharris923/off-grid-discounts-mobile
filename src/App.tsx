@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Header } from './components/Header';
 import { ProductGrid } from './components/ProductGrid';
+import { Footer } from './components/Footer';
 import { StructuredData } from './components/StructuredData';
 import { SEO } from './components/SEO';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -66,6 +67,7 @@ function App() {
         <main className="main-content">
           <ProductGrid deals={filteredDeals} />
         </main>
+        <Footer />
       </div>
     </ThemeProvider>
   );
