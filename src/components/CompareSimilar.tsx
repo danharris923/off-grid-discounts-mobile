@@ -20,130 +20,113 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
 
     const productName = currentDeal.productName.toLowerCase();
     
-    // Extract key terms for smart searching
-    const extractKeyTerms = (name: string) => {
-      const terms = new Set<string>();
+    // Detect specific comparable product types
+    const getProductType = (name: string) => {
+      const lower = name.toLowerCase();
       
-      // Brand names
-      const brands = ['goal zero', 'jackery', 'bluetti', 'honda', 'champion', 'predator', 'renogy', 'anker', 'ecoflow'];
-      brands.forEach(brand => {
-        if (name.includes(brand)) terms.add(brand);
-      });
-      
-      // Product types
-      const types = ['generator', 'power station', 'battery', 'solar panel', 'inverter', 'portable power'];
-      types.forEach(type => {
-        if (name.includes(type)) terms.add(type);
-      });
-      
-      // Capacities/Power ratings
-      const powerMatch = name.match(/(\d+(?:wh|w|ah|a))/g);
-      if (powerMatch) {
-        powerMatch.forEach(power => terms.add(power));
+      // Very specific product categories that make sense to compare
+      if (lower.includes('trail cam') || lower.includes('game cam') || lower.includes('hunting cam')) {
+        return 'trail-camera';
+      }
+      if (lower.includes('generator') && !lower.includes('power station')) {
+        return 'generator';
+      }
+      if (lower.includes('power station') || lower.includes('portable power')) {
+        return 'power-station';
+      }
+      if (lower.includes('solar panel') || (lower.includes('solar') && lower.includes('panel'))) {
+        return 'solar-panel';
+      }
+      if (lower.includes('battery bank') || (lower.includes('battery') && lower.includes('12v'))) {
+        return 'battery';
+      }
+      if (lower.includes('inverter') && !lower.includes('generator')) {
+        return 'inverter';
+      }
+      if (lower.includes('flashlight') || lower.includes('headlamp') || lower.includes('lantern')) {
+        return 'lighting';
+      }
+      if (lower.includes('walkie') || lower.includes('two way radio') || lower.includes('2-way radio')) {
+        return 'radio';
       }
       
-      // Model numbers
-      const modelMatch = name.match(/\b([a-z]*\d+[a-z]*)\b/g);
-      if (modelMatch) {
-        modelMatch.slice(0, 2).forEach(model => terms.add(model)); // Limit to 2 models
-      }
-      
-      // General power/energy terms
-      if (name.includes('portable')) terms.add('portable');
-      if (name.includes('dual fuel')) terms.add('dual fuel');
-      if (name.includes('inverter')) terms.add('inverter');
-      
-      return Array.from(terms);
+      return null; // No comparable type found
     };
 
-    const currentTerms = extractKeyTerms(productName);
+    const extractCapacity = (name: string) => {
+      const powerMatch = name.match(/(\d+(?:wh|w|ah|mah))/i);
+      return powerMatch ? powerMatch[1].toLowerCase() : null;
+    };
+
+    const extractBrand = (name: string) => {
+      const lower = name.toLowerCase();
+      const brands = ['goal zero', 'jackery', 'bluetti', 'honda', 'champion', 'predator', 'renogy', 'anker', 'ecoflow', 'bushnell', 'stealth cam', 'reconyx'];
+      return brands.find(brand => lower.includes(brand)) || null;
+    };
+
+    // Only show compare for specific product types
+    const currentProductType = getProductType(productName);
+    if (!currentProductType) {
+      return []; // No compare for this product type
+    }
+
+    const currentBrand = extractBrand(productName);
+    const currentCapacity = extractCapacity(productName);
     
-    const scoredDeals = allDeals
+    const tightMatches = allDeals
       .filter(deal => deal.id !== currentDeal.id) // Exclude current deal
+      .filter(deal => {
+        const dealProductType = getProductType(deal.productName);
+        return dealProductType === currentProductType; // MUST be exact same product type
+      })
       .map(deal => {
-        const dealName = deal.productName.toLowerCase();
-        const dealTerms = extractKeyTerms(dealName);
+        const dealBrand = extractBrand(deal.productName);
+        const dealCapacity = extractCapacity(deal.productName);
         
         let score = 0;
         
-        // Brand match (high weight)
-        const currentBrand = currentTerms.find(term => 
-          ['goal zero', 'jackery', 'bluetti', 'honda', 'champion', 'predator', 'renogy', 'anker', 'ecoflow'].includes(term)
-        );
-        const dealBrand = dealTerms.find(term => 
-          ['goal zero', 'jackery', 'bluetti', 'honda', 'champion', 'predator', 'renogy', 'anker', 'ecoflow'].includes(term)
-        );
-        
+        // Same brand = high relevance
         if (currentBrand && dealBrand && currentBrand === dealBrand) {
-          score += 50; // Same brand
+          score += 100;
         }
         
-        // Product type match (high weight)
-        const currentType = currentTerms.find(term => 
-          ['generator', 'power station', 'battery', 'solar panel', 'inverter', 'portable power'].includes(term)
-        );
-        const dealType = dealTerms.find(term => 
-          ['generator', 'power station', 'battery', 'solar panel', 'inverter', 'portable power'].includes(term)
-        );
-        
-        if (currentType && dealType && currentType === dealType) {
-          score += 40; // Same product type
-        }
-        
-        // Category match (medium weight)
-        if (deal.category === currentDeal.category) {
-          score += 20;
-        }
-        
-        // Common terms (lower weight)
-        currentTerms.forEach(term => {
-          if (dealTerms.includes(term)) {
-            score += 10;
+        // Similar capacity = high relevance
+        if (currentCapacity && dealCapacity) {
+          if (currentCapacity === dealCapacity) {
+            score += 80; // Exact capacity match
+          } else {
+            // Parse numbers for range comparison
+            const currentNum = parseInt(currentCapacity);
+            const dealNum = parseInt(dealCapacity);
+            if (!isNaN(currentNum) && !isNaN(dealNum)) {
+              const diff = Math.abs(currentNum - dealNum);
+              if (diff < currentNum * 0.25) { // Within 25%
+                score += 40;
+              }
+            }
           }
-        });
+        }
         
-        // Capacity/power similarity
-        const currentPower = currentTerms.find(term => /\d+(?:wh|w|ah|a)/.test(term));
-        const dealPower = dealTerms.find(term => /\d+(?:wh|w|ah|a)/.test(term));
-        
-        if (currentPower && dealPower) {
-          const currentNum = parseInt(currentPower);
-          const dealNum = parseInt(dealPower);
-          const diff = Math.abs(currentNum - dealNum);
-          
-          if (diff === 0) score += 30; // Exact match
-          else if (diff < currentNum * 0.2) score += 20; // Within 20%
-          else if (diff < currentNum * 0.5) score += 10; // Within 50%
+        // Same retailer = lower relevance (we want to compare across retailers)
+        if (deal.retailer !== currentDeal.retailer) {
+          score += 20;
         }
         
         return { deal, score };
       })
-      .filter(item => item.score > 15) // Minimum relevance threshold
+      .filter(item => item.score >= 60) // Much higher threshold - only tight matches
       .sort((a, b) => b.score - a.score)
-      .slice(0, 4) // Limit to 4 similar items
+      .slice(0, 3) // Limit to 3 tight matches
       .map(item => item.deal);
 
-    return scoredDeals;
+    return tightMatches;
   }, [currentDeal, allDeals, isExpanded]);
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  if (similarDeals.length === 0 && isExpanded) {
-    return (
-      <div className="compare-similar">
-        <button 
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="compare-toggle"
-        >
-          Compare Similar {isExpanded ? '▲' : '▼'}
-        </button>
-        {isExpanded && (
-          <div className="similar-deals">
-            <p className="no-similar">No similar products found</p>
-          </div>
-        )}
-      </div>
-    );
+  // Only render the component if we have tight matches
+  if (similarDeals.length === 0) {
+    return null;
   }
 
   return (
@@ -153,12 +136,12 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
         className="compare-toggle"
       >
         Compare Similar {isExpanded ? '▲' : '▼'}
-        {!isExpanded && similarDeals.length > 0 && (
-          <span className="count">({Math.min(4, allDeals.length - 1)} found)</span>
+        {!isExpanded && (
+          <span className="count">({similarDeals.length} found)</span>
         )}
       </button>
       
-      {isExpanded && similarDeals.length > 0 && (
+      {isExpanded && (
         <div className="similar-deals">
           {similarDeals.map(deal => (
             <div 

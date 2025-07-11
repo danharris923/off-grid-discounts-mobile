@@ -109,13 +109,11 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
           )}
         </div>
         
-        {allDeals.length > 1 && (
-          <CompareSimilar 
-            currentDeal={deal}
-            allDeals={allDeals}
-            onDealClick={onDealClick || (() => {})}
-          />
-        )}
+        <CompareSimilar 
+          currentDeal={deal}
+          allDeals={allDeals}
+          onDealClick={onDealClick || (() => {})}
+        />
         
       </div>
     </div>
