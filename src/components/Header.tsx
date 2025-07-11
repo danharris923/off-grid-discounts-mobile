@@ -3,30 +3,11 @@ import { useTheme } from '../contexts/ThemeContext';
 import './Header.css';
 
 interface HeaderProps {
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
   onSearch: (searchTerm: string) => void;
   onRefresh?: () => void;
 }
 
-const categories = [
-  { value: 'all', label: 'All Categories' },
-  { value: 'power', label: 'Power' },
-  { value: 'generators', label: 'Generators' },
-  { value: 'batteries', label: 'Batteries' },
-  { value: 'stoves', label: 'Stoves' },
-  { value: 'camping', label: 'Camping' },
-  { value: 'clothing', label: 'Clothing' },
-  { value: 'tools', label: 'Tools' },
-  { value: 'navigation', label: 'Navigation' },
-  { value: 'water', label: 'Water' },
-  { value: 'food', label: 'Food' },
-  { value: 'other', label: 'Other' }
-];
-
 export const Header: React.FC<HeaderProps> = ({ 
-  selectedCategory, 
-  onCategoryChange,
   onSearch,
   onRefresh
 }) => {
@@ -50,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         
         <div className="header-controls">
-          <div className="search-and-filter">
+          <div className="search-and-controls">
             <div className="search-container">
               <input
                 type="text"
@@ -59,20 +40,6 @@ export const Header: React.FC<HeaderProps> = ({
                 onChange={handleSearchChange}
                 className="search-input"
               />
-            </div>
-            
-            <div className="filter-container">
-              <select
-                value={selectedCategory}
-                onChange={(e) => onCategoryChange(e.target.value)}
-                className="category-dropdown"
-              >
-                {categories.map(category => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
             </div>
             
             <button 

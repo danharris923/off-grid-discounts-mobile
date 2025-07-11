@@ -10,16 +10,10 @@ import './App.css';
 
 function App() {
   const { deals, loading, error } = useDeals();
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredDeals = useMemo(() => {
     let filtered = deals;
-
-    // Apply category filter
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(deal => deal.category === selectedCategory);
-    }
 
     // Apply search filter
     if (searchTerm) {
@@ -30,7 +24,7 @@ function App() {
     }
 
     return filtered;
-  }, [deals, selectedCategory, searchTerm]);
+  }, [deals, searchTerm]);
 
   if (loading) {
     return (
@@ -55,13 +49,10 @@ function App() {
     <ThemeProvider>
       <div className="App">
         <SEO 
-          category={selectedCategory !== 'all' ? selectedCategory : undefined}
           dealCount={filteredDeals.length}
         />
         <StructuredData deals={filteredDeals} />
         <Header 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
           onSearch={setSearchTerm}
         />
         <main className="main-content">
