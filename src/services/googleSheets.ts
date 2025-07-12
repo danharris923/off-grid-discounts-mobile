@@ -506,60 +506,10 @@ export class GoogleSheetsService {
   }
 
   private createComparisonDeals(amazonDeals: Deal[], cabelasDeals: Deal[]): { comparisons: Deal[], singles: Deal[] } {
+    // No longer creating comparison cards - using dropdown compare instead
+    // Return all deals as singles
     const comparisons: Deal[] = [];
-    const usedAmazon = new Set<number>();
-    const usedCabelas = new Set<number>();
-    
-    // Create lookup map for Cabela's deals by model key
-    const cabelasMap = new Map<string, { deal: Deal, index: number }>();
-    cabelasDeals.forEach((deal, index) => {
-      const modelKey = this.extractModelKey(deal.productName);
-      cabelasMap.set(modelKey, { deal, index });
-    });
-    
-    // Find matching Amazon deals
-    amazonDeals.forEach((amazonDeal, amazonIndex) => {
-      const amazonModelKey = this.extractModelKey(amazonDeal.productName);
-      const cabelasMatch = cabelasMap.get(amazonModelKey);
-      
-      if (cabelasMatch && !usedCabelas.has(cabelasMatch.index)) {
-        const cabelas = cabelasMatch.deal;
-        
-        // Create comparison deal
-        const amazonPrice = amazonDeal.salePrice || 0;
-        const cabelasPrice = cabelas.salePrice || 0;
-        const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
-        const savings = Math.abs(amazonPrice - cabelasPrice);
-        
-        comparisons.push({
-          id: `deal-cmp-${amazonIndex}-${cabelasMatch.index}`,
-          productName: amazonDeal.productName, // Use Amazon name as primary
-          imageUrl: amazonDeal.imageUrl,
-          amazonPrice,
-          cabelasPrice,
-          amazonLink: amazonDeal.dealLink || '',
-          cabelasLink: cabelas.dealLink || '',
-          dealEndDate: amazonDeal.dealEndDate,
-          category: amazonDeal.category,
-          featured: amazonDeal.featured || cabelas.featured,
-          savings,
-          bestDealRetailer,
-          cardType: 'comparison' as const
-        });
-        
-        usedAmazon.add(amazonIndex);
-        usedCabelas.add(cabelasMatch.index);
-      }
-    });
-    
-    // Collect unused deals as singles
-    const singles: Deal[] = [];
-    amazonDeals.forEach((deal, index) => {
-      if (!usedAmazon.has(index)) singles.push(deal);
-    });
-    cabelasDeals.forEach((deal, index) => {
-      if (!usedCabelas.has(index)) singles.push(deal);
-    });
+    const singles: Deal[] = [...amazonDeals, ...cabelasDeals];
     
     console.log(`Created ${comparisons.length} comparison cards, ${singles.length} single cards`);
     return { comparisons, singles };
