@@ -101,41 +101,30 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     </div>
   );
 
-  // Group deals into rows of 4, with occasional rows of 3 only when needed
+  // Force specific 4-3-4-4-3 pattern that repeats
   const groupedDeals = useMemo(() => {
     const groups = [];
     let currentIndex = 0;
+    const pattern = [4, 3, 4, 4, 3]; // Your desired pattern
+    let patternIndex = 0;
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
+      const cardsPerRow = pattern[patternIndex % pattern.length];
       const remainingCount = displayedDeals.length - currentIndex;
       
-      // Default to rows of 4
-      let cardsPerRow = 4;
+      // Use the pattern, but don't exceed remaining cards
+      const actualCardsToTake = Math.min(cardsPerRow, remainingCount);
       
-      // Handle edge cases to avoid single rows
-      if (remainingCount <= 3) {
-        // 1, 2, or 3 remaining: take them all
-        cardsPerRow = remainingCount;
-      } else if (remainingCount === 5) {
-        // 5 remaining: do 3 first (leaves 2 for next row)
-        cardsPerRow = 3;
-      } else if (remainingCount === 6) {
-        // 6 remaining: do 3 first (leaves 3 for perfect last row)
-        cardsPerRow = 3;
-      } else if (remainingCount === 7) {
-        // 7 remaining: do 4 first (leaves 3 for last row)
-        cardsPerRow = 4;
-      }
-      
-      // Add up to cardsPerRow deals
-      for (let i = 0; i < cardsPerRow && currentIndex < displayedDeals.length; i++) {
+      // Add cards to this row
+      for (let i = 0; i < actualCardsToTake; i++) {
         group.push(displayedDeals[currentIndex]);
         currentIndex++;
       }
       
       if (group.length > 0) {
         groups.push({ type: `row-${group.length}`, deals: group });
+        patternIndex++; // Move to next pattern position
       }
     }
     
