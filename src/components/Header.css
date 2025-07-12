@@ -50,9 +50,16 @@
   justify-content: center;
   align-items: center;
   gap: 24px;
+  position: relative;
 }
 
-.right-controls {
+.controls-container {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.center-controls {
   display: flex;
   gap: 12px;
   align-items: center;
@@ -88,23 +95,22 @@
 }
 
 
-.about-button {
-  padding: 12px 20px;
+.about-link {
   background: transparent;
-  border: 1px solid var(--border-color);
+  border: none;
   color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 11px;
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+  margin: 0;
 }
 
-.about-button:hover {
-  background: var(--bg-secondary);
+.about-link:hover {
   color: var(--text-primary);
-  border-color: var(--text-primary);
 }
 
 .disclaimer-button {

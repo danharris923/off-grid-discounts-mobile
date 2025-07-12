@@ -1,6 +1,5 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
-import { CompareSimilar } from './CompareSimilar';
 import './SingleDealCard.css';
 
 interface SingleDealCardProps {
@@ -87,12 +86,6 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
           >
             <span>Get Deal on {deal.retailer}</span>
           </button>
-          
-          <CompareSimilar 
-            currentDeal={deal}
-            allDeals={allDeals}
-            onDealClick={onDealClick || (() => {})}
-          />
         </div>
         
       </div>

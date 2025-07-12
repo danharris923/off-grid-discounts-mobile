@@ -145,7 +145,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
               <div className="similar-info">
                 <h4 className="similar-title">{deal.productName}</h4>
                 <div className="similar-price">
-                  {deal.salePrice !== undefined && deal.salePrice !== null ? (
+                  {deal.salePrice !== undefined && deal.salePrice !== null && deal.salePrice > 0 ? (
                     <>
                       {deal.regularPrice && deal.regularPrice > deal.salePrice && (
                         <span className="similar-regular-price">
