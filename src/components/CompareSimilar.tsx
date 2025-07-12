@@ -28,6 +28,9 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
 
     const productName = currentDeal.productName.toLowerCase();
     
+    // Debug logging
+    console.log('Checking compare for:', currentDeal.productName);
+    
     // Detect specific comparable product types
     const getProductType = (name: string) => {
       const lower = name.toLowerCase();
@@ -86,7 +89,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
 
     const extractBrand = (name: string) => {
       const lower = name.toLowerCase();
-      const brands = ['goal zero', 'jackery', 'bluetti', 'honda', 'champion', 'predator', 'renogy', 'anker', 'ecoflow', 'bushnell', 'stealth cam', 'reconyx'];
+      const brands = ['goal zero', 'jackery', 'bluetti', 'honda', 'champion', 'predator', 'renogy', 'anker', 'ecoflow', 'bushnell', 'stealth cam', 'reconyx', 'carhartt', 'dewalt', 'milwaukee', 'makita', 'coleman', 'yeti', 'rockpals', 'westinghouse'];
       return brands.find(brand => lower.includes(brand)) || null;
     };
 
@@ -140,11 +143,12 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
         
         return { deal, score };
       })
-      .filter(item => item.score >= 60) // Much higher threshold - only tight matches
+      .filter(item => item.score >= 20) // Lower threshold to show more comparisons
       .sort((a, b) => b.score - a.score)
       .slice(0, 3) // Limit to 3 tight matches
       .map(item => item.deal);
 
+    console.log('Found matches for', currentDeal.productName, ':', tightMatches.length);
     return tightMatches;
   }, [currentDeal, allDeals, isExpanded]);
 
@@ -152,6 +156,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
 
   // Only render the component if we have tight matches AND should show compare
   if (similarDeals.length === 0 || !shouldShowCompare) {
+    console.log('Not showing compare for', currentDeal.productName, 'matches:', similarDeals.length, 'shouldShow:', shouldShowCompare);
     return null;
   }
 

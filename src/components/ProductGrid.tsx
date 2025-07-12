@@ -11,7 +11,7 @@ interface ProductGridProps {
 }
 
 const INITIAL_LOAD_COUNT = 20;
-const LOAD_MORE_COUNT = 15;
+const LOAD_MORE_COUNT = 16; // Use 16 to maintain rows of 4
 
 // Generate a session-stable random seed once
 const SESSION_SEED = Math.random().toString(36).substring(7);
@@ -101,31 +101,32 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
     </div>
   );
 
-  // Group deals into stable randomized rows of 4 with occasional rows of 3 for aesthetics
+  // Group deals into rows of 4, with occasional rows of 3 only when needed
   const groupedDeals = useMemo(() => {
     const groups = [];
     let currentIndex = 0;
-    let rowIndex = 0;
-    const remainingDeals = displayedDeals.length - currentIndex;
     
     while (currentIndex < displayedDeals.length) {
       const group = [];
       const remainingCount = displayedDeals.length - currentIndex;
       
-      // Avoid single card rows by adjusting the pattern near the end
-      let cardsPerRow;
-      if (remainingCount <= 8 && remainingCount > 4) {
-        // If we have 5-8 cards left, split them into reasonable groups
-        cardsPerRow = remainingCount <= 6 ? 3 : 4;
-      } else if (remainingCount <= 4) {
-        // For 4 or fewer cards, take them all
+      // Default to rows of 4
+      let cardsPerRow = 4;
+      
+      // Handle edge cases to avoid single rows
+      if (remainingCount <= 3) {
+        // 1, 2, or 3 remaining: take them all
         cardsPerRow = remainingCount;
-      } else {
-        // Normal pattern for bulk of content
-        const patterns = [4, 4, 3, 4, 4, 4, 3, 4];
-        cardsPerRow = patterns[rowIndex % patterns.length];
+      } else if (remainingCount === 5) {
+        // 5 remaining: do 3 first (leaves 2 for next row)
+        cardsPerRow = 3;
+      } else if (remainingCount === 6) {
+        // 6 remaining: do 3 first (leaves 3 for perfect last row)
+        cardsPerRow = 3;
+      } else if (remainingCount === 7) {
+        // 7 remaining: do 4 first (leaves 3 for last row)
+        cardsPerRow = 4;
       }
-      rowIndex++;
       
       // Add up to cardsPerRow deals
       for (let i = 0; i < cardsPerRow && currentIndex < displayedDeals.length; i++) {
