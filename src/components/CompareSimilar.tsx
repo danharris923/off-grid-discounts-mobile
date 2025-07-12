@@ -134,7 +134,11 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
             <div 
               key={deal.id} 
               className="similar-deal"
-              onClick={() => onDealClick(deal)}
+              onClick={() => {
+                if (deal.dealLink) {
+                  window.open(deal.dealLink, '_blank', 'noopener,noreferrer');
+                }
+              }}
             >
               <img 
                 src={deal.imageUrl} 

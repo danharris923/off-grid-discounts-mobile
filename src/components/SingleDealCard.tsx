@@ -70,7 +70,7 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
           {deal.regularPrice && deal.regularPrice > deal.salePrice! && (
             <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
           )}
-          {deal.salePrice !== undefined && deal.salePrice !== null && (
+          {deal.salePrice !== undefined && deal.salePrice !== null && deal.salePrice > 0 && (
             <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
           )}
           {deal.discountPercent && deal.discountPercent > 0 && (

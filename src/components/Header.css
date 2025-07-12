@@ -6,6 +6,7 @@
   z-index: 1000;
   padding: 20px 0;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  position: relative;
 }
 
 .header-container {
@@ -95,7 +96,10 @@
 }
 
 
-.about-link {
+.about-link-top {
+  position: absolute;
+  top: 10px;
+  right: 20px;
   background: transparent;
   border: none;
   color: var(--text-secondary);
@@ -107,9 +111,10 @@
   text-underline-offset: 2px;
   padding: 0;
   margin: 0;
+  z-index: 1001;
 }
 
-.about-link:hover {
+.about-link-top:hover {
   color: var(--text-primary);
 }
 

@@ -25,6 +25,13 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className="site-header">
+        <button 
+          onClick={() => setShowDisclaimer(true)}
+          className="about-link-top"
+          title="View about"
+        >
+          About
+        </button>
         <div className="header-container">
           <div className="header-top">
             <h1 className="site-title">Off-Grid Discounts</h1>
@@ -80,14 +87,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               )}
             </div>
-            
-            <button 
-              onClick={() => setShowDisclaimer(true)}
-              className="about-link"
-              title="View about"
-            >
-              About
-            </button>
           </div>
         </div>
       </div>
