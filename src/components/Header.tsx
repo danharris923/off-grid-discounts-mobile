@@ -31,9 +31,18 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="header-container">
         <div className="header-top">
           <h1 className="site-title">Off-Grid Discounts</h1>
-          <p className="site-tagline">
-            Compare prices from Amazon, Cabela's & more! - <span className="savings-highlight">Save up to 80%</span>
-          </p>
+          <div className="tagline-container">
+            <p className="site-tagline">
+              Compare prices from Amazon, Cabela's & more! - <span className="savings-highlight">Save up to 80%</span>
+            </p>
+            <button 
+              onClick={() => setShowDisclaimer(true)}
+              className="about-link"
+              title="View about"
+            >
+              About
+            </button>
+          </div>
         </div>
         
         <div className="header-controls">
@@ -47,15 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </div>
           
-          <div className="right-controls">
-            <button 
-              onClick={() => setShowDisclaimer(true)}
-              className="disclaimer-button"
-              title="View about"
-            >
-              About
-            </button>
-            
+          <div className="right-controls">            
             <button 
               onClick={toggleTheme}
               className="theme-toggle"
