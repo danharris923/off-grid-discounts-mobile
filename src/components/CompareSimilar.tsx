@@ -44,8 +44,6 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     
     // Simple exclusion pairs - if one word exists, exclude products with the other
     const exclusions = [
-      ['hunting', 'butter'],
-      ['tactical', 'butter'],
       ['combat', 'kitchen'],
       ['survival', 'dining'],
       ['rain', 'work'],
@@ -55,11 +53,63 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
       ['women', 'kid'],
       ['knife', 'battery'],
       ['blade', 'power'],
-      ['cutting', 'charging']
+      ['cutting', 'charging'],
+      ['summer', 'winter'],
+      ['hunting', 'cooking'],
+      ['game', 'kitchen'],
+      ['field', 'kitchen'],
+      ['rifle', 'cooking'],
+      ['scope', 'kitchen'],
+      ['drill', 'flashlight'],
+      ['camping', 'office'],
+      ['hiking', 'desk'],
+      ['trail', 'home'],
+      ['outdoor', 'indoor'],
+      ['marine', 'desert'],
+      ['boat', 'hiking'],
+      ['water', 'mountain'],
+      ['fishing', 'climbing'],
+      ['electric', 'manual'],
+      ['powered', 'hand'],
+      ['motor', 'manual'],
+      ['winter', 'summer'],
+      ['snow', 'beach'],
+      ['cold', 'hot'],
+      ['first aid', 'tool'],
+      ['medical', 'mechanical'],
+      ['health', 'engine'],
+      ['mini', 'xl'],
+      ['compact', 'large'],
+      ['pocket', 'full-size'],
+      ['boots', 'electronics'],
+      ['jacket', 'device'],
+      ['pants', 'gadget'],
+      ['fast', 'slow']
     ];
     
     // Words to exclude from matching (noise words that cause false matches)
-    const excludeWords = ['pro', 'bass pro', 'shop', 'store', 'outlet', 'gear', 'equipment', 'item', 'product'];
+    const excludeWords = [
+      'bass pro', 'basspro', 'cabela\'s', 'cabelas', 'signature', 'club', 'points',
+      'gift card', 'egift', 'e-gift', 'xl', 'xxl', 'xxxl', 'xs', 'small', 'medium', 
+      'med', 'large', 'x-large', '2xl', '3xl', '4xl', 'tall', 'petite', 'kids', 
+      'youth', 'junior', 'womens', 'mens', 'pro', 'ultimate', 'deluxe', 'premium', 
+      'edition', 'bundle', 'combo', 'kit', 'set', 'pack', 'assortment', 'case', 
+      'cover', 'refurbished', 'renewed', 'clearance', 'open box', 'used', 'display', 
+      'demo', 'replacement', 'attachment', 'adapter', 'mount', 'bracket', 'coupon', 
+      'promo', 'promotion', 'discount', 'savings', 'special', 'value', 'sample', 
+      'trial', 'free shipping', 'digital', 'download', 'subscription', 'warranty', 
+      'membership', 'guide', 'manual', 'instructions', 'video', 'dvd', 'course', 
+      'seminar', 'service', 'installation', 'assembly', 'labor', 'fee', 'charge', 
+      'gift', 'certificate', 'booking', 'reservation', 'event', 'ticket', 'tour', 
+      'auction', 'charity', 'donation', 'contribution', 'personalized', 'engraved', 
+      'custom', 'commemorative', 'limited', 'collectible', 'souvenir', 'apparel', 
+      'clothing', 'shop', 'store', 'outlet', 'gear', 'equipment', 'item', 'product',
+      'cordless', '12v', '18v', 'mah', 'ah', 'lbs', 'kg', 'tactical',
+      'black', 'white', 'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 
+      'brown', 'gray', 'grey', 'silver', 'gold', 'tan', 'beige', 'navy', 'maroon', 
+      'olive', 'lime', 'cyan', 'magenta', 'turquoise', 'burgundy', 'crimson', 'ivory', 
+      'khaki', 'coral', 'salmon', 'plum', 'teal', 'mint', 'lavender', 'indigo'
+    ];
     
     // Extract meaningful keywords (skip common words and exclude words)
     const commonWords = ['the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'black', 'white', 'red', 'blue', 'green', 'new', 'used', 'inch', 'cm', 'mm', 'size', 'pack', 'set', ...excludeWords];
