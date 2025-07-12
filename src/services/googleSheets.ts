@@ -459,15 +459,33 @@ export class GoogleSheetsService {
   private cleanPrice(priceStr: string | undefined): number {
     if (!priceStr) return 0;
     
-    // Remove $, ', spaces, and replace .. with .
-    const cleaned = priceStr
-      .toString()
-      .replace(/[$,']/g, '')  // Remove dollar signs, apostrophes, commas
-      .replace(/\.\./g, '.')  // Replace double dots with single dot
-      .replace(/\s/g, '')     // Remove spaces
-      .replace(/%/g, '');     // Remove percentage signs
+    // Convert to string and handle various price formats
+    const original = priceStr.toString();
+    let cleaned = original.trim();
     
-    return parseFloat(cleaned) || 0;
+    // Handle common price prefixes and patterns
+    cleaned = cleaned
+      .replace(/^(From\s*|Starting\s*at\s*|As\s*low\s*as\s*)/i, '') // Remove "From $", "Starting at $", etc.
+      .replace(/^[\s\$]*/, '')     // Remove leading spaces and dollar signs
+      .replace(/[,$']/g, '')       // Remove commas, dollar signs, apostrophes
+      .replace(/\.\./g, '.')       // Replace double dots with single dot
+      .replace(/\s+/g, '')         // Remove all spaces
+      .replace(/%/g, '')           // Remove percentage signs
+      .replace(/[^\d.]/g, '');     // Remove any remaining non-numeric characters except dots
+    
+    // Handle multiple decimal points (keep only the first one)
+    const parts = cleaned.split('.');
+    if (parts.length > 2) {
+      cleaned = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    const result = parseFloat(cleaned);
+    const finalResult = isNaN(result) ? 0 : result;
+    
+    // Debug logging - print the whole string transformation
+    console.log(`Price parsing: "${original}" → "${cleaned}" → ${finalResult}`);
+    
+    return finalResult;
   }
 
   private cleanPercentage(percentStr: string | undefined): number {

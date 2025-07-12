@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Deal } from '../types/Deal';
 import './CompareSimilar.css';
 
@@ -14,6 +14,30 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   onDealClick 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isExpanded && isMobile) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isExpanded, isMobile]);
 
   const similarDeals = useMemo(() => {
     const productName = currentDeal.productName.toLowerCase();
@@ -119,6 +143,11 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(false);
+  };
+
   // Only show compare button if we have at least 2 solid matches
   if (similarDeals.length < 2) {
     return null;
@@ -137,7 +166,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
       </button>
       
       {isExpanded && (
-        <div className="similar-deals">
+        <div className="similar-deals" onClick={isMobile ? handleClose : undefined}>
           {similarDeals.map(deal => (
             <div 
               key={deal.id} 
@@ -157,20 +186,76 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
               <div className="similar-info">
                 <h4 className="similar-title">{deal.productName}</h4>
                 <div className="similar-price">
-                  {deal.salePrice !== undefined && deal.salePrice !== null && deal.salePrice > 0 ? (
-                    <>
-                      {deal.regularPrice && deal.regularPrice > deal.salePrice && (
-                        <span className="similar-regular-price">
-                          {formatPrice(deal.regularPrice)}
+                  {(() => {
+                    // Priority: salePrice > amazonPrice > cabelasPrice > regularPrice
+                    const displayPrice = deal.salePrice || deal.amazonPrice || deal.cabelasPrice || deal.regularPrice;
+                    
+                    if (!displayPrice || displayPrice <= 0) {
+                      return (
+                        <span className="similar-click-price">see price at {deal.retailer}</span>
+                      );
+                    }
+                    
+                    // Strategic price hiding - but ensure comparison functionality
+                    const shouldHidePrice = (() => {
+                      // For high-value items (>$500), only hide some strategically
+                      if (displayPrice > 500) {
+                        // Hide clearance high-value items (creates urgency)
+                        if (deal.clearance) return true;
+                        
+                        // Hide some featured high-value items (30% chance)
+                        if (deal.featured) {
+                          const hash = deal.id.split('').reduce((a, b) => {
+                            a = ((a << 5) - a) + b.charCodeAt(0);
+                            return a & a;
+                          }, 0);
+                          return Math.abs(hash) % 100 < 30;
+                        }
+                        
+                        return false; // Show most high-value prices for comparison
+                      }
+                      
+                      // Hide some mid-range items ($100-$500) randomly (20% chance)
+                      if (displayPrice >= 100 && displayPrice <= 500) {
+                        const hash = deal.id.split('').reduce((a, b) => {
+                          a = ((a << 5) - a) + b.charCodeAt(0);
+                          return a & a;
+                        }, 0);
+                        return Math.abs(hash) % 100 < 20;
+                      }
+                      
+                      // Hide some clearance items under $100 to create urgency
+                      if (deal.clearance && displayPrice < 100) {
+                        const hash = deal.id.split('').reduce((a, b) => {
+                          a = ((a << 5) - a) + b.charCodeAt(0);
+                          return a & a;
+                        }, 0);
+                        return Math.abs(hash) % 100 < 40;
+                      }
+                      
+                      return false;
+                    })();
+                    
+                    if (shouldHidePrice) {
+                      return (
+                        <span className="similar-click-price">see price at {deal.retailer}</span>
+                      );
+                    }
+                    
+                    // Show the price
+                    return (
+                      <>
+                        {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
+                          <span className="similar-regular-price">
+                            {formatPrice(deal.regularPrice)}
+                          </span>
+                        )}
+                        <span className="similar-sale-price">
+                          {formatPrice(displayPrice)}
                         </span>
-                      )}
-                      <span className="similar-sale-price">
-                        {formatPrice(deal.salePrice)}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="similar-click-price">see price at {deal.retailer}</span>
-                  )}
+                      </>
+                    );
+                  })()}
                 </div>
                 <span className="similar-retailer">{deal.retailer}</span>
               </div>
