@@ -17,4 +17,5 @@ export interface Deal {
   bestDealRetailer?: 'amazon' | 'cabelas' | 'single';
   cardType: 'comparison' | 'single';
   retailer?: string;
+  clearance?: boolean;
 }

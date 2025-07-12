@@ -5,15 +5,18 @@ const GOOGLE_SHEETS_API_KEY = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
 const GOOGLE_SHEETS_ID = process.env.REACT_APP_GOOGLE_SHEETS_ID;
 const SHEET1_RANGE = 'Sheet1!A2:L1000'; // Amazon deals - Skip header row, include all columns (A-L = 12 columns)
 const SHEET2_RANGE = 'Sheet2!A2:L1000'; // Cabela's deals - Skip header row, include all columns (A-L = 12 columns)
+const SHEET3_RANGE = 'Sheet3!A2:L1000'; // Cabela's clearance deals - Skip header row, include all columns (A-L = 12 columns)
 
 
 export class GoogleSheetsService {
   private sheet1ApiUrl: string;
   private sheet2ApiUrl: string;
+  private sheet3ApiUrl: string;
 
   constructor() {
     this.sheet1ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET1_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
     this.sheet2ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET2_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
+    this.sheet3ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET3_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
     
     // Log configuration for debugging
     console.log('Google Sheets configuration:', {
@@ -22,37 +25,39 @@ export class GoogleSheetsService {
       apiKeyLength: GOOGLE_SHEETS_API_KEY?.length || 0,
       sheetIdLength: GOOGLE_SHEETS_ID?.length || 0,
       sheet1Url: this.sheet1ApiUrl,
-      sheet2Url: this.sheet2ApiUrl
+      sheet2Url: this.sheet2ApiUrl,
+      sheet3Url: this.sheet3ApiUrl
     });
   }
 
   async fetchDeals(): Promise<Deal[]> {
     try {
-      // Fetch from both sheets in parallel
+      // Fetch from all three sheets in parallel
       console.log('Fetching from Sheet1 (Amazon):', this.sheet1ApiUrl);
       console.log('Fetching from Sheet2 (Cabela\'s):', this.sheet2ApiUrl);
+      console.log('Fetching from Sheet3 (Cabela\'s Clearance):', this.sheet3ApiUrl);
       
-      const [sheet1Response, sheet2Response] = await Promise.all([
+      const [sheet1Response, sheet2Response, sheet3Response] = await Promise.all([
         axios.get(this.sheet1ApiUrl),
         axios.get(this.sheet2ApiUrl).catch(error => {
-          console.error('Sheet2 fetch failed, continuing with Sheet1 only:', error);
-          console.error('Sheet2 URL:', this.sheet2ApiUrl);
-          console.error('Error details:', {
-            status: error?.response?.status,
-            statusText: error?.response?.statusText,
-            data: error?.response?.data
-          });
+          console.error('Sheet2 fetch failed, continuing without it:', error);
+          return { data: { values: [] } };
+        }),
+        axios.get(this.sheet3ApiUrl).catch(error => {
+          console.error('Sheet3 fetch failed, continuing without it:', error);
           return { data: { values: [] } };
         })
       ]);
       
       const sheet1Rows = sheet1Response.data.values || [];
       const sheet2Rows = sheet2Response.data.values || [];
+      const sheet3Rows = sheet3Response.data.values || [];
       
       console.log('Sheet1 rows:', sheet1Rows.length);
       console.log('Sheet2 rows:', sheet2Rows.length);
+      console.log('Sheet3 rows:', sheet3Rows.length);
       
-      if (sheet1Rows.length === 0 && sheet2Rows.length === 0) {
+      if (sheet1Rows.length === 0 && sheet2Rows.length === 0 && sheet3Rows.length === 0) {
         return this.getSampleDeals();
       }
 
@@ -192,11 +197,55 @@ export class GoogleSheetsService {
         };
       });
 
-      // Create comparison cards for matching products
+      // Process Sheet3 (Cabela's clearance deals)
+      const cabelasClearanceDeals = sheet3Rows.map((row: string[], index: number) => {
+        // Add random component to ID for better mixing
+        const randomSuffix = Math.floor(Math.random() * 9000) + 1000;
+        const salePrice = this.cleanPrice(row[3]);  // Column D - Cabela's price
+        let originalPrice = this.cleanPrice(row[9]);  // Column J - Original Price
+        let discountPercent = this.cleanPercentage(row[10]); // Column K - Discount %
+        const link = row[5] || row[4] || '';  // Prefer Cabela's link
+        
+        // Calculate missing values for better price display
+        if (originalPrice > 0 && salePrice > 0 && discountPercent === 0) {
+          // Calculate discount percentage if missing
+          discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+        }
+        
+        if (salePrice > 0 && originalPrice === 0 && discountPercent > 0) {
+          // Calculate original price if missing but we have discount %
+          originalPrice = Math.round((salePrice / (1 - discountPercent / 100)) * 100) / 100;
+        }
+        
+        // Determine if price should be hidden using strategic logic
+        const category = this.parseCategory(row[7]);
+        const productName = row[0] || '';
+        const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
+        
+        return {
+          id: `deal-clr-${randomSuffix}`,
+          productName: row[0] || '',
+          imageUrl: row[1] || '',
+          regularPrice: originalPrice,
+          salePrice: shouldHidePrice ? 0 : salePrice,
+          dealLink: link,
+          retailer: "Cabela's",
+          dealEndDate: row[6] || '',
+          category: category,
+          featured: row[8]?.toLowerCase() === 'true' || false,
+          savings: originalPrice > salePrice ? Math.round((originalPrice - salePrice) * 100) / 100 : parseFloat(row[11]) || 0,
+          discountPercent: discountPercent,
+          bestDealRetailer: 'single' as const,
+          cardType: 'single' as const,
+          clearance: true // All Sheet3 deals get clearance tag
+        };
+      });
+
+      // Create comparison cards for matching products (Amazon vs regular Cabela's only)
       const comparisonDeals = this.createComparisonDeals(amazonDeals, cabelasDeals);
       
-      // Merge all deals - comparisons + remaining singles
-      const allDeals = [...comparisonDeals.comparisons, ...comparisonDeals.singles];
+      // Merge all deals - comparisons + remaining singles + clearance deals
+      const allDeals = [...comparisonDeals.comparisons, ...comparisonDeals.singles, ...cabelasClearanceDeals];
       
       // Return all deals, ProductGrid will handle stable session-based shuffling
       return allDeals;
