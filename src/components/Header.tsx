@@ -51,9 +51,9 @@ export const Header: React.FC<HeaderProps> = ({
             <button 
               onClick={() => setShowDisclaimer(true)}
               className="disclaimer-button"
-              title="View disclaimer"
+              title="View about"
             >
-              Disclaimer
+              About
             </button>
             
             <button 

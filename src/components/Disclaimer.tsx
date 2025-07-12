@@ -14,7 +14,7 @@ export const Disclaimer: React.FC<DisclaimerProps> = ({ onBack }) => {
             ← Back to Deals
           </button>
         )}
-        <h1>Disclaimer</h1>
+        <h1>About</h1>
         
         <div className="disclaimer-content">
           <p>
