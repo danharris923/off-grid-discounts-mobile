@@ -28,11 +28,17 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
       ['rain', 'hiking'],
       ['men', 'women'],
       ['men', 'kid'],
-      ['women', 'kid']
+      ['women', 'kid'],
+      ['knife', 'battery'],
+      ['blade', 'power'],
+      ['cutting', 'charging']
     ];
     
-    // Extract meaningful keywords (skip common words)
-    const commonWords = ['the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'black', 'white', 'red', 'blue', 'green', 'new', 'used', 'inch', 'cm', 'mm', 'size', 'pack', 'set'];
+    // Words to exclude from matching (noise words that cause false matches)
+    const excludeWords = ['pro', 'bass pro', 'shop', 'store', 'outlet', 'gear', 'equipment', 'item', 'product'];
+    
+    // Extract meaningful keywords (skip common words and exclude words)
+    const commonWords = ['the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'black', 'white', 'red', 'blue', 'green', 'new', 'used', 'inch', 'cm', 'mm', 'size', 'pack', 'set', ...excludeWords];
     
     const keywords = productName
       .replace(/[^\w\s]/g, ' ') // Remove punctuation
@@ -59,6 +65,33 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
             return false;
           }
         }
+        
+        // Additional filtering to prevent cross-category matches
+        const productCategories = {
+          knives: ['knife', 'blade', 'cutting', 'sharp', 'edge'],
+          batteries: ['battery', 'power', 'lithium', 'charging', 'rechargeable'],
+          clothing: ['shirt', 'pants', 'jacket', 'coat', 'vest'],
+          tools: ['tool', 'wrench', 'hammer', 'screwdriver', 'drill']
+        };
+        
+        // Check if current product and deal are in conflicting categories
+        for (const [category, terms] of Object.entries(productCategories)) {
+          const currentHasCategory = terms.some(term => productName.includes(term));
+          const dealHasCategory = terms.some(term => dealName.includes(term));
+          
+          if (currentHasCategory && !dealHasCategory) {
+            // Current product is in this category, check if deal conflicts
+            for (const [otherCategory, otherTerms] of Object.entries(productCategories)) {
+              if (category !== otherCategory) {
+                const dealHasOtherCategory = otherTerms.some(term => dealName.includes(term));
+                if (dealHasOtherCategory) {
+                  return false; // Different categories, skip
+                }
+              }
+            }
+          }
+        }
+        
         return true;
       })
       .map(deal => {
@@ -78,7 +111,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
       })
       .filter(item => item.score >= 2) // At least 2 keyword matches for solid match
       .sort((a, b) => b.score - a.score) // Sort by most matches
-      .slice(0, 4) // Limit to 4 similar items
+      .slice(0, 10) // Limit to 10 similar items
       .map(item => item.deal);
 
     return matches;

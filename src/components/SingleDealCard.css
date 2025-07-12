@@ -284,12 +284,12 @@
 }
 
 .single-deal-card .amazon-button {
-  border-color: #ff9900;
-  color: #ff9900;
+  border-color: #cc9900;
+  color: #cc9900;
 }
 
 .single-deal-card .amazon-button::before {
-  background: #ff9900;
+  background: #cc9900;
 }
 
 .single-deal-card .amazon-button:hover {

@@ -38,7 +38,10 @@ export const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealC
   return (
     <div className="deal-card">
       <div className="deal-image-container" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
-        {percentSaved > 20 && <span className="stock-warning">Only 3 left!</span>}
+        {deal.clearance && (
+          <span className="clearance-badge">CLEARANCE</span>
+        )}
+        {percentSaved > 20 && !deal.clearance && <span className="stock-warning">Only 3 left!</span>}
         <img 
           src={deal.imageUrl} 
           alt={deal.productName}
