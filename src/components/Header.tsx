@@ -22,28 +22,16 @@ export const Header: React.FC<HeaderProps> = ({
     onSearch(value);
   };
 
-  if (showDisclaimer) {
-    return <Disclaimer onBack={() => setShowDisclaimer(false)} />;
-  }
-
   return (
-    <header className="site-header">
-      <div className="header-container">
-        <div className="header-top">
-          <h1 className="site-title">Off-Grid Discounts</h1>
-          <div className="tagline-container">
+    <>
+      <header className="site-header">
+        <div className="header-container">
+          <div className="header-top">
+            <h1 className="site-title">Off-Grid Discounts</h1>
             <p className="site-tagline">
               Compare prices from Amazon, Cabela's & more! - <span className="savings-highlight">Save up to 80%</span>
             </p>
-            <button 
-              onClick={() => setShowDisclaimer(true)}
-              className="about-link"
-              title="View about"
-            >
-              About
-            </button>
           </div>
-        </div>
         
         <div className="header-controls">
           <div className="search-container">
@@ -90,9 +78,26 @@ export const Header: React.FC<HeaderProps> = ({
                 ↻
               </button>
             )}
+            
+            <button 
+              onClick={() => setShowDisclaimer(true)}
+              className="about-button"
+              title="View about"
+            >
+              About
+            </button>
           </div>
         </div>
       </div>
     </header>
+    
+    {showDisclaimer && (
+      <div className="disclaimer-modal" onClick={() => setShowDisclaimer(false)}>
+        <div className="disclaimer-modal-content" onClick={(e) => e.stopPropagation()}>
+          <Disclaimer onBack={() => setShowDisclaimer(false)} />
+        </div>
+      </div>
+    )}
+    </>
   );
 };

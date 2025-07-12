@@ -178,7 +178,17 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
                   )}
                   
                   {deal.cardType === 'comparison' ? (
-                    <DealCard deal={deal} />
+                    <DealCard 
+                      deal={deal} 
+                      allDeals={allDeals}
+                      onDealClick={(clickedDeal) => {
+                        // Scroll to the clicked deal
+                        const element = document.querySelector(`[data-deal-id="${clickedDeal.id}"]`);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                    />
                   ) : (
                     <SingleDealCard 
                       deal={deal} 

@@ -1,12 +1,15 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
+import { CompareSimilar } from './CompareSimilar';
 import './DealCard.css';
 
 interface DealCardProps {
   deal: Deal;
+  allDeals?: Deal[];
+  onDealClick?: (deal: Deal) => void;
 }
 
-export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
+export const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealClick }) => {
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
   
   // Generate random viewing count for social proof
@@ -86,6 +89,12 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
             <span>Shop Cabela's</span>
           </button>
         </div>
+        
+        <CompareSimilar 
+          currentDeal={deal}
+          allDeals={allDeals}
+          onDealClick={onDealClick || (() => {})}
+        />
       </div>
     </div>
   );

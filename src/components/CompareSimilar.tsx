@@ -14,149 +14,105 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   onDealClick 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  // Stable random factor for this deal to determine if compare should show
-  const shouldShowCompare = useMemo(() => {
-    // Create a stable hash from deal ID to get consistent behavior per deal
-    const dealHash = currentDeal.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    // Show compare for approximately 70% of eligible deals
-    return (dealHash % 100) < 70;
-  }, [currentDeal.id]);
 
   const similarDeals = useMemo(() => {
-    if (!isExpanded) return [];
-
     const productName = currentDeal.productName.toLowerCase();
     
-    // Debug logging
-    console.log('Checking compare for:', currentDeal.productName);
-    
-    // Detect specific comparable product types
-    const getProductType = (name: string) => {
+    // Detect product category
+    const getCategory = (name: string) => {
       const lower = name.toLowerCase();
       
-      // Very specific product categories that make sense to compare
-      if (lower.includes('trail cam') || lower.includes('game cam') || lower.includes('hunting cam')) {
-        return 'trail-camera';
-      }
-      if (lower.includes('generator') && !lower.includes('power station')) {
-        return 'generator';
-      }
-      if (lower.includes('power station') || lower.includes('portable power')) {
-        return 'power-station';
-      }
-      if (lower.includes('solar panel') || (lower.includes('solar') && lower.includes('panel'))) {
-        return 'solar-panel';
-      }
-      if (lower.includes('battery bank') || (lower.includes('battery') && lower.includes('12v'))) {
-        return 'battery';
-      }
-      if (lower.includes('inverter') && !lower.includes('generator')) {
-        return 'inverter';
-      }
-      if (lower.includes('flashlight') || lower.includes('headlamp') || lower.includes('lantern')) {
-        return 'lighting';
-      }
-      if (lower.includes('walkie') || lower.includes('two way radio') || lower.includes('2-way radio')) {
-        return 'radio';
-      }
-      if (lower.includes('carhartt')) {
-        return 'carhartt';
-      }
-      if (lower.includes('power supply') || lower.includes('power adapter')) {
-        return 'power-supply';
-      }
-      if (lower.includes('charger') && (lower.includes('usb') || lower.includes('battery'))) {
-        return 'charger';
-      }
-      if (lower.includes('cooler') || lower.includes('ice chest')) {
-        return 'cooler';
-      }
-      if (lower.includes('tent') || lower.includes('shelter')) {
-        return 'tent';
-      }
-      if (lower.includes('sleeping bag') || lower.includes('sleep system')) {
-        return 'sleeping-bag';
+      // Optics/Scopes
+      if (lower.includes('scope') || lower.includes('optic') || lower.includes('sight') || lower.includes('binocular') || lower.includes('monocular')) {
+        return 'optics';
       }
       
-      return null; // No comparable type found
+      // Firearms/Weapons
+      if (lower.includes('rifle') || lower.includes('gun') || lower.includes('pistol') || lower.includes('shotgun') || lower.includes('firearm')) {
+        return 'firearms';
+      }
+      
+      // Power/Energy
+      if (lower.includes('generator') || lower.includes('power station') || lower.includes('battery') || lower.includes('solar') || lower.includes('inverter')) {
+        return 'power';
+      }
+      
+      // Outdoor/Camping
+      if (lower.includes('tent') || lower.includes('sleeping') || lower.includes('camping') || lower.includes('backpack') || lower.includes('cooler')) {
+        return 'outdoor';
+      }
+      
+      // Tools
+      if (lower.includes('drill') || lower.includes('saw') || lower.includes('wrench') || lower.includes('hammer') || lower.includes('tool')) {
+        return 'tools';
+      }
+      
+      // Electronics
+      if (lower.includes('radio') || lower.includes('walkie') || lower.includes('gps') || lower.includes('electronics') || lower.includes('charger')) {
+        return 'electronics';
+      }
+      
+      // Clothing
+      if (lower.includes('jacket') || lower.includes('pants') || lower.includes('shirt') || lower.includes('boot') || lower.includes('glove') || lower.includes('carhartt')) {
+        return 'clothing';
+      }
+      
+      // Kitchen/Food
+      if (lower.includes('coffee') || lower.includes('cup') || lower.includes('mug') || lower.includes('food') || lower.includes('kitchen') || lower.includes('cooking')) {
+        return 'kitchen';
+      }
+      
+      return 'general';
     };
 
-    const extractCapacity = (name: string) => {
-      const powerMatch = name.match(/(\d+(?:wh|w|ah|mah))/i);
-      return powerMatch ? powerMatch[1].toLowerCase() : null;
-    };
-
-    const extractBrand = (name: string) => {
-      const lower = name.toLowerCase();
-      const brands = ['goal zero', 'jackery', 'bluetti', 'honda', 'champion', 'predator', 'renogy', 'anker', 'ecoflow', 'bushnell', 'stealth cam', 'reconyx', 'carhartt', 'dewalt', 'milwaukee', 'makita', 'coleman', 'yeti', 'rockpals', 'westinghouse'];
-      return brands.find(brand => lower.includes(brand)) || null;
-    };
-
-    // Only show compare for specific product types
-    const currentProductType = getProductType(productName);
-    if (!currentProductType) {
-      return []; // No compare for this product type
-    }
-
-    const currentBrand = extractBrand(productName);
-    const currentCapacity = extractCapacity(productName);
+    const currentCategory = getCategory(productName);
     
-    const tightMatches = allDeals
-      .filter(deal => deal.id !== currentDeal.id) // Exclude current deal
+    // Extract meaningful keywords (skip common words and generic terms)
+    const commonWords = ['the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'black', 'white', 'red', 'blue', 'green', 'new', 'used', 'inch', 'cm', 'mm'];
+    
+    const keywords = productName
+      .replace(/[^\w\s]/g, ' ') // Remove punctuation
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !commonWords.includes(word))
+      .slice(0, 6); // Use top 6 keywords
+
+    if (keywords.length === 0) return [];
+
+    // Find deals that share keywords AND same category
+    const matches = allDeals
+      .filter(deal => deal.id !== currentDeal.id)
       .filter(deal => {
-        const dealProductType = getProductType(deal.productName);
-        return dealProductType === currentProductType; // MUST be exact same product type
+        const dealCategory = getCategory(deal.productName);
+        // Must be same category OR both are 'general'
+        return dealCategory === currentCategory || (dealCategory === 'general' && currentCategory === 'general');
       })
       .map(deal => {
-        const dealBrand = extractBrand(deal.productName);
-        const dealCapacity = extractCapacity(deal.productName);
+        const dealName = deal.productName.toLowerCase();
+        const matchedKeywords = keywords.filter(keyword => dealName.includes(keyword));
+        let score = matchedKeywords.length;
         
-        let score = 0;
-        
-        // Same brand = high relevance
+        // Bonus points for exact brand matches
+        const brands = ['bushnell', 'leupold', 'vortex', 'nikon', 'zeiss', 'aimpoint', 'trijicon', 'holosun', 'sig sauer', 'primary arms'];
+        const currentBrand = brands.find(brand => productName.includes(brand));
+        const dealBrand = brands.find(brand => dealName.includes(brand));
         if (currentBrand && dealBrand && currentBrand === dealBrand) {
-          score += 100;
+          score += 2; // Brand match bonus
         }
         
-        // Similar capacity = high relevance
-        if (currentCapacity && dealCapacity) {
-          if (currentCapacity === dealCapacity) {
-            score += 80; // Exact capacity match
-          } else {
-            // Parse numbers for range comparison
-            const currentNum = parseInt(currentCapacity);
-            const dealNum = parseInt(dealCapacity);
-            if (!isNaN(currentNum) && !isNaN(dealNum)) {
-              const diff = Math.abs(currentNum - dealNum);
-              if (diff < currentNum * 0.25) { // Within 25%
-                score += 40;
-              }
-            }
-          }
-        }
-        
-        // Same retailer = lower relevance (we want to compare across retailers)
-        if (deal.retailer !== currentDeal.retailer) {
-          score += 20;
-        }
-        
-        return { deal, score };
+        return { deal, score, matchedKeywords };
       })
-      .filter(item => item.score >= 20) // Lower threshold to show more comparisons
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3) // Limit to 3 tight matches
+      .filter(item => item.score >= 1) // At least one keyword match
+      .sort((a, b) => b.score - a.score) // Sort by most matches
+      .slice(0, 4) // Limit to 4 similar items
       .map(item => item.deal);
 
-    console.log('Found matches for', currentDeal.productName, ':', tightMatches.length);
-    return tightMatches;
-  }, [currentDeal, allDeals, isExpanded]);
+    return matches;
+  }, [currentDeal, allDeals]);
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  // Only render the component if we have tight matches AND should show compare
-  if (similarDeals.length === 0 || !shouldShowCompare) {
-    console.log('Not showing compare for', currentDeal.productName, 'matches:', similarDeals.length, 'shouldShow:', shouldShowCompare);
+  // Always show compare button if we have similar deals
+  if (similarDeals.length === 0) {
     return null;
   }
 
@@ -189,7 +145,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
               <div className="similar-info">
                 <h4 className="similar-title">{deal.productName}</h4>
                 <div className="similar-price">
-                  {deal.salePrice && deal.salePrice > 0 ? (
+                  {deal.salePrice !== undefined && deal.salePrice !== null ? (
                     <>
                       {deal.regularPrice && deal.regularPrice > deal.salePrice && (
                         <span className="similar-regular-price">
@@ -201,7 +157,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                       </span>
                     </>
                   ) : (
-                    <span className="similar-click-price">Click to See Price</span>
+                    <span className="similar-click-price">see price at {deal.retailer}</span>
                   )}
                 </div>
                 <span className="similar-retailer">{deal.retailer}</span>

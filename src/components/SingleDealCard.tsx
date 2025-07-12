@@ -68,10 +68,10 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
         <h3 className="deal-title">{deal.productName}</h3>
         
         <div className="price-info">
-          {deal.regularPrice && deal.regularPrice > deal.salePrice! && deal.salePrice !== 0 && (
+          {deal.regularPrice && deal.regularPrice > deal.salePrice! && (
             <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
           )}
-          {deal.salePrice !== 0 && (
+          {deal.salePrice !== undefined && deal.salePrice !== null && (
             <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
           )}
           {deal.discountPercent && deal.discountPercent > 0 && (
@@ -80,23 +80,13 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
         </div>
         
         <div className="button-section">
-          {deal.salePrice === 0 ? (
-            <button 
-              className="price-button"
-              onClick={handleDealClick}
-              rel="nofollow"
-            >
-              <span>See Price on {deal.retailer}</span>
-            </button>
-          ) : (
-            <button 
-              className="get-deal-button"
-              onClick={handleDealClick}
-              rel="nofollow"
-            >
-              <span>Get Deal on {deal.retailer}</span>
-            </button>
-          )}
+          <button 
+            className="get-deal-button"
+            onClick={handleDealClick}
+            rel="nofollow"
+          >
+            <span>Get Deal on {deal.retailer}</span>
+          </button>
           
           <CompareSimilar 
             currentDeal={deal}
