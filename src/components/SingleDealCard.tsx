@@ -1,6 +1,5 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
-import { buildAmazonAffiliateLink, buildRakutenAffiliateLink } from '../utils/affiliateLinks';
 import { CompareSimilar } from './CompareSimilar';
 import './SingleDealCard.css';
 
@@ -19,16 +18,7 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
   const handleDealClick = () => {
     if (!deal.dealLink) return;
     
-    let affiliateLink = deal.dealLink;
-    
-    // Only process affiliate links if they're not already affiliate links
-    if (deal.retailer?.toLowerCase().includes('amazon') && !deal.dealLink.includes('tag=')) {
-      affiliateLink = buildAmazonAffiliateLink(deal.dealLink);
-    } else if (deal.retailer?.toLowerCase().includes('cabela') && !deal.dealLink.includes('linksynergy.com')) {
-      affiliateLink = buildRakutenAffiliateLink(deal.dealLink);
-    }
-    
-    window.open(affiliateLink, '_blank', 'noopener,noreferrer');
+    window.open(deal.dealLink, '_blank', 'noopener,noreferrer');
   };
 
   return (

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
-import { buildAmazonAffiliateLink, buildRakutenAffiliateLink } from '../utils/affiliateLinks';
 import './DealCard.css';
 
 interface DealCardProps {
@@ -17,13 +16,11 @@ export const DealCard: React.FC<DealCardProps> = ({ deal }) => {
   const percentSaved = Math.round((deal.savings! / Math.max(deal.amazonPrice!, deal.cabelasPrice!)) * 100);
   
   const handleAmazonClick = () => {
-    const affiliateLink = buildAmazonAffiliateLink(deal.amazonLink!);
-    window.open(affiliateLink, '_blank', 'noopener,noreferrer');
+    window.open(deal.amazonLink!, '_blank', 'noopener,noreferrer');
   };
   
   const handleCabelasClick = () => {
-    const affiliateLink = buildRakutenAffiliateLink(deal.cabelasLink!);
-    window.open(affiliateLink, '_blank', 'noopener,noreferrer');
+    window.open(deal.cabelasLink!, '_blank', 'noopener,noreferrer');
   };
 
   const handleImageClick = () => {
