@@ -1,5 +1,6 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
+import { CompareSimilar } from './CompareSimilar';
 import './SingleDealCard.css';
 
 interface SingleDealCardProps {
@@ -23,7 +24,10 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
   return (
     <div className="single-deal-card">
       <div className="deal-image-container" onClick={handleDealClick} style={{ cursor: 'pointer' }}>
-        {deal.discountPercent && deal.discountPercent > 15 && (
+        {deal.clearance && (
+          <span className="clearance-badge">CLEARANCE</span>
+        )}
+        {deal.discountPercent && deal.discountPercent > 15 && !deal.clearance && (
           <span className="discount-badge">{deal.discountPercent}% OFF</span>
         )}
         <img 
@@ -86,6 +90,12 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
           >
             <span>Get Deal on {deal.retailer}</span>
           </button>
+          
+          <CompareSimilar 
+            currentDeal={deal}
+            allDeals={allDeals}
+            onDealClick={onDealClick || (() => {})}
+          />
         </div>
         
       </div>
