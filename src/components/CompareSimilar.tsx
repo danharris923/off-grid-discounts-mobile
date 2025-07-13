@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Deal } from '../types/Deal';
 import './CompareSimilar.css';
 
@@ -8,27 +8,24 @@ interface CompareSimilarProps {
   onDealClick: (deal: Deal) => void;
 }
 
+type SheetHeight = 'closed' | 'peek' | 'half' | 'full';
+type ActiveTab = 'similar' | 'comparison' | 'specs';
+
 export const CompareSimilar: React.FC<CompareSimilarProps> = ({ 
   currentDeal, 
   allDeals, 
   onDealClick 
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [sheetHeight, setSheetHeight] = useState<SheetHeight>('closed');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('similar');
+  const [isDragging, setIsDragging] = useState(false);
+  const [startY, setStartY] = useState(0);
+  const [currentY, setCurrentY] = useState(0);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const dragHandleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  useEffect(() => {
-    if (isExpanded && isMobile) {
+    if (sheetHeight !== 'closed') {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -37,282 +34,332 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isExpanded, isMobile]);
+  }, [sheetHeight]);
 
   const similarDeals = useMemo(() => {
-    const productName = currentDeal.productName.toLowerCase();
+    const productTitle = currentDeal.productName.toLowerCase();
     
-    // Simple exclusion pairs - if one word exists, exclude products with the other
-    const exclusions = [
-      ['combat', 'kitchen'],
-      ['survival', 'dining'],
-      ['rain', 'work'],
-      ['rain', 'hiking'],
-      ['men', 'women'],
-      ['men', 'kid'],
-      ['women', 'kid'],
-      ['knife', 'battery'],
-      ['blade', 'power'],
-      ['cutting', 'charging'],
-      ['summer', 'winter'],
-      ['hunting', 'cooking'],
-      ['game', 'kitchen'],
-      ['field', 'kitchen'],
-      ['rifle', 'cooking'],
-      ['scope', 'kitchen'],
-      ['drill', 'flashlight'],
-      ['camping', 'office'],
-      ['hiking', 'desk'],
-      ['trail', 'home'],
-      ['outdoor', 'indoor'],
-      ['marine', 'desert'],
-      ['boat', 'hiking'],
-      ['water', 'mountain'],
-      ['fishing', 'climbing'],
-      ['electric', 'manual'],
-      ['powered', 'hand'],
-      ['motor', 'manual'],
-      ['winter', 'summer'],
-      ['snow', 'beach'],
-      ['cold', 'hot'],
-      ['first aid', 'tool'],
-      ['medical', 'mechanical'],
-      ['health', 'engine'],
-      ['mini', 'xl'],
-      ['compact', 'large'],
-      ['pocket', 'full-size'],
-      ['boots', 'electronics'],
-      ['jacket', 'device'],
-      ['pants', 'gadget'],
-      ['fast', 'slow']
+    // Brand names to exclude from keyword matching
+    const brandNames = [
+      'bass pro', 'basspro', 'cabela', 'cabelas', 'amazon', 'signature', 'club',
+      'coleman', 'yeti', 'pelican', 'garmin', 'bushnell', 'leupold', 'vortex',
+      'redfield', 'nikon', 'zeiss', 'swarovski', 'steiner', 'burris', 'trijicon',
+      'aimpoint', 'holosun', 'sig', 'glock', 'smith', 'wesson', 'remington',
+      'winchester', 'federal', 'hornady', 'barnes', 'nosler', 'berger', 'sierra'
     ];
     
-    // Words to exclude from matching (noise words that cause false matches)
-    const excludeWords = [
-      'bass pro', 'basspro', 'cabela\'s', 'cabelas', 'signature', 'club', 'points',
-      'gift card', 'egift', 'e-gift', 'xl', 'xxl', 'xxxl', 'xs', 'small', 'medium', 
-      'med', 'large', 'x-large', '2xl', '3xl', '4xl', 'tall', 'petite', 'kids', 
-      'youth', 'junior', 'womens', 'mens', 'pro', 'ultimate', 'deluxe', 'premium', 
-      'edition', 'bundle', 'combo', 'kit', 'set', 'pack', 'assortment', 'case', 
-      'cover', 'refurbished', 'renewed', 'clearance', 'open box', 'used', 'display', 
-      'demo', 'replacement', 'attachment', 'adapter', 'mount', 'bracket', 'coupon', 
-      'promo', 'promotion', 'discount', 'savings', 'special', 'value', 'sample', 
-      'trial', 'free shipping', 'digital', 'download', 'subscription', 'warranty', 
-      'membership', 'guide', 'manual', 'instructions', 'video', 'dvd', 'course', 
-      'seminar', 'service', 'installation', 'assembly', 'labor', 'fee', 'charge', 
-      'gift', 'certificate', 'booking', 'reservation', 'event', 'ticket', 'tour', 
-      'auction', 'charity', 'donation', 'contribution', 'personalized', 'engraved', 
-      'custom', 'commemorative', 'limited', 'collectible', 'souvenir', 'apparel', 
-      'clothing', 'shop', 'store', 'outlet', 'gear', 'equipment', 'item', 'product',
-      'cordless', '12v', '18v', 'mah', 'ah', 'lbs', 'kg', 'tactical',
-      'black', 'white', 'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 
-      'brown', 'gray', 'grey', 'silver', 'gold', 'tan', 'beige', 'navy', 'maroon', 
-      'olive', 'lime', 'cyan', 'magenta', 'turquoise', 'burgundy', 'crimson', 'ivory', 
-      'khaki', 'coral', 'salmon', 'plum', 'teal', 'mint', 'lavender', 'indigo'
+    // Size/color/generic terms to ignore
+    const ignoreWords = [
+      'the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are',
+      'small', 'medium', 'large', 'xl', 'xxl', 'xs', 'mini', 'compact', 'full',
+      'black', 'white', 'red', 'blue', 'green', 'brown', 'gray', 'grey', 'tan',
+      'new', 'used', 'refurbished', 'open', 'box', 'pack', 'set', 'kit', 'bundle',
+      'pro', 'premium', 'deluxe', 'ultimate', 'edition', 'series', 'model',
+      'inch', 'cm', 'mm', 'lbs', 'oz', 'ft', 'yard', 'meter'
     ];
     
-    // Extract meaningful keywords (skip common words and exclude words)
-    const commonWords = ['the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'will', 'would', 'could', 'should', 'black', 'white', 'red', 'blue', 'green', 'new', 'used', 'inch', 'cm', 'mm', 'size', 'pack', 'set', ...excludeWords];
+    const allExcludeWords = [...brandNames, ...ignoreWords];
     
-    const keywords = productName
-      .replace(/[^\w\s]/g, ' ') // Remove punctuation
-      .split(/\s+/)
-      .filter(word => word.length > 2 && !commonWords.includes(word))
-      .slice(0, 5); // Use top 5 keywords
-
+    // Extract meaningful keywords from product title
+    const keywords = productTitle
+      .replace(/[^\w\s]/g, ' ')                    // Remove punctuation
+      .split(/\s+/)                               // Split into words
+      .filter(word => 
+        word.length > 2 &&                        // At least 3 characters
+        !allExcludeWords.some(exclude => word.includes(exclude)) // Not a brand/ignore word
+      )
+      .slice(0, 4);                               // Use top 4 keywords
+    
     if (keywords.length === 0) return [];
     
-    // Check for exclusion words in current product
-    const currentExclusions = exclusions
-      .filter(pair => pair.some(word => productName.includes(word)))
-      .flat();
-
-    // Find deals that share keywords
+    // Find similar products based on keyword matches
     const matches = allDeals
       .filter(deal => deal.id !== currentDeal.id)
-      .filter(deal => {
-        const dealName = deal.productName.toLowerCase();
-        
-        // Skip if deal contains any exclusion words
-        for (const exclusion of currentExclusions) {
-          if (dealName.includes(exclusion) && !productName.includes(exclusion)) {
-            return false;
-          }
-        }
-        
-        // Additional filtering to prevent cross-category matches
-        const productCategories = {
-          knives: ['knife', 'blade', 'cutting', 'sharp', 'edge'],
-          batteries: ['battery', 'power', 'lithium', 'charging', 'rechargeable'],
-          clothing: ['shirt', 'pants', 'jacket', 'coat', 'vest'],
-          tools: ['tool', 'wrench', 'hammer', 'screwdriver', 'drill']
-        };
-        
-        // Check if current product and deal are in conflicting categories
-        for (const [category, terms] of Object.entries(productCategories)) {
-          const currentHasCategory = terms.some(term => productName.includes(term));
-          const dealHasCategory = terms.some(term => dealName.includes(term));
-          
-          if (currentHasCategory && !dealHasCategory) {
-            // Current product is in this category, check if deal conflicts
-            for (const [otherCategory, otherTerms] of Object.entries(productCategories)) {
-              if (category !== otherCategory) {
-                const dealHasOtherCategory = otherTerms.some(term => dealName.includes(term));
-                if (dealHasOtherCategory) {
-                  return false; // Different categories, skip
-                }
-              }
-            }
-          }
-        }
-        
-        return true;
-      })
       .map(deal => {
-        const dealName = deal.productName.toLowerCase();
-        const matchedKeywords = keywords.filter(keyword => dealName.includes(keyword));
+        const dealTitle = deal.productName.toLowerCase();
+        
+        // Count keyword matches
+        const matchedKeywords = keywords.filter(keyword => 
+          dealTitle.includes(keyword)
+        );
+        
+        // Calculate similarity score
         let score = matchedKeywords.length;
         
-        // Bonus for important qualifier matches
-        const qualifiers = ['hunting', 'tactical', 'survival', 'rain', 'rubber', 'steel', 'carbon', 'folding', 'fixed'];
-        qualifiers.forEach(qualifier => {
-          if (productName.includes(qualifier) && dealName.includes(qualifier)) {
-            score += 1;
+        // Bonus for exact keyword sequence matches
+        keywords.forEach((keyword, index) => {
+          if (index < keywords.length - 1) {
+            const nextKeyword = keywords[index + 1];
+            if (dealTitle.includes(keyword + ' ' + nextKeyword)) {
+              score += 0.5;
+            }
           }
         });
         
-        return { deal, score, matchedKeywords };
+        return { 
+          deal, 
+          score, 
+          matchedKeywords: matchedKeywords.length,
+          title: dealTitle 
+        };
       })
-      .filter(item => item.score >= 2) // At least 2 keyword matches for solid match
-      .sort((a, b) => b.score - a.score) // Sort by most matches
-      .slice(0, 10) // Limit to 10 similar items
+      .filter(item => item.matchedKeywords >= 2)    // At least 2 keyword matches
+      .sort((a, b) => b.score - a.score)           // Sort by best matches
       .map(item => item.deal);
-
+    
     return matches;
   }, [currentDeal, allDeals]);
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsExpanded(false);
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (!dragHandleRef.current?.contains(e.target as Node)) return;
+    setIsDragging(true);
+    setStartY(e.touches[0].clientY);
+    setCurrentY(e.touches[0].clientY);
+  }, []);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setCurrentY(e.touches[0].clientY);
+  }, [isDragging]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    const deltaY = currentY - startY;
+    const threshold = 100;
+    
+    if (deltaY > threshold) {
+      if (sheetHeight === 'full') setSheetHeight('half');
+      else if (sheetHeight === 'half') setSheetHeight('peek');
+      else if (sheetHeight === 'peek') setSheetHeight('closed');
+    } else if (deltaY < -threshold) {
+      if (sheetHeight === 'peek') setSheetHeight('half');
+      else if (sheetHeight === 'half') setSheetHeight('full');
+      else if (sheetHeight === 'closed') setSheetHeight('peek');
+    }
+  }, [isDragging, currentY, startY, sheetHeight]);
+
+  useEffect(() => {
+    if (sheetHeight === 'closed') return;
+    
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, sheetHeight]);
+
+  const handleBackdropClick = () => {
+    setSheetHeight('closed');
   };
 
-  // Only show compare button if we have at least 2 solid matches
-  if (similarDeals.length < 2) {
-    return null;
-  }
+  const handleDealClick = (deal: Deal) => {
+    if (deal.dealLink) {
+      window.open(deal.dealLink, '_blank', 'noopener,noreferrer');
+    }
+  };
 
-  return (
-    <div className="compare-similar">
-      <button 
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="compare-toggle"
-      >
-        Compare Similar {isExpanded ? '▲' : '▼'}
-        {!isExpanded && (
-          <span className="count">({similarDeals.length} found)</span>
-        )}
-      </button>
+  const getSheetTransform = () => {
+    if (isDragging) {
+      const deltaY = Math.max(0, currentY - startY);
+      return `translateY(${deltaY}px)`;
+    }
+    return 'translateY(0)';
+  };
+
+  const getCurrentPrice = (deal: Deal) => {
+    return deal.salePrice || deal.amazonPrice || deal.cabelasPrice || deal.regularPrice;
+  };
+
+  const renderSpecs = () => {
+    const specs = [
+      { label: 'Brand', value: currentDeal.retailer },
+      { label: 'Category', value: 'Outdoor Gear' },
+      { label: 'Availability', value: 'In Stock' }
+    ];
+    
+    if (currentDeal.featured) specs.push({ label: 'Status', value: 'Featured Deal' });
+    if (currentDeal.clearance) specs.push({ label: 'Status', value: 'Clearance' });
+    
+    return (
+      <div className="specs-content">
+        {specs.map((spec, index) => (
+          <div key={index} className="spec-item">
+            <span className="spec-label">{spec.label}</span>
+            <span className="spec-value">{spec.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderPriceComparison = () => {
+    const currentPrice = getCurrentPrice(currentDeal);
+    const comparisons = similarDeals.slice(0, 5).map(deal => {
+      const dealPrice = getCurrentPrice(deal);
+      const priceDiff = dealPrice && currentPrice ? dealPrice - currentPrice : null;
       
-      {isExpanded && (
-        <div className="similar-deals" onClick={isMobile ? handleClose : undefined}>
-          {similarDeals.map(deal => (
-            <div 
-              key={deal.id} 
-              className="similar-deal"
-              onClick={() => {
-                if (deal.dealLink) {
-                  window.open(deal.dealLink, '_blank', 'noopener,noreferrer');
-                }
-              }}
-            >
-              <img 
-                src={deal.imageUrl} 
-                alt={deal.productName}
-                className="similar-image"
-                loading="lazy"
-              />
-              <div className="similar-info">
-                <h4 className="similar-title">{deal.productName}</h4>
-                <div className="similar-price">
-                  {(() => {
-                    // Priority: salePrice > amazonPrice > cabelasPrice > regularPrice
-                    const displayPrice = deal.salePrice || deal.amazonPrice || deal.cabelasPrice || deal.regularPrice;
-                    
-                    if (!displayPrice || displayPrice <= 0) {
-                      return (
-                        <span className="similar-click-price">see price at {deal.retailer}</span>
-                      );
-                    }
-                    
-                    // Strategic price hiding - but ensure comparison functionality
-                    const shouldHidePrice = (() => {
-                      // For high-value items (>$500), only hide some strategically
-                      if (displayPrice > 500) {
-                        // Hide clearance high-value items (creates urgency)
-                        if (deal.clearance) return true;
-                        
-                        // Hide some featured high-value items (30% chance)
-                        if (deal.featured) {
-                          const hash = deal.id.split('').reduce((a, b) => {
-                            a = ((a << 5) - a) + b.charCodeAt(0);
-                            return a & a;
-                          }, 0);
-                          return Math.abs(hash) % 100 < 30;
-                        }
-                        
-                        return false; // Show most high-value prices for comparison
-                      }
-                      
-                      // Hide some mid-range items ($100-$500) randomly (20% chance)
-                      if (displayPrice >= 100 && displayPrice <= 500) {
-                        const hash = deal.id.split('').reduce((a, b) => {
-                          a = ((a << 5) - a) + b.charCodeAt(0);
-                          return a & a;
-                        }, 0);
-                        return Math.abs(hash) % 100 < 20;
-                      }
-                      
-                      // Hide some clearance items under $100 to create urgency
-                      if (deal.clearance && displayPrice < 100) {
-                        const hash = deal.id.split('').reduce((a, b) => {
-                          a = ((a << 5) - a) + b.charCodeAt(0);
-                          return a & a;
-                        }, 0);
-                        return Math.abs(hash) % 100 < 40;
-                      }
-                      
-                      return false;
-                    })();
-                    
-                    if (shouldHidePrice) {
-                      return (
-                        <span className="similar-click-price">see price at {deal.retailer}</span>
-                      );
-                    }
-                    
-                    // Show the price
-                    return (
-                      <>
-                        {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
-                          <span className="similar-regular-price">
-                            {formatPrice(deal.regularPrice)}
-                          </span>
-                        )}
-                        <span className="similar-sale-price">
-                          {formatPrice(displayPrice)}
-                        </span>
-                      </>
-                    );
-                  })()}
+      return {
+        deal,
+        price: dealPrice,
+        difference: priceDiff,
+        isLower: priceDiff ? priceDiff < 0 : false,
+        isHigher: priceDiff ? priceDiff > 0 : false
+      };
+    });
+    
+    return (
+      <div className="price-comparison-content">
+        <div className="current-deal-price">
+          <div className="price-label">Current Deal</div>
+          <div className="price-value">
+            {currentPrice ? formatPrice(currentPrice) : 'See price at retailer'}
+          </div>
+        </div>
+        
+        <div className="comparison-list">
+          {comparisons.map((comp, index) => (
+            <div key={comp.deal.id} className="comparison-item" onClick={() => handleDealClick(comp.deal)}>
+              <img src={comp.deal.imageUrl} alt={comp.deal.productName} className="comparison-image" />
+              <div className="comparison-info">
+                <div className="comparison-title">{comp.deal.productName}</div>
+                <div className="comparison-pricing">
+                  <span className="comparison-price">
+                    {comp.price ? formatPrice(comp.price) : 'See price'}
+                  </span>
+                  {comp.difference && (
+                    <span className={`price-diff ${comp.isLower ? 'lower' : 'higher'}`}>
+                      {comp.isLower ? '-' : '+'}${Math.abs(comp.difference).toFixed(2)}
+                    </span>
+                  )}
                 </div>
-                <span className="similar-retailer">{deal.retailer}</span>
               </div>
             </div>
           ))}
         </div>
+      </div>
+    );
+  };
+
+  if (similarDeals.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <button 
+        onClick={() => setSheetHeight('peek')}
+        className="compare-toggle"
+      >
+        Compare Similar
+        <span className="count">({similarDeals.length} found)</span>
+      </button>
+      
+      {sheetHeight !== 'closed' && (
+        <>
+          <div className="bottom-sheet-backdrop" onClick={handleBackdropClick} />
+          <div 
+            ref={sheetRef}
+            className={`bottom-sheet ${sheetHeight}`}
+            style={{ transform: getSheetTransform() }}
+          >
+            <div className="sheet-header">
+              <div ref={dragHandleRef} className="drag-handle" />
+              <h3 className="sheet-title">Product Comparison</h3>
+              <button className="close-button" onClick={() => setSheetHeight('closed')}>✕</button>
+            </div>
+            
+            <div className="tab-navigation">
+              <button 
+                className={`tab ${activeTab === 'similar' ? 'active' : ''}`}
+                onClick={() => setActiveTab('similar')}
+              >
+                Similar Products
+              </button>
+              <button 
+                className={`tab ${activeTab === 'comparison' ? 'active' : ''}`}
+                onClick={() => setActiveTab('comparison')}
+              >
+                Price Comparison
+              </button>
+              <button 
+                className={`tab ${activeTab === 'specs' ? 'active' : ''}`}
+                onClick={() => setActiveTab('specs')}
+              >
+                Specs
+              </button>
+            </div>
+            
+            <div className="sheet-content">
+              {activeTab === 'similar' && (
+                <div className="similar-products-grid">
+                  {similarDeals.map(deal => {
+                    const displayPrice = getCurrentPrice(deal);
+                    const shouldHidePrice = (() => {
+                      if (!displayPrice || displayPrice <= 0) return true;
+                      if (displayPrice > 500 && deal.clearance) return true;
+                      if (displayPrice > 500 && deal.featured) {
+                        const hash = deal.id.split('').reduce((a, b) => {
+                          a = ((a << 5) - a) + b.charCodeAt(0);
+                          return a & a;
+                        }, 0);
+                        return Math.abs(hash) % 100 < 30;
+                      }
+                      return false;
+                    })();
+                    
+                    return (
+                      <div 
+                        key={deal.id} 
+                        className="similar-product-card"
+                        onClick={() => handleDealClick(deal)}
+                      >
+                        <div className="product-image-container">
+                          <img 
+                            src={deal.imageUrl} 
+                            alt={deal.productName}
+                            className="product-image"
+                            loading="lazy"
+                          />
+                          {deal.featured && <span className="badge featured">Featured</span>}
+                          {deal.clearance && <span className="badge clearance">Clearance</span>}
+                        </div>
+                        <div className="product-info">
+                          <h4 className="product-title">{deal.productName}</h4>
+                          <div className="product-price">
+                            {shouldHidePrice ? (
+                              <span className="click-price">See price at {deal.retailer}</span>
+                            ) : (
+                              <>
+                                {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
+                                  <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
+                                )}
+                                <span className="sale-price">{formatPrice(displayPrice)}</span>
+                              </>
+                            )}
+                          </div>
+                          <span className="retailer">{deal.retailer}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {activeTab === 'comparison' && renderPriceComparison()}
+              {activeTab === 'specs' && renderSpecs()}
+            </div>
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 };
