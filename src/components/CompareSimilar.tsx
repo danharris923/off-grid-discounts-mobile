@@ -339,7 +339,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                         <div className="product-info">
                           <h4 className="product-title">{deal.productName}</h4>
                           <div className="product-price">
-                            {shouldHidePrice || !displayPrice ? (
+                            {shouldHidePrice || !displayPrice || displayPrice <= 0 ? (
                               <span className="click-price">
                                 {deal.clearance ? "See clearance price" : 
                                  deal.featured ? "See special price" : 
@@ -348,9 +348,9 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                             ) : (
                               <>
                                 {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
-                                  <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
+                                  <span className="regular-price">{formatPrice(deal.regularPrice!)}</span>
                                 )}
-                                <span className="sale-price">{formatPrice(displayPrice)}</span>
+                                <span className="sale-price">{formatPrice(displayPrice!)}</span>
                               </>
                             )}
                           </div>
