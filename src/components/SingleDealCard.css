@@ -40,28 +40,28 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: var(--accent-color);
-  color: white;
-  padding: 4px 12px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  padding: 6px 8px;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.5px;
+  border-radius: 0;
 }
 
 .single-deal-card .clearance-badge {
   position: absolute;
   top: 12px;
   left: 12px;
-  background: linear-gradient(135deg, #28a745 0%, #20803a 100%);
-  color: white;
-  padding: 6px 14px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  padding: 6px 8px;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-radius: 16px;
-  box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+  letter-spacing: 0.5px;
+  border-radius: 0;
   z-index: 2;
 }
 
@@ -105,9 +105,11 @@
 
 .single-deal-card .price-info {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   margin: 8px 0;
+  min-height: 24px;
 }
 
 .single-deal-card .button-section {
@@ -119,16 +121,17 @@
 
 .single-deal-card .regular-price {
   font-size: 14px;
-  color: #c8102e;
+  color: var(--text-secondary);
   text-decoration: line-through;
   font-weight: 400;
   order: 1;
   transition: color 0.3s ease;
+  text-decoration-color: var(--text-secondary);
 }
 
 .single-deal-card .sale-price {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
   order: 2;
@@ -137,8 +140,8 @@
 
 .single-deal-card .savings-text {
   font-size: 12px;
-  color: #c8102e;
-  font-weight: 500;
+  color: var(--text-secondary);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   order: 3;
@@ -191,11 +194,12 @@
 
 
 .single-deal-card .get-deal-button {
-  background: #1877F2;
-  color: white !important;
+  background: var(--button-bg);
+  color: var(--button-text) !important;
   border: none;
-  padding: 10px 16px;
-  font-size: 11px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -204,6 +208,7 @@
   position: relative;
   overflow: hidden;
   width: 100%;
+  touch-action: manipulation;
 }
 
 .single-deal-card .get-deal-button::before {
@@ -213,7 +218,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: #166FE5;
+  background: var(--text-secondary);
   transition: left 0.3s ease;
   z-index: 0;
 }
@@ -224,14 +229,18 @@
 
 .single-deal-card .get-deal-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
-  color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: var(--button-text) !important;
+}
+
+.single-deal-card .get-deal-button:active {
+  transform: scale(0.98);
 }
 
 .single-deal-card .get-deal-button > * {
   position: relative;
   z-index: 1;
-  color: white !important;
+  color: var(--button-text) !important;
 }
 
 

@@ -181,11 +181,11 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
               </button>
             </div>
             
-            <div className="swipe-hint">← Swipe to compare →</div>
+            <div className="scroll-hint">↑ Scroll to compare ↓</div>
             
             <div 
               ref={scrollContainerRef}
-              className="popup-scroll swiper-container"
+              className="popup-scroll"
             >
               {similarDeals.map(deal => {
                 const displayPrice = getCurrentPrice(deal);
