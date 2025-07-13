@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Deal } from '../types/Deal';
-import { DealCard } from './DealCard';
-import { SingleDealCard } from './SingleDealCard';
+import SingleDealCard from './SingleDealCard';
 import './ProductGrid.css';
 
 interface ProductGridProps {

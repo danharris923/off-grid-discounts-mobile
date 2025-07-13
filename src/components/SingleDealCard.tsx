@@ -1,6 +1,7 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
-import { CompareSimilar } from './CompareSimilar';
+import { APP_CONSTANTS } from '../constants/app';
+import CompareSimilar from './CompareSimilar';
 import './SingleDealCard.css';
 
 interface SingleDealCardProps {
@@ -9,11 +10,9 @@ interface SingleDealCardProps {
   onDealClick?: (deal: Deal) => void;
 }
 
-export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals = [], onDealClick }) => {
+const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals = [], onDealClick }) => {
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
   
-  // Generate random viewing count for social proof
-  const viewingCount = React.useMemo(() => Math.floor(Math.random() * 15) + 3, []);
   
   const handleDealClick = () => {
     if (!deal.dealLink) return;
@@ -27,7 +26,7 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
         {deal.clearance && (
           <span className="clearance-badge">CLEARANCE</span>
         )}
-        {deal.discountPercent && deal.discountPercent > 15 && !deal.clearance && (
+        {deal.discountPercent && deal.discountPercent > APP_CONSTANTS.MINIMUM_DISCOUNT_PERCENT && !deal.clearance && (
           <span className="discount-badge">{deal.discountPercent}% OFF</span>
         )}
         <img 
@@ -51,13 +50,11 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
               newSrc = currentSrc.replace(/\._SL\d+_/, '');
             } else {
               // Hide image if all fallbacks fail
-              console.error('All image fallbacks failed for:', deal.imageUrl);
               e.currentTarget.style.display = 'none';
               return;
             }
             
             if (newSrc && newSrc !== currentSrc) {
-              console.log('Trying fallback image:', newSrc);
               e.currentTarget.src = newSrc;
             } else {
               e.currentTarget.style.display = 'none';
@@ -71,11 +68,11 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
         <h3 className="deal-title">{deal.productName}</h3>
         
         <div className="price-info">
-          {deal.regularPrice && deal.regularPrice > deal.salePrice! && (
+          {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
             <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
           )}
-          {deal.salePrice !== undefined && deal.salePrice !== null && deal.salePrice > 0 && (
-            <span className="sale-price">{formatPrice(deal.salePrice!)}</span>
+          {deal.salePrice && deal.salePrice > 0 && (
+            <span className="sale-price">{formatPrice(deal.salePrice)}</span>
           )}
           {deal.discountPercent && deal.discountPercent > 0 && (
             <span className="savings-text">Save {deal.discountPercent}%</span>
@@ -102,3 +99,5 @@ export const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals =
     </div>
   );
 };
+
+export default React.memo(SingleDealCard);

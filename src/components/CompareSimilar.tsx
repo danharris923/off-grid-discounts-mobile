@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Deal } from '../types/Deal';
+import { APP_CONSTANTS } from '../constants/app';
 import './CompareSimilar.css';
 
 interface CompareSimilarProps {
@@ -8,7 +9,7 @@ interface CompareSimilarProps {
   onDealClick: (deal: Deal) => void;
 }
 
-export const CompareSimilar: React.FC<CompareSimilarProps> = ({ 
+const CompareSimilar: React.FC<CompareSimilarProps> = ({ 
   currentDeal, 
   allDeals, 
   onDealClick 
@@ -54,7 +55,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
         word.length > 2 &&
         !ignoreWords.includes(word)
       )
-      .slice(0, 6); // More keywords for better matching
+      .slice(0, APP_CONSTANTS.MAX_KEYWORDS_TO_EXTRACT);
     
     if (keywords.length === 0) return [];
     
@@ -123,12 +124,12 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
       })
       .filter(item => {
         // More flexible filtering - allow single strong matches for specific products
-        if (item.matchedKeywords >= 2) return true;
-        if (item.matchedKeywords >= 1 && item.score >= 3) return true; // Strong category match
+        if (item.matchedKeywords >= APP_CONSTANTS.MINIMUM_KEYWORD_MATCHES) return true;
+        if (item.matchedKeywords >= 1 && item.score >= APP_CONSTANTS.MINIMUM_COMPARISON_SCORE) return true;
         return false;
       })
       .sort((a, b) => b.score - a.score)
-      .slice(0, 12) // Limit results to prevent overwhelming lists
+      .slice(0, APP_CONSTANTS.MAX_COMPARISON_RESULTS)
       .map(item => item.deal);
     
     return matches;
@@ -249,3 +250,5 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     </>
   );
 };
+
+export default React.memo(CompareSimilar);

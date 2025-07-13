@@ -1,11 +1,9 @@
 import axios from 'axios';
 import { Deal } from '../types/Deal';
+import { APP_CONSTANTS, SHEETS_CONFIG } from '../constants/app';
 
 const GOOGLE_SHEETS_API_KEY = process.env.REACT_APP_GOOGLE_SHEETS_API_KEY;
 const GOOGLE_SHEETS_ID = process.env.REACT_APP_GOOGLE_SHEETS_ID;
-const SHEET1_RANGE = 'Sheet1!A2:L1000'; // Amazon deals - Skip header row, include all columns (A-L = 12 columns)
-const SHEET2_RANGE = 'Sheet2!A2:L1000'; // Cabela's deals - Skip header row, include all columns (A-L = 12 columns)
-const SHEET3_RANGE = 'Sheet3!A2:L1000'; // Cabela's clearance deals - Skip header row, include all columns (A-L = 12 columns)
 
 
 export class GoogleSheetsService {
@@ -14,48 +12,25 @@ export class GoogleSheetsService {
   private sheet3ApiUrl: string;
 
   constructor() {
-    this.sheet1ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET1_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
-    this.sheet2ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET2_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
-    this.sheet3ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEET3_RANGE}?key=${GOOGLE_SHEETS_API_KEY}`;
+    this.sheet1ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEETS_CONFIG.RANGES.SHEET1}?key=${GOOGLE_SHEETS_API_KEY}`;
+    this.sheet2ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEETS_CONFIG.RANGES.SHEET2}?key=${GOOGLE_SHEETS_API_KEY}`;
+    this.sheet3ApiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_ID}/values/${SHEETS_CONFIG.RANGES.SHEET3}?key=${GOOGLE_SHEETS_API_KEY}`;
     
-    // Log configuration for debugging
-    console.log('Google Sheets configuration:', {
-      hasApiKey: !!GOOGLE_SHEETS_API_KEY,
-      hasSheetId: !!GOOGLE_SHEETS_ID,
-      apiKeyLength: GOOGLE_SHEETS_API_KEY?.length || 0,
-      sheetIdLength: GOOGLE_SHEETS_ID?.length || 0,
-      sheet1Url: this.sheet1ApiUrl,
-      sheet2Url: this.sheet2ApiUrl,
-      sheet3Url: this.sheet3ApiUrl
-    });
+    // Configuration initialized
   }
 
   async fetchDeals(): Promise<Deal[]> {
     try {
       // Fetch from all three sheets in parallel
-      console.log('Fetching from Sheet1 (Amazon):', this.sheet1ApiUrl);
-      console.log('Fetching from Sheet2 (Cabela\'s):', this.sheet2ApiUrl);
-      console.log('Fetching from Sheet3 (Cabela\'s Clearance):', this.sheet3ApiUrl);
-      
       const [sheet1Response, sheet2Response, sheet3Response] = await Promise.all([
         axios.get(this.sheet1ApiUrl),
-        axios.get(this.sheet2ApiUrl).catch(error => {
-          console.error('Sheet2 fetch failed, continuing without it:', error);
-          return { data: { values: [] } };
-        }),
-        axios.get(this.sheet3ApiUrl).catch(error => {
-          console.error('Sheet3 fetch failed, continuing without it:', error);
-          return { data: { values: [] } };
-        })
+        axios.get(this.sheet2ApiUrl).catch(() => ({ data: { values: [] } })),
+        axios.get(this.sheet3ApiUrl).catch(() => ({ data: { values: [] } }))
       ]);
       
       const sheet1Rows = sheet1Response.data.values || [];
       const sheet2Rows = sheet2Response.data.values || [];
       const sheet3Rows = sheet3Response.data.values || [];
-      
-      console.log('Sheet1 rows:', sheet1Rows.length);
-      console.log('Sheet2 rows:', sheet2Rows.length);
-      console.log('Sheet3 rows:', sheet3Rows.length);
       
       if (sheet1Rows.length === 0 && sheet2Rows.length === 0 && sheet3Rows.length === 0) {
         return this.getSampleDeals();
@@ -63,8 +38,8 @@ export class GoogleSheetsService {
 
       // Process Sheet1 (Amazon deals) 
       const amazonDeals = sheet1Rows.map((row: string[], index: number) => {
-        // Add random component to ID for better mixing
-        const randomSuffix = Math.floor(Math.random() * 9000) + 1000;
+        // Generate deterministic ID based on content
+        const contentHash = this.generateDeterministicId(row[0] || '', 'sheet1', index);
         // Auto-detect card type: if both Amazon and Cabela's data exist, it's a comparison
         const hasAmazonData = row[2] && row[4]; // Price and link in columns C & E
         const hasCabelasData = row[3] && row[5]; // Price and link in columns D & F
@@ -77,7 +52,7 @@ export class GoogleSheetsService {
           const bestDealRetailer = amazonPrice < cabelasPrice ? 'amazon' : 'cabelas';
 
           return {
-            id: `deal-amz-${randomSuffix}`,
+            id: contentHash,
             productName: row[0] || '',
             imageUrl: row[1] || '',
             amazonPrice,
@@ -111,14 +86,9 @@ export class GoogleSheetsService {
           const link = row[4] || row[5] || '';
           const retailer = row[4] ? 'Amazon' : row[5] ? "Cabela's" : 'Unknown';
           
-          // Debug logging for price issues
+          // Skip items with price parsing issues
           if (salePrice === 0) {
-            console.log(`Price issue for "${row[0]}"`, {
-              salePriceRaw: row[2],
-              originalPriceRaw: row[9],
-              discountPercentRaw: row[10],
-              fullRow: row
-            });
+            continue;
           }
 
           // Determine if price should be hidden using strategic logic
@@ -127,7 +97,7 @@ export class GoogleSheetsService {
           const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
           
           return {
-            id: `deal-amz-${randomSuffix}`,
+            id: contentHash,
             productName: row[0] || '',
             imageUrl: row[1] || '',
             regularPrice: originalPrice,
@@ -147,21 +117,15 @@ export class GoogleSheetsService {
 
       // Process Sheet2 (Cabela's deals)
       const cabelasDeals = sheet2Rows.map((row: string[], index: number) => {
-        // Add random component to ID for better mixing
-        const randomSuffix = Math.floor(Math.random() * 9000) + 1000;
+        // Generate deterministic ID based on content
+        const contentHash = this.generateDeterministicId(row[0] || '', 'sheet2', index);
         const salePrice = this.cleanPrice(row[3]);  // Column D - Cabela's price
         let originalPrice = this.cleanPrice(row[9]);  // Column J - Original Price
         let discountPercent = this.cleanPercentage(row[10]); // Column K - Discount %
         const link = row[5] || row[4] || '';  // Prefer Cabela's link
         
         // Debug logging for Cabela's links
-        if (row[0]) {
-          console.log(`Cabela's Link Debug - Product: "${row[0]}"`, {
-            columnE: row[4],
-            columnF: row[5], 
-            finalLink: link
-          });
-        }
+        // Process Cabela's deals from Sheet2
         
         // Calculate missing values for better price display
         if (originalPrice > 0 && salePrice > 0 && discountPercent === 0) {
@@ -180,7 +144,7 @@ export class GoogleSheetsService {
         const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
         
         return {
-          id: `deal-cab-${randomSuffix}`,
+          id: contentHash,
           productName: row[0] || '',
           imageUrl: row[1] || '',
           regularPrice: originalPrice,
@@ -199,8 +163,8 @@ export class GoogleSheetsService {
 
       // Process Sheet3 (Cabela's clearance deals)
       const cabelasClearanceDeals = sheet3Rows.map((row: string[], index: number) => {
-        // Add random component to ID for better mixing
-        const randomSuffix = Math.floor(Math.random() * 9000) + 1000;
+        // Generate deterministic ID based on content
+        const contentHash = this.generateDeterministicId(row[0] || '', 'sheet3', index);
         const salePrice = this.cleanPrice(row[3]);  // Column D - Cabela's price
         let originalPrice = this.cleanPrice(row[9]);  // Column J - Original Price
         let discountPercent = this.cleanPercentage(row[10]); // Column K - Discount %
@@ -223,7 +187,7 @@ export class GoogleSheetsService {
         const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
         
         return {
-          id: `deal-clr-${randomSuffix}`,
+          id: contentHash,
           productName: row[0] || '',
           imageUrl: row[1] || '',
           regularPrice: originalPrice,
@@ -250,21 +214,7 @@ export class GoogleSheetsService {
       // Return all deals, ProductGrid will handle stable session-based shuffling
       return allDeals;
     } catch (error: any) {
-      console.error('Error fetching deals from Google Sheets:', error);
-      console.error('Error details:', {
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
-        message: error?.message,
-        fullError: JSON.stringify(error?.response?.data || error),
-        errorObject: error?.response?.data
-      });
-      
-      // Check for specific API errors
-      if (error?.response?.status === 400 && error?.response?.data?.error?.message?.includes('API key not valid')) {
-        console.error('API Key Error: The Google Sheets API key is invalid or doesn\'t have access to Google Sheets API');
-        console.error('To fix: Enable Google Sheets API in Google Cloud Console for this API key');
-      }
+      // API error occurred, return demo data with warning
       
       // Return sample data with warning
       const sampleDeals = this.getSampleDeals();
@@ -286,7 +236,7 @@ export class GoogleSheetsService {
         salePrice: 1899.99,
         dealLink: 'https://amazon.com/dp/B08FXQB4Z4',
         retailer: 'Amazon',
-        dealEndDate: '2024-12-31',
+        dealEndDate: '2025-12-31',
         category: 'power',
         featured: true,
         savings: 300.00,
@@ -302,7 +252,7 @@ export class GoogleSheetsService {
         salePrice: 1299.99,
         dealLink: 'https://amazon.com/dp/B095GJLPRP',
         retailer: 'Amazon',
-        dealEndDate: '2024-12-25',
+        dealEndDate: '2025-12-25',
         category: 'generators',
         featured: false,
         savings: 200.00,
@@ -318,7 +268,7 @@ export class GoogleSheetsService {
         salePrice: 179.99,
         dealLink: 'https://cabelas.com/shop/en/renogy-100w-solar-panel-kit',
         retailer: "Cabela's",
-        dealEndDate: '2024-12-28',
+        dealEndDate: '2025-12-28',
         category: 'power',
         featured: false,
         savings: 50.00,
@@ -336,7 +286,7 @@ export class GoogleSheetsService {
         cabelasPrice: 469.99,
         amazonLink: 'https://amazon.com/dp/B01MXYBZWM',
         cabelasLink: 'https://cabelas.com/shop/en/champion-3800-watt-dual-fuel-generator',
-        dealEndDate: '2024-12-30',
+        dealEndDate: '2025-12-30',
         category: 'generators',
         featured: true,
         savings: 20.00,
@@ -351,7 +301,7 @@ export class GoogleSheetsService {
         cabelasPrice: 849.99,
         amazonLink: 'https://amazon.com/dp/B078WQGPX8',
         cabelasLink: 'https://cabelas.com/shop/en/battleborn-100ah-lifepo4-battery',
-        dealEndDate: '2024-12-26',
+        dealEndDate: '2025-12-26',
         category: 'batteries',
         featured: false,
         savings: 50.00,
@@ -368,7 +318,7 @@ export class GoogleSheetsService {
         salePrice: 2599.99,
         dealLink: 'https://amazon.com/dp/B09KQXDVHF',
         retailer: 'Amazon',
-        dealEndDate: '2024-12-27',
+        dealEndDate: '2025-12-27',
         category: 'power',
         featured: true,
         savings: 400.00,
@@ -384,7 +334,7 @@ export class GoogleSheetsService {
         salePrice: 289.99,
         dealLink: 'https://cabelas.com/shop/en/cubic-mini-wood-stove',
         retailer: "Cabela's",
-        dealEndDate: '2024-12-20',
+        dealEndDate: '2025-12-20',
         category: 'stoves',
         featured: false,
         savings: 60.00,
@@ -400,7 +350,7 @@ export class GoogleSheetsService {
         salePrice: 1199.99,
         dealLink: 'https://amazon.com/dp/B073HWMVGR',
         retailer: 'Amazon',
-        dealEndDate: '2024-12-18',
+        dealEndDate: '2025-12-18',
         category: 'generators',
         featured: false,
         savings: 200.00,
@@ -422,7 +372,7 @@ export class GoogleSheetsService {
     const pseudoRandom = (hash % 100) / 100; // 0-0.99
     
     // High-value items (>$300) - hide 80% of the time (increased from 60%)
-    if (price > 300) {
+    if (price > APP_CONSTANTS.HIGH_VALUE_THRESHOLD) {
       return pseudoRandom < 0.8;
     }
     
@@ -483,7 +433,7 @@ export class GoogleSheetsService {
     const finalResult = isNaN(result) ? 0 : result;
     
     // Debug logging - print the whole string transformation
-    console.log(`Price parsing: "${original}" → "${cleaned}" → ${finalResult}`);
+    // Price parsed successfully
     
     return finalResult;
   }
@@ -497,6 +447,21 @@ export class GoogleSheetsService {
       .replace(/['%\s]/g, ''); // Remove apostrophes, percentage signs, spaces
     
     return parseInt(cleaned) || 0;
+  }
+
+  private generateDeterministicId(productName: string, sheet: string, index: number): string {
+    // Create a simple hash from product name
+    let hash = 0;
+    const str = productName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    // Make it positive and combine with sheet/index for uniqueness
+    const positiveHash = Math.abs(hash);
+    return `${sheet}-${index}-${positiveHash.toString(36)}`;
   }
 
   private extractModelKey(productName: string): string {
@@ -529,7 +494,7 @@ export class GoogleSheetsService {
     const comparisons: Deal[] = [];
     const singles: Deal[] = [...amazonDeals, ...cabelasDeals];
     
-    console.log(`Created ${comparisons.length} comparison cards, ${singles.length} single cards`);
+    // Created comparison and single cards
     return { comparisons, singles };
   }
 

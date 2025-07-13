@@ -5,6 +5,7 @@ import { Footer } from './components/Footer';
 import { StructuredData } from './components/StructuredData';
 import { SEO } from './components/SEO';
 import { ThemeProvider } from './contexts/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useDeals } from './hooks/useDeals';
 import './App.css';
 
@@ -46,21 +47,23 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <div className="App">
-        <SEO 
-          dealCount={filteredDeals.length}
-        />
-        <StructuredData deals={filteredDeals} />
-        <Header 
-          onSearch={setSearchTerm}
-        />
-        <main className="main-content">
-          <ProductGrid deals={filteredDeals} />
-        </main>
-        <Footer />
-      </div>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <div className="App">
+          <SEO 
+            dealCount={filteredDeals.length}
+          />
+          <StructuredData deals={filteredDeals} />
+          <Header 
+            onSearch={setSearchTerm}
+          />
+          <main className="main-content">
+            <ProductGrid deals={filteredDeals} />
+          </main>
+          <Footer />
+        </div>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Deal } from '../types/Deal';
-import { CompareSimilar } from './CompareSimilar';
+import { APP_CONSTANTS } from '../constants/app';
+import CompareSimilar from './CompareSimilar';
 import './DealCard.css';
 
 interface DealCardProps {
@@ -9,21 +10,25 @@ interface DealCardProps {
   onDealClick?: (deal: Deal) => void;
 }
 
-export const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealClick }) => {
+const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealClick }) => {
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
   
-  // Generate random viewing count for social proof
-  const viewingCount = React.useMemo(() => Math.floor(Math.random() * 20) + 5, []);
   
   // Calculate percentage saved
-  const percentSaved = Math.round((deal.savings! / Math.max(deal.amazonPrice!, deal.cabelasPrice!)) * 100);
+  const percentSaved = deal.savings && deal.amazonPrice && deal.cabelasPrice 
+    ? Math.round((deal.savings / Math.max(deal.amazonPrice, deal.cabelasPrice)) * 100)
+    : 0;
   
   const handleAmazonClick = () => {
-    window.open(deal.amazonLink!, '_blank', 'noopener,noreferrer');
+    if (deal.amazonLink) {
+      window.open(deal.amazonLink, '_blank', 'noopener,noreferrer');
+    }
   };
   
   const handleCabelasClick = () => {
-    window.open(deal.cabelasLink!, '_blank', 'noopener,noreferrer');
+    if (deal.cabelasLink) {
+      window.open(deal.cabelasLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleImageClick = () => {
@@ -41,14 +46,13 @@ export const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealC
         {deal.clearance && (
           <span className="clearance-badge">CLEARANCE</span>
         )}
-        {percentSaved > 20 && !deal.clearance && <span className="stock-warning">Only 3 left!</span>}
+        {percentSaved > APP_CONSTANTS.SIGNIFICANT_DISCOUNT_PERCENT && !deal.clearance && <span className="stock-warning">Only 3 left!</span>}
         <img 
           src={deal.imageUrl} 
           alt={deal.productName}
           className="deal-image"
           loading="lazy"
           onError={(e) => {
-            console.error('Image failed to load:', deal.imageUrl);
             e.currentTarget.style.display = 'none';
           }}
         />
@@ -61,20 +65,22 @@ export const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealC
         <div className="price-comparison">
           <div className="retailer-price">
             <span className="retailer-name">Amazon</span>
-            <span className="price">{formatPrice(deal.amazonPrice!)}</span>
+            <span className="price">{deal.amazonPrice && deal.amazonPrice > 0 ? formatPrice(deal.amazonPrice) : ''}</span>
           </div>
           
           <div className="retailer-price">
             <span className="retailer-name">Cabela's</span>
-            <span className="price">{formatPrice(deal.cabelasPrice!)}</span>
+            <span className="price">{deal.cabelasPrice && deal.cabelasPrice > 0 ? formatPrice(deal.cabelasPrice) : ''}</span>
           </div>
         </div>
         
-        <div className="best-deal-banner">
-          <span className="best-deal-text">
-            Save ${deal.savings!.toFixed(0)} • {deal.bestDealRetailer === 'amazon' ? 'Amazon' : "Cabela's"} wins
-          </span>
-        </div>
+        {deal.savings && deal.savings > 0 && (
+          <div className="best-deal-banner">
+            <span className="best-deal-text">
+              Save ${deal.savings.toFixed(0)} • {deal.bestDealRetailer === 'amazon' ? 'Amazon' : "Cabela's"} wins
+            </span>
+          </div>
+        )}
         
         <div className="action-buttons">
           <button 
@@ -102,3 +108,5 @@ export const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealC
     </div>
   );
 };
+
+export default React.memo(DealCard);
