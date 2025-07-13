@@ -143,7 +143,9 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return deal.salePrice || deal.amazonPrice || deal.cabelasPrice || deal.regularPrice;
   };
 
-  const handleDealClick = (deal: Deal) => {
+  const handleDealClick = (deal: Deal, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (deal.dealLink) {
       window.open(deal.dealLink, '_blank', 'noopener,noreferrer');
     }
@@ -154,15 +156,31 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (e.target === e.currentTarget) {
       setIsExpanded(false);
     }
   };
 
+  const handleCloseClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded(false);
+  };
+
+  const handlePopupClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <>
       <button 
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsExpanded(!isExpanded);
+        }}
         className="compare-toggle"
       >
         Compare Similar ({similarDeals.length} found)
@@ -170,12 +188,12 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
       
       {isExpanded && (
         <div className="compare-overlay" onClick={handleBackdropClick}>
-          <div className="compare-popup">
+          <div className="compare-popup" onClick={handlePopupClick}>
             <div className="popup-header">
               <h3>Similar Products</h3>
               <button 
                 className="close-btn"
-                onClick={() => setIsExpanded(false)}
+                onClick={handleCloseClick}
               >
                 ✕
               </button>
@@ -196,7 +214,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                   <div 
                     key={deal.id} 
                     className="popup-card"
-                    onClick={() => handleDealClick(deal)}
+                    onClick={(e) => handleDealClick(deal, e)}
                   >
                     <div className="popup-image-container">
                       <img 

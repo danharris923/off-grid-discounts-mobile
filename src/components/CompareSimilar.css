@@ -129,6 +129,13 @@
   margin: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
+  animation: fadeIn 0.2s ease-out !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .compare-popup {
@@ -143,6 +150,19 @@
   margin: auto !important;
   position: relative !important;
   z-index: 100000 !important;
+  animation: slideIn 0.3s ease-out !important;
+  transform: scale(1) !important;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .popup-header {
@@ -161,19 +181,29 @@
 }
 
 .close-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 24px;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  background: none !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  font-size: 24px !important;
+  cursor: pointer !important;
+  padding: 8px !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .close-btn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.close-btn:active {
+  background: var(--text-secondary) !important;
+  color: var(--bg-primary) !important;
 }
 
 .scroll-hint {
