@@ -143,9 +143,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return deal.salePrice || deal.amazonPrice || deal.cabelasPrice || deal.regularPrice;
   };
 
-  const handleDealClick = (deal: Deal, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDealClick = (deal: Deal) => {
     if (deal.dealLink) {
       window.open(deal.dealLink, '_blank', 'noopener,noreferrer');
     }
@@ -156,16 +154,12 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     if (e.target === e.currentTarget) {
       setIsExpanded(false);
     }
   };
 
-  const handleCloseClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleCloseClick = () => {
     setIsExpanded(false);
   };
 
@@ -176,11 +170,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   return (
     <>
       <button 
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setIsExpanded(!isExpanded);
-        }}
+        onClick={() => setIsExpanded(!isExpanded)}
         className="compare-toggle"
       >
         Compare Similar ({similarDeals.length} found)
@@ -214,7 +204,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                   <div 
                     key={deal.id} 
                     className="popup-card"
-                    onClick={(e) => handleDealClick(deal, e)}
+                    onClick={() => handleDealClick(deal)}
                   >
                     <div className="popup-image-container">
                       <img 
