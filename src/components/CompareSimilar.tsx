@@ -110,7 +110,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return matches;
   }, [currentDeal, allDeals]);
 
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+  const formatPrice = (price: number | undefined) => `$${(price || 0).toFixed(2)}`;
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     if (!dragHandleRef.current?.contains(e.target as Node)) return;
@@ -342,7 +342,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                                 {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
                                   <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
                                 )}
-                                <span className="sale-price">{formatPrice(displayPrice || 0)}</span>
+                                <span className="sale-price">{formatPrice(displayPrice)}</span>
                               </>
                             )}
                           </div>
