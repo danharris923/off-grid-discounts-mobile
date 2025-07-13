@@ -19,63 +19,116 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
   const similarDeals = useMemo(() => {
     const productTitle = currentDeal.productName.toLowerCase();
     
-    const brandNames = [
-      'bass pro', 'basspro', 'cabela', 'cabelas', 'amazon', 'signature', 'club',
-      'coleman', 'yeti', 'pelican', 'garmin', 'bushnell', 'leupold', 'vortex',
-      'redfield', 'nikon', 'zeiss', 'swarovski', 'steiner', 'burris', 'trijicon',
-      'aimpoint', 'holosun', 'sig', 'glock', 'smith', 'wesson', 'remington',
-      'winchester', 'federal', 'hornady', 'barnes', 'nosler', 'berger', 'sierra'
-    ];
+    // Product type definitions for better categorization
+    const productTypes = {
+      knives: {
+        fixed: ['fixed', 'hunting', 'skinning', 'fillet', 'bowie', 'survival', 'tactical'],
+        folding: ['folding', 'pocket', 'edc', 'everyday', 'carry'],
+        general: ['knife', 'blade', 'steel']
+      },
+      bags: {
+        duffel: ['duffel', 'duffle', 'gear bag', 'travel bag'],
+        backpack: ['backpack', 'pack', 'daypack', 'hiking pack'],
+        general: ['bag', 'pack']
+      },
+      optics: {
+        scopes: ['scope', 'riflescope', 'rifle scope'],
+        binoculars: ['binocular', 'binoculars', 'binos'],
+        general: ['optic', 'sight']
+      }
+    };
     
+    // Common ignore words and retailer names
     const ignoreWords = [
       'the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are',
-      'small', 'medium', 'large', 'xl', 'xxl', 'xs', 'mini', 'compact', 'full',
-      'black', 'white', 'red', 'blue', 'green', 'brown', 'gray', 'grey', 'tan',
       'new', 'used', 'refurbished', 'open', 'box', 'pack', 'set', 'kit', 'bundle',
-      'pro', 'premium', 'deluxe', 'ultimate', 'edition', 'series', 'model',
-      'inch', 'cm', 'mm', 'lbs', 'oz', 'ft', 'yard', 'meter'
+      'inch', 'cm', 'mm', 'lbs', 'oz', 'ft', 'yard', 'meter', 'pro', 'premium',
+      'cabela', 'cabelas', 'bass', 'basspro', 'signature'
     ];
     
-    const allExcludeWords = [...brandNames, ...ignoreWords];
-    
+    // Extract meaningful keywords, preserving important product identifiers
     const keywords = productTitle
       .replace(/[^\w\s]/g, ' ')
       .split(/\s+/)
       .filter(word => 
         word.length > 2 &&
-        !allExcludeWords.some(exclude => word.includes(exclude))
+        !ignoreWords.includes(word)
       )
-      .slice(0, 4);
+      .slice(0, 6); // More keywords for better matching
     
     if (keywords.length === 0) return [];
+    
+    // Detect product category and subcategory
+    const detectCategory = (title: string) => {
+      for (const [category, subcategories] of Object.entries(productTypes)) {
+        for (const [subcat, terms] of Object.entries(subcategories)) {
+          if (terms.some(term => title.includes(term))) {
+            return { category, subcategory: subcat };
+          }
+        }
+      }
+      return null;
+    };
+    
+    const currentCategory = detectCategory(productTitle);
     
     const matches = allDeals
       .filter(deal => deal.id !== currentDeal.id)
       .map(deal => {
         const dealTitle = deal.productName.toLowerCase();
+        const dealCategory = detectCategory(dealTitle);
+        
+        // Score based on keyword matches
         const matchedKeywords = keywords.filter(keyword => 
           dealTitle.includes(keyword)
         );
         let score = matchedKeywords.length;
         
+        // Bonus for exact phrase matches
         keywords.forEach((keyword, index) => {
           if (index < keywords.length - 1) {
             const nextKeyword = keywords[index + 1];
             if (dealTitle.includes(keyword + ' ' + nextKeyword)) {
-              score += 0.5;
+              score += 1; // Higher bonus for phrase matches
             }
           }
         });
+        
+        // Category matching bonuses
+        if (currentCategory && dealCategory) {
+          if (currentCategory.category === dealCategory.category) {
+            score += 2; // Same category bonus
+            if (currentCategory.subcategory === dealCategory.subcategory) {
+              score += 3; // Same subcategory bonus (e.g., both fixed knives)
+            }
+          }
+        }
+        
+        // Penalty for different subcategories within same category
+        if (currentCategory && dealCategory && 
+            currentCategory.category === dealCategory.category &&
+            currentCategory.subcategory !== dealCategory.subcategory &&
+            currentCategory.subcategory !== 'general' &&
+            dealCategory.subcategory !== 'general') {
+          score -= 1; // Reduce score for folding vs fixed knives
+        }
         
         return { 
           deal, 
           score, 
           matchedKeywords: matchedKeywords.length,
+          category: dealCategory,
           title: dealTitle 
         };
       })
-      .filter(item => item.matchedKeywords >= 2)
+      .filter(item => {
+        // More flexible filtering - allow single strong matches for specific products
+        if (item.matchedKeywords >= 2) return true;
+        if (item.matchedKeywords >= 1 && item.score >= 3) return true; // Strong category match
+        return false;
+      })
       .sort((a, b) => b.score - a.score)
+      .slice(0, 12) // Limit results to prevent overwhelming lists
       .map(item => item.deal);
     
     return matches;
@@ -100,77 +153,91 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return null;
   }
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setIsExpanded(false);
+    }
+  };
+
   return (
-    <div className="compare-similar">
+    <>
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
         className="compare-toggle"
       >
         Compare Similar ({similarDeals.length} found)
-        <span className="arrow">{isExpanded ? '▲' : '▼'}</span>
       </button>
       
       {isExpanded && (
-        <div className="horizontal-compare">
-          <div className="compare-header">
-            <h3>Similar Products</h3>
-            <span className="swipe-hint">← Swipe to compare →</span>
-          </div>
-          
-          <div 
-            ref={scrollContainerRef}
-            className="horizontal-scroll"
-          >
-            {similarDeals.map(deal => {
-              const displayPrice = getCurrentPrice(deal);
-              const shouldHidePrice = !displayPrice || displayPrice <= 0;
-              const validPrice = displayPrice && displayPrice > 0;
-              
-              return (
-                <div 
-                  key={deal.id} 
-                  className="compare-card"
-                  onClick={() => handleDealClick(deal)}
-                >
-                  <div className="compare-image-container">
-                    <img 
-                      src={deal.imageUrl} 
-                      alt={deal.productName}
-                      className="compare-image"
-                      loading="lazy"
-                    />
-                    {deal.featured && <span className="badge featured">Featured</span>}
-                    {deal.clearance && <span className="badge clearance">Clearance</span>}
-                  </div>
-                  
-                  <div className="compare-info">
-                    <h4 className="compare-title">{deal.productName}</h4>
-                    
-                    <div className="compare-price">
-                      {!validPrice ? (
-                        <span className="click-price">
-                          {deal.clearance ? "See clearance price" : 
-                           deal.featured ? "See special price" : 
-                           `See price at ${deal.retailer}`}
-                        </span>
-                      ) : (
-                        <>
-                          {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
-                            <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
-                          )}
-                          <span className="sale-price">{formatPrice(displayPrice)}</span>
-                        </>
-                      )}
+        <div className="compare-overlay" onClick={handleBackdropClick}>
+          <div className="compare-popup">
+            <div className="popup-header">
+              <h3>Similar Products</h3>
+              <button 
+                className="close-btn"
+                onClick={() => setIsExpanded(false)}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="swipe-hint">← Swipe to compare →</div>
+            
+            <div 
+              ref={scrollContainerRef}
+              className="popup-scroll swiper-container"
+            >
+              {similarDeals.map(deal => {
+                const displayPrice = getCurrentPrice(deal);
+                const shouldHidePrice = !displayPrice || displayPrice <= 0;
+                const validPrice = displayPrice && displayPrice > 0;
+                
+                return (
+                  <div 
+                    key={deal.id} 
+                    className="popup-card"
+                    onClick={() => handleDealClick(deal)}
+                  >
+                    <div className="popup-image-container">
+                      <img 
+                        src={deal.imageUrl} 
+                        alt={deal.productName}
+                        className="popup-image"
+                        loading="lazy"
+                      />
+                      {deal.featured && <span className="badge featured">Featured</span>}
+                      {deal.clearance && <span className="badge clearance">Clearance</span>}
                     </div>
                     
-                    <span className="compare-retailer">{deal.retailer}</span>
+                    <div className="popup-info">
+                      <h4 className="popup-title">{deal.productName}</h4>
+                      
+                      <div className="popup-price">
+                        {!validPrice ? (
+                          <span className="click-price">
+                            {deal.clearance ? "See clearance price" : 
+                             deal.featured ? "See special price" : 
+                             `See price at ${deal.retailer}`}
+                          </span>
+                        ) : (
+                          <>
+                            {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
+                              <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
+                            )}
+                            <span className="sale-price">{formatPrice(displayPrice)}</span>
+                          </>
+                        )}
+                      </div>
+                      
+                      <span className="popup-retailer">{deal.retailer}</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

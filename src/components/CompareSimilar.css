@@ -4,10 +4,10 @@
 
 .compare-toggle {
   width: 100%;
-  background: #D2691E;
-  border: 1px solid #D2691E;
+  background: #FFC120;
+  border: 1px solid #FFC120;
   border-radius: 8px;
-  color: white;
+  color: #004C91;
   padding: 12px 16px;
   font-size: 14px;
   font-weight: 600;
@@ -23,7 +23,7 @@
 
 .compare-toggle:active {
   transform: scale(0.98);
-  background: #B8621B;
+  background: #E6AD1C;
 }
 
 .arrow {
@@ -182,6 +182,170 @@
   font-weight: 600;
 }
 
+/* Popup Styles */
+.compare-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.compare-popup {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.popup-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.swipe-hint {
+  text-align: center;
+  padding: 12px 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.swiper-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 24px;
+  gap: 16px;
+  scroll-snap-type: x mandatory;
+  /* Show partial cards on sides */
+  scroll-padding: 25%;
+}
+
+.swiper-container::-webkit-scrollbar {
+  display: none;
+}
+
+.popup-card {
+  flex: 0 0 calc(50% - 8px);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-card:first-child {
+  margin-left: 25%;
+}
+
+.popup-card:last-child {
+  margin-right: 25%;
+}
+
+.popup-card:active {
+  transform: scale(0.98);
+  border-color: var(--text-primary);
+}
+
+.popup-image-container {
+  position: relative;
+  margin-bottom: 12px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.popup-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.popup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.popup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.popup-price {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.popup-retailer {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .compare-card {
@@ -192,16 +356,24 @@
     height: 160px;
   }
   
-  .swipe-hint {
-    display: block;
+  .popup-card {
+    flex: 0 0 calc(70% - 8px);
+  }
+  
+  .popup-card:first-child {
+    margin-left: 15%;
+  }
+  
+  .popup-card:last-child {
+    margin-right: 15%;
   }
 }
 
 @media (min-width: 769px) {
   .compare-toggle:hover {
-    background: #B8621B;
+    background: #E6AD1C;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(210, 105, 30, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 193, 32, 0.3);
   }
   
   .compare-card:hover {
@@ -214,7 +386,9 @@
     transform: scale(1.05);
   }
   
-  .swipe-hint {
-    display: none;
+  .popup-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--text-primary);
   }
 }
