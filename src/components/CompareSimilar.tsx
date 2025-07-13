@@ -121,6 +121,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
             {similarDeals.map(deal => {
               const displayPrice = getCurrentPrice(deal);
               const shouldHidePrice = !displayPrice || displayPrice <= 0;
+              const validPrice = displayPrice && displayPrice > 0;
               
               return (
                 <div 
@@ -143,7 +144,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                     <h4 className="compare-title">{deal.productName}</h4>
                     
                     <div className="compare-price">
-                      {shouldHidePrice ? (
+                      {!validPrice ? (
                         <span className="click-price">
                           {deal.clearance ? "See clearance price" : 
                            deal.featured ? "See special price" : 
@@ -152,9 +153,9 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                       ) : (
                         <>
                           {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
-                            <span className="regular-price">{formatPrice(deal.regularPrice!)}</span>
+                            <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
                           )}
-                          <span className="sale-price">{formatPrice(displayPrice!)}</span>
+                          <span className="sale-price">{formatPrice(displayPrice)}</span>
                         </>
                       )}
                     </div>
