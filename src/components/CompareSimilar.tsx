@@ -81,8 +81,8 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return matches;
   }, [currentDeal, allDeals]);
 
-  const formatPrice = (price: number | undefined): string => {
-    if (price === undefined || price === null) return '$0.00';
+  const formatPrice = (price: number | undefined | null): string => {
+    if (!price || price <= 0) return '$0.00';
     return `$${price.toFixed(2)}`;
   };
   
@@ -156,9 +156,9 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                       ) : (
                         <>
                           {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
-                            <span className="regular-price">{formatPrice(deal.regularPrice as number)}</span>
+                            <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
                           )}
-                          <span className="sale-price">{formatPrice(displayPrice as number)}</span>
+                          <span className="sale-price">{formatPrice(displayPrice)}</span>
                         </>
                       )}
                     </div>
