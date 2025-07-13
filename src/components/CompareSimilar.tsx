@@ -175,7 +175,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return 'translateY(0)';
   };
 
-  const getCurrentPrice = (deal: Deal) => {
+  const getCurrentPrice = (deal: Deal): number | undefined => {
     return deal.salePrice || deal.amazonPrice || deal.cabelasPrice || deal.regularPrice;
   };
 
@@ -335,7 +335,7 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                         <div className="product-info">
                           <h4 className="product-title">{deal.productName}</h4>
                           <div className="product-price">
-                            {shouldHidePrice ? (
+                            {shouldHidePrice || !displayPrice ? (
                               <span className="click-price">See price at {deal.retailer}</span>
                             ) : (
                               <>
