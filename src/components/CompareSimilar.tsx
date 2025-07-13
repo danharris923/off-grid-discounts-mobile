@@ -303,34 +303,20 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                 <div className="similar-products-grid">
                   {similarDeals.map(deal => {
                     const displayPrice = getCurrentPrice(deal);
-                    // Strategic price hiding to encourage clicks and create urgency
+                    // Light price hiding - prioritize comparison functionality
                     const shouldHidePrice = (() => {
                       if (!displayPrice || displayPrice <= 0) return true;
                       
-                      // Always hide clearance high-value items (creates urgency)
-                      if (deal.clearance && displayPrice > 300) return true;
-                      
-                      // Hide some featured items randomly to create scarcity feeling
-                      if (deal.featured) {
+                      // Only hide very high-value items (>$1000) occasionally
+                      if (displayPrice > 1000) {
                         const hash = deal.id.split('').reduce((a, b) => {
                           a = ((a << 5) - a) + b.charCodeAt(0);
                           return a & a;
                         }, 0);
-                        return Math.abs(hash) % 100 < 40; // 40% chance to hide
+                        return Math.abs(hash) % 100 < 20; // 20% chance only
                       }
                       
-                      // Hide premium items (>$750) to encourage affiliate clicks
-                      if (displayPrice > 750) return true;
-                      
-                      // Randomly hide mid-range items (25% chance) for engagement
-                      if (displayPrice >= 100 && displayPrice <= 400) {
-                        const hash = deal.id.split('').reduce((a, b) => {
-                          a = ((a << 5) - a) + b.charCodeAt(0);
-                          return a & a;
-                        }, 0);
-                        return Math.abs(hash) % 100 < 25;
-                      }
-                      
+                      // Never hide clearance or featured items in comparison view
                       return false;
                     })();
                     
