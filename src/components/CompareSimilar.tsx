@@ -152,9 +152,9 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                       ) : (
                         <>
                           {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
-                            <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
+                            <span className="regular-price">{formatPrice(deal.regularPrice!)}</span>
                           )}
-                          <span className="sale-price">{formatPrice(displayPrice)}</span>
+                          <span className="sale-price">{formatPrice(displayPrice!)}</span>
                         </>
                       )}
                     </div>
