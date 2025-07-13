@@ -303,16 +303,34 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                 <div className="similar-products-grid">
                   {similarDeals.map(deal => {
                     const displayPrice = getCurrentPrice(deal);
+                    // Strategic price hiding to encourage clicks and create urgency
                     const shouldHidePrice = (() => {
                       if (!displayPrice || displayPrice <= 0) return true;
-                      if (displayPrice > 500 && deal.clearance) return true;
-                      if (displayPrice > 500 && deal.featured) {
+                      
+                      // Always hide clearance high-value items (creates urgency)
+                      if (deal.clearance && displayPrice > 300) return true;
+                      
+                      // Hide some featured items randomly to create scarcity feeling
+                      if (deal.featured) {
                         const hash = deal.id.split('').reduce((a, b) => {
                           a = ((a << 5) - a) + b.charCodeAt(0);
                           return a & a;
                         }, 0);
-                        return Math.abs(hash) % 100 < 30;
+                        return Math.abs(hash) % 100 < 40; // 40% chance to hide
                       }
+                      
+                      // Hide premium items (>$750) to encourage affiliate clicks
+                      if (displayPrice > 750) return true;
+                      
+                      // Randomly hide mid-range items (25% chance) for engagement
+                      if (displayPrice >= 100 && displayPrice <= 400) {
+                        const hash = deal.id.split('').reduce((a, b) => {
+                          a = ((a << 5) - a) + b.charCodeAt(0);
+                          return a & a;
+                        }, 0);
+                        return Math.abs(hash) % 100 < 25;
+                      }
+                      
                       return false;
                     })();
                     
@@ -336,7 +354,11 @@ export const CompareSimilar: React.FC<CompareSimilarProps> = ({
                           <h4 className="product-title">{deal.productName}</h4>
                           <div className="product-price">
                             {shouldHidePrice || !displayPrice ? (
-                              <span className="click-price">See price at {deal.retailer}</span>
+                              <span className="click-price">
+                                {deal.clearance ? "See clearance price" : 
+                                 deal.featured ? "See special price" : 
+                                 `See price at ${deal.retailer}`}
+                              </span>
                             ) : (
                               <>
                                 {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
