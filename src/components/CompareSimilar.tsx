@@ -144,34 +144,44 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return deal.salePrice || deal.amazonPrice || deal.cabelasPrice || deal.regularPrice;
   };
 
-  const handleDealClick = (deal: Deal) => {
+  const handleDealClick = React.useCallback((deal: Deal) => {
     if (deal.dealLink) {
       window.open(deal.dealLink, '_blank', 'noopener,noreferrer');
     }
-  };
+  }, []);
 
   if (similarDeals.length === 0) {
     return null;
   }
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
+  const handleBackdropClick = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (e.target === e.currentTarget) {
       setIsExpanded(false);
     }
-  };
+  }, []);
 
-  const handleCloseClick = () => {
-    setIsExpanded(false);
-  };
-
-  const handlePopupClick = (e: React.MouseEvent) => {
+  const handleCloseClick = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-  };
+    setIsExpanded(false);
+  }, []);
+
+  const handlePopupClick = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleToggleClick = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded(prev => !prev);
+  }, []);
 
   return (
     <>
       <button 
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={handleToggleClick}
         className="compare-toggle"
       >
         Compare Similar ({similarDeals.length} found)

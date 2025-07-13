@@ -14,7 +14,6 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,9 +149,11 @@
 
 .popup-header h3 {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--text-primary);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .close-btn {
@@ -163,7 +164,6 @@
   cursor: pointer;
   padding: 8px;
   border-radius: 4px;
-  transition: all 0.2s ease;
   min-width: 40px;
   min-height: 40px;
   display: flex;
@@ -206,7 +206,6 @@
   border-radius: 12px;
   padding: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
   border: 2px solid transparent;
   display: flex;
   flex-direction: row;

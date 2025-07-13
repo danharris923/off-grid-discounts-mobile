@@ -101,7 +101,7 @@ export class GoogleSheetsService {
             productName: row[0] || '',
             imageUrl: row[1] || '',
             regularPrice: originalPrice,
-            salePrice: shouldHidePrice ? 0 : salePrice,
+            salePrice: salePrice,
             dealLink: link,
             retailer: retailer,
             dealEndDate: row[6] || '',
@@ -138,17 +138,17 @@ export class GoogleSheetsService {
           originalPrice = Math.round((salePrice / (1 - discountPercent / 100)) * 100) / 100;
         }
         
-        // Determine if price should be hidden using strategic logic
+        // Parse category for classification
         const category = this.parseCategory(row[7]);
         const productName = row[0] || '';
-        const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
+        // Show all prices we can get from scrape data
         
         return {
           id: contentHash,
           productName: row[0] || '',
           imageUrl: row[1] || '',
           regularPrice: originalPrice,
-          salePrice: shouldHidePrice ? 0 : salePrice,
+          salePrice: salePrice,
           dealLink: link,
           retailer: "Cabela's",
           dealEndDate: row[6] || '',
@@ -181,17 +181,17 @@ export class GoogleSheetsService {
           originalPrice = Math.round((salePrice / (1 - discountPercent / 100)) * 100) / 100;
         }
         
-        // Determine if price should be hidden using strategic logic
+        // Parse category for classification
         const category = this.parseCategory(row[7]);
         const productName = row[0] || '';
-        const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
+        // Show all prices we can get from scrape data
         
         return {
           id: contentHash,
           productName: row[0] || '',
           imageUrl: row[1] || '',
           regularPrice: originalPrice,
-          salePrice: shouldHidePrice ? 0 : salePrice,
+          salePrice: salePrice,
           dealLink: link,
           retailer: "Cabela's",
           dealEndDate: row[6] || '',
@@ -361,40 +361,6 @@ export class GoogleSheetsService {
     ];
   }
 
-  private shouldHidePrice(price: number, category: Deal['category'], originalPrice?: number, productName?: string): boolean {
-    // Strategic price hiding based on modern e-commerce psychology
-    
-    // Always hide if price is 0 (already means "click for price")
-    if (price === 0) return true;
-    
-    // Create deterministic "random" based on product name hash
-    const hash = productName ? this.hashString(productName) : 0;
-    const pseudoRandom = (hash % 100) / 100; // 0-0.99
-    
-    // High-value items (>$300) - hide 80% of the time (increased from 60%)
-    if (price > APP_CONSTANTS.HIGH_VALUE_THRESHOLD) {
-      return pseudoRandom < 0.8;
-    }
-    
-    // Premium categories - hide 65% of the time (increased from 40%)
-    if (['power', 'generators', 'batteries', 'tools'].includes(category)) {
-      return pseudoRandom < 0.65;
-    }
-    
-    // High discount items (>30%) - show price to highlight great deals (increased threshold)
-    const discount = originalPrice ? ((originalPrice - price) / originalPrice) * 100 : 0;
-    if (discount > 30) {
-      return false; // Always show great deals
-    }
-    
-    // Medium-priced items ($100-$300) - hide 50% of the time (increased from 25%)
-    if (price > 100) {
-      return pseudoRandom < 0.5;
-    }
-    
-    // Low-priced items (<$100) - hide 35% of the time (increased from 15%)
-    return pseudoRandom < 0.35;
-  }
 
   private hashString(str: string): number {
     let hash = 0;
