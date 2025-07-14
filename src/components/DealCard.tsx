@@ -43,10 +43,12 @@ const DealCard: React.FC<DealCardProps> = ({ deal, allDeals = [], onDealClick })
   return (
     <div className="deal-card">
       <div className="deal-image-container" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
+        {deal.discountPercent && deal.discountPercent >= APP_CONSTANTS.SIGNIFICANT_DISCOUNT_PERCENT ? (
+          <span className="discount-badge">{deal.discountPercent}% OFF</span>
+        ) : null}
         {deal.clearance && (
           <span className="clearance-badge">CLEARANCE</span>
         )}
-        {percentSaved > APP_CONSTANTS.SIGNIFICANT_DISCOUNT_PERCENT && !deal.clearance && <span className="stock-warning">Only 3 left!</span>}
         <img 
           src={deal.imageUrl} 
           alt={deal.productName}

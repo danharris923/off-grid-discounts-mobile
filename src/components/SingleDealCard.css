@@ -52,7 +52,7 @@
 
 .single-deal-card .clearance-badge {
   position: absolute;
-  top: 12px;
+  bottom: 12px;
   left: 12px;
   background: linear-gradient(135deg, #c8102e 0%, #a0081f 100%);
   color: white;
