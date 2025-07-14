@@ -80,6 +80,12 @@ const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals = [], on
         </div>
         
         <div className="button-section">
+          <CompareSimilar 
+            currentDeal={deal}
+            allDeals={allDeals}
+            onDealClick={onDealClick || (() => {})}
+          />
+          
           <button 
             className="get-deal-button"
             onClick={handleDealClick}
@@ -87,12 +93,6 @@ const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals = [], on
           >
             <span>Get Deal on {deal.retailer}</span>
           </button>
-          
-          <CompareSimilar 
-            currentDeal={deal}
-            allDeals={allDeals}
-            onDealClick={onDealClick || (() => {})}
-          />
         </div>
         
       </div>
