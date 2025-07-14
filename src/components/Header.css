@@ -41,7 +41,7 @@
 }
 
 .savings-highlight {
-  color: var(--accent-color);
+  color: #c8102e;
   font-weight: 500;
   transition: color 0.3s ease;
 }
