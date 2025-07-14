@@ -88,13 +88,13 @@ export class GoogleSheetsService {
           
           // Skip items with price parsing issues
           if (salePrice === 0) {
-            continue;
+            return null;
           }
 
-          // Determine if price should be hidden using strategic logic
+          // Parse category for classification
           const category = this.parseCategory(row[7]);
           const productName = row[0] || '';
-          const shouldHidePrice = this.shouldHidePrice(salePrice, category, originalPrice, productName);
+          // Show all prices we can get from scrape data
           
           return {
             id: contentHash,
@@ -113,7 +113,7 @@ export class GoogleSheetsService {
             cardType: 'single' as const
           };
         }
-      });
+      }).filter(Boolean);
 
       // Process Sheet2 (Cabela's deals)
       const cabelasDeals = sheet2Rows.map((row: string[], index: number) => {
