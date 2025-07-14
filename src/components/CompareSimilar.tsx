@@ -18,6 +18,8 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const similarDeals = useMemo(() => {
+    // Add stability check to prevent unnecessary recalculations
+    if (!currentDeal?.productName || !allDeals?.length) return [];
     const productTitle = currentDeal.productName.toLowerCase();
     
     // Product type definitions for better categorization
@@ -261,4 +263,11 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   );
 };
 
-export default React.memo(CompareSimilar);
+export default React.memo(CompareSimilar, (prevProps, nextProps) => {
+  // Custom comparison to prevent unnecessary re-renders
+  return (
+    prevProps.currentDeal.id === nextProps.currentDeal.id &&
+    prevProps.allDeals.length === nextProps.allDeals.length &&
+    prevProps.onDealClick === nextProps.onDealClick
+  );
+});

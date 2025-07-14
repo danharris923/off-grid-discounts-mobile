@@ -19,6 +19,18 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
   const [displayedDeals, setDisplayedDeals] = useState<Deal[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [allDeals, setAllDeals] = useState<Deal[]>([]);
+  
+  // Memoize allDeals to prevent unnecessary re-renders
+  const memoizedAllDeals = useMemo(() => allDeals, [allDeals]);
+  
+  // Memoize onDealClick callback
+  const handleDealClick = useCallback((clickedDeal: Deal) => {
+    // Scroll to the clicked deal
+    const element = document.querySelector(`[data-deal-id="${clickedDeal.id}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, []);
 
   // Only shuffle once when deals change, using stable session seed with retailer distribution
   React.useEffect(() => {
@@ -178,14 +190,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ deals, featuredDeals =
                   
                   <SingleDealCard 
                     deal={deal} 
-                    allDeals={allDeals}
-                    onDealClick={(clickedDeal) => {
-                      // Scroll to the clicked deal
-                      const element = document.querySelector(`[data-deal-id="${clickedDeal.id}"]`);
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }
-                    }}
+                    allDeals={memoizedAllDeals}
+                    onDealClick={handleDealClick}
                   />
                 </article>
               ))}
