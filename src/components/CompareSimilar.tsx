@@ -150,7 +150,7 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
           title: dealTitle 
         };
       })
-      .filter(Boolean)
+      .filter((item): item is NonNullable<typeof item> => item !== null)
       .filter(item => {
         // More flexible filtering - allow single strong matches for specific products
         if (item.matchedKeywords >= APP_CONSTANTS.MINIMUM_KEYWORD_MATCHES) return true;
