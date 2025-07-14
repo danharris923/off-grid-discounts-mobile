@@ -156,29 +156,13 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     return null;
   }
 
-  const handleBackdropClick = React.useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.target === e.currentTarget) {
-      setIsExpanded(false);
-    }
-  }, []);
-
-  const handleCloseClick = React.useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleCloseClick = () => {
     setIsExpanded(false);
-  }, []);
+  };
 
-  const handlePopupClick = React.useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-  }, []);
-
-  const handleToggleClick = React.useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsExpanded(prev => !prev);
-  }, []);
+  const handleToggleClick = () => {
+    setIsExpanded(true);
+  };
 
   return (
     <>
@@ -190,8 +174,8 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
       </button>
       
       {isExpanded && (
-        <div className="compare-overlay" onClick={handleBackdropClick}>
-          <div className="compare-popup" onClick={handlePopupClick}>
+        <div className="compare-overlay">
+          <div className="compare-popup">
             <div className="popup-header">
               <h3>Similar Products</h3>
               <button 
@@ -202,7 +186,6 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
               </button>
             </div>
             
-            <div className="scroll-hint">↑ Scroll to compare ↓</div>
             
             <div 
               ref={scrollContainerRef}
@@ -263,11 +246,4 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   );
 };
 
-export default React.memo(CompareSimilar, (prevProps, nextProps) => {
-  // Custom comparison to prevent unnecessary re-renders
-  return (
-    prevProps.currentDeal.id === nextProps.currentDeal.id &&
-    prevProps.allDeals.length === nextProps.allDeals.length &&
-    prevProps.onDealClick === nextProps.onDealClick
-  );
-});
+export default React.memo(CompareSimilar);
