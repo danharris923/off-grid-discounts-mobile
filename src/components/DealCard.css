@@ -54,15 +54,16 @@
   position: absolute;
   top: 12px;
   left: 12px;
-  background: var(--button-bg);
-  color: var(--button-text);
-  padding: 6px 8px;
-  font-size: 10px;
+  background: linear-gradient(135deg, #c8102e 0%, #a0081f 100%);
+  color: white;
+  padding: 8px 16px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-radius: 0;
-  z-index: 2;
+  letter-spacing: 0.1em;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(200, 16, 46, 0.3);
+  z-index: 10;
 }
 
 .stock-warning {

@@ -24,31 +24,51 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     if (!currentDeal?.productName || !allDeals?.length) return [];
     const productTitle = currentDeal.productName.toLowerCase();
     
-    // Product type definitions for better categorization
-    const productTypes = {
-      knives: {
-        fixed: ['fixed', 'hunting', 'skinning', 'fillet', 'bowie', 'survival', 'tactical'],
-        folding: ['folding', 'pocket', 'edc', 'everyday', 'carry'],
-        general: ['knife', 'blade', 'steel']
+    // Function-based product categorization (avoiding house brands)
+    const productFunctions = {
+      powerStorage: {
+        powerStations: ['power station', 'portable power', 'solar generator'],
+        goalZero: ['goal zero yeti', 'yeti'],
+        jackery: ['jackery explorer', 'jackery'],
+        bluetti: ['bluetti ac', 'bluetti eb', 'bluetti'],
+        capacitySpecs: ['wh', 'watt hour', 'amp hour', 'ah']
       },
-      bags: {
-        duffel: ['duffel', 'duffle', 'gear bag', 'travel bag'],
-        backpack: ['backpack', 'pack', 'daypack', 'hiking pack'],
-        general: ['bag', 'pack']
+      solarEquipment: {
+        panels: ['solar panel', 'photovoltaic', 'pv panel'],
+        technology: ['monocrystalline', 'polycrystalline', 'flexible solar'],
+        wattage: ['100w', '200w', '300w', '400w', 'watt'],
+        kits: ['solar kit', 'solar system']
       },
-      optics: {
-        scopes: ['scope', 'riflescope', 'rifle scope'],
-        binoculars: ['binocular', 'binoculars', 'binos'],
-        general: ['optic', 'sight']
+      generators: {
+        types: ['generator', 'inverter generator', 'dual fuel'],
+        honda: ['honda eu', 'eu2200', 'eu3000'],
+        champion: ['champion dual fuel', 'champion inverter'],
+        specs: ['2200w', '3000w', '4000w', 'watts', 'running watts']
+      },
+      batteries: {
+        chemistry: ['lifepo4', 'lithium iron', 'agm', 'gel', 'deep cycle'],
+        capacity: ['100ah', '200ah', '300ah', 'amp hour'],
+        voltage: ['12v', '24v', '48v', 'volt']
+      },
+      heating: {
+        woodStoves: ['wood stove', 'wood burning', 'tent stove'],
+        propane: ['propane stove', 'camp stove', 'portable stove'],
+        specs: ['btu', 'cubic mini', 'chimney']
       }
     };
     
-    // Common ignore words and retailer names
+    // House brands and generic marketing terms to ignore
     const ignoreWords = [
       'the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are',
-      'new', 'used', 'refurbished', 'open', 'box', 'pack', 'set', 'kit', 'bundle',
-      'inch', 'cm', 'mm', 'lbs', 'oz', 'ft', 'yard', 'meter', 'pro', 'premium',
-      'cabela', 'cabelas', 'bass', 'basspro', 'signature'
+      'new', 'used', 'refurbished', 'open', 'box', 'pack', 'set', 'bundle',
+      'inch', 'cm', 'mm', 'lbs', 'oz', 'ft', 'yard', 'meter',
+      // House brands and generic terms
+      'pro', 'premium', 'custom', 'signature', 'elite', 'series', 'collection',
+      'cabela', 'cabelas', 'bass', 'basspro', 'redhead', 'ascend', 'white', 'river',
+      'uncle', 'bucks', 'mens', 'womens', 'youth', 'adult', 'size', 'color',
+      // Clothing/non-power terms
+      'jacket', 'shirt', 'pants', 'boots', 'gloves', 'hat', 'coat', 'vest',
+      'fishing', 'hunting', 'camo', 'camouflage', 'outdoor', 'tactical'
     ];
     
     // Extract meaningful keywords, preserving important product identifiers
@@ -63,69 +83,74 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     
     if (keywords.length === 0) return [];
     
-    // Detect product category and subcategory
-    const detectCategory = (title: string) => {
-      for (const [category, subcategories] of Object.entries(productTypes)) {
-        for (const [subcat, terms] of Object.entries(subcategories)) {
+    // Detect product function and subtype
+    const detectProductFunction = (title: string) => {
+      for (const [functionType, subtypes] of Object.entries(productFunctions)) {
+        for (const [subtype, terms] of Object.entries(subtypes)) {
           if (terms.some(term => title.includes(term))) {
-            return { category, subcategory: subcat };
+            return { functionType, subtype };
           }
         }
       }
       return null;
     };
     
-    const currentCategory = detectCategory(productTitle);
+    const currentFunction = detectProductFunction(productTitle);
     
     const matches = allDeals
       .filter(deal => deal.id !== currentDeal.id)
       .map(deal => {
         const dealTitle = deal.productName.toLowerCase();
-        const dealCategory = detectCategory(dealTitle);
+        const dealFunction = detectProductFunction(dealTitle);
         
-        // Score based on keyword matches
+        // Skip if different product functions (no power station vs fishing rod matches)
+        if (currentFunction && dealFunction && 
+            currentFunction.functionType !== dealFunction.functionType) {
+          return null;
+        }
+        
+        // Score based on meaningful keyword matches
         const matchedKeywords = keywords.filter(keyword => 
           dealTitle.includes(keyword)
         );
         let score = matchedKeywords.length;
         
-        // Bonus for exact phrase matches
+        // Bonus for exact phrase matches (technical terms)
         keywords.forEach((keyword, index) => {
           if (index < keywords.length - 1) {
             const nextKeyword = keywords[index + 1];
             if (dealTitle.includes(keyword + ' ' + nextKeyword)) {
-              score += 1; // Higher bonus for phrase matches
+              score += 2; // Higher bonus for technical phrase matches
             }
           }
         });
         
-        // Category matching bonuses
-        if (currentCategory && dealCategory) {
-          if (currentCategory.category === dealCategory.category) {
-            score += 2; // Same category bonus
-            if (currentCategory.subcategory === dealCategory.subcategory) {
-              score += 3; // Same subcategory bonus (e.g., both fixed knives)
+        // Function matching bonuses
+        if (currentFunction && dealFunction) {
+          if (currentFunction.functionType === dealFunction.functionType) {
+            score += 3; // Same function type bonus (both power storage)
+            if (currentFunction.subtype === dealFunction.subtype) {
+              score += 4; // Same subtype bonus (both Goal Zero Yeti)
             }
           }
         }
         
-        // Penalty for different subcategories within same category
-        if (currentCategory && dealCategory && 
-            currentCategory.category === dealCategory.category &&
-            currentCategory.subcategory !== dealCategory.subcategory &&
-            currentCategory.subcategory !== 'general' &&
-            dealCategory.subcategory !== 'general') {
-          score -= 1; // Reduce score for folding vs fixed knives
-        }
+        // Technical specification matching
+        const techTerms = ['wh', 'ah', 'watt', 'volt', 'btu', 'amp', 'lithium'];
+        const currentTechTerms = techTerms.filter(term => productTitle.includes(term));
+        const dealTechTerms = techTerms.filter(term => dealTitle.includes(term));
+        const matchedTechTerms = currentTechTerms.filter(term => dealTechTerms.includes(term));
+        score += matchedTechTerms.length * 2; // Bonus for matching technical specs
         
         return { 
           deal, 
           score, 
           matchedKeywords: matchedKeywords.length,
-          category: dealCategory,
+          functionType: dealFunction,
           title: dealTitle 
         };
       })
+      .filter(Boolean)
       .filter(item => {
         // More flexible filtering - allow single strong matches for specific products
         if (item.matchedKeywords >= APP_CONSTANTS.MINIMUM_KEYWORD_MATCHES) return true;
