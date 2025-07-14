@@ -26,24 +26,72 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     // Filter out current deal
     const otherDeals = allDeals.filter(deal => deal.id !== currentDeal.id);
     
-    // Configure Fuse.js for fuzzy search
+    // Extract important keywords from product name
+    const extractKeywords = (productName: string): string[] => {
+      const importantWords = [
+        'jacket', 'coat', 'vest', 'hoodie', 'sweater', 'fleece', 'parka',
+        'boots', 'shoes', 'sandals', 'sneakers', 'hiking', 'running',
+        'backpack', 'bag', 'pack', 'duffel', 'tote', 'messenger',
+        'tent', 'sleeping', 'bag', 'pad', 'mattress', 'pillow',
+        'knife', 'multi-tool', 'flashlight', 'headlamp', 'lantern',
+        'cooler', 'thermos', 'bottle', 'mug', 'tumbler',
+        'gloves', 'hat', 'beanie', 'cap', 'scarf',
+        'pants', 'shorts', 'jeans', 'leggings', 'tights',
+        'shirt', 't-shirt', 'polo', 'tank', 'top',
+        'watch', 'sunglasses', 'wallet', 'belt',
+        'fishing', 'hunting', 'camping', 'hiking', 'outdoor'
+      ];
+      
+      const words = productName.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 2);
+      
+      const keywords = words.filter(word => importantWords.includes(word));
+      
+      // Add brand names and model numbers
+      const brands = ['north', 'face', 'carhartt', 'yeti', 'under', 'armour', 'nike', 'adidas', 'columbia', 'patagonia'];
+      const brandKeywords = words.filter(word => brands.includes(word));
+      
+      return [...new Set([...keywords, ...brandKeywords])];
+    };
+    
+    const currentKeywords = extractKeywords(currentDeal.productName);
+    
+    // If we have important keywords, search by those first
+    if (currentKeywords.length > 0) {
+      const keywordMatches = otherDeals.filter(deal => {
+        const dealKeywords = extractKeywords(deal.productName);
+        return dealKeywords.some(keyword => currentKeywords.includes(keyword));
+      });
+      
+      if (keywordMatches.length > 0) {
+        // Use fuse.js on keyword matches for better ranking
+        const fuse = new Fuse(keywordMatches, {
+          keys: [{ name: 'productName', weight: 1.0 }],
+          threshold: 0.8, // Very lenient since we pre-filtered by keywords
+          distance: 300,
+          minMatchCharLength: 3,
+          includeScore: true
+        });
+        
+        const results = fuse.search(currentDeal.productName);
+        return results
+          .slice(0, APP_CONSTANTS.MAX_COMPARISON_RESULTS)
+          .map(result => result.item);
+      }
+    }
+    
+    // Fallback to regular fuzzy search if no keyword matches
     const fuse = new Fuse(otherDeals, {
-      keys: [
-        {
-          name: 'productName',
-          weight: 1.0
-        }
-      ],
-      threshold: 0.4, // Lower = more strict matching (0.0 = exact, 1.0 = match anything)
-      distance: 100,   // Maximum character distance for matches
-      minMatchCharLength: 3, // Minimum character length to match
+      keys: [{ name: 'productName', weight: 1.0 }],
+      threshold: 0.4,
+      distance: 200,
+      minMatchCharLength: 3,
       includeScore: true
     });
     
-    // Search for similar products
     const results = fuse.search(currentDeal.productName);
-    
-    // Return top matches, limited by MAX_COMPARISON_RESULTS
     return results
       .slice(0, APP_CONSTANTS.MAX_COMPARISON_RESULTS)
       .map(result => result.item);
