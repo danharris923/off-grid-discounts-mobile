@@ -53,7 +53,7 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
       const brands = ['north', 'face', 'carhartt', 'yeti', 'under', 'armour', 'nike', 'adidas', 'columbia', 'patagonia'];
       const brandKeywords = words.filter(word => brands.includes(word));
       
-      return [...new Set([...keywords, ...brandKeywords])];
+      return Array.from(new Set([...keywords, ...brandKeywords]));
     };
     
     const currentKeywords = extractKeywords(currentDeal.productName);
