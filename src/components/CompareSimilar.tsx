@@ -98,7 +98,7 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   }, [currentDeal, allDeals]);
 
   const formatPrice = (price: number | undefined | null): string => {
-    if (!price || price <= 0) return '$0.00';
+    if (!price || price <= 0) return '';
     return `$${price.toFixed(2)}`;
   };
   

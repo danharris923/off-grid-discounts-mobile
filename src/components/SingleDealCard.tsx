@@ -68,15 +68,15 @@ const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals = [], on
         <h3 className="deal-title">{deal.productName}</h3>
         
         <div className="price-info">
-          {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice && (
+          {deal.regularPrice && deal.salePrice && deal.regularPrice > deal.salePrice ? (
             <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
-          )}
-          {deal.salePrice && deal.salePrice > 0 && (
+          ) : null}
+          {deal.salePrice && deal.salePrice > 0 ? (
             <span className="sale-price">{formatPrice(deal.salePrice)}</span>
-          )}
-          {deal.discountPercent && deal.discountPercent > 0 && (
+          ) : null}
+          {deal.discountPercent && deal.discountPercent > 0 ? (
             <span className="savings-text">Save {deal.discountPercent}%</span>
-          )}
+          ) : null}
         </div>
         
         <div className="button-section">
