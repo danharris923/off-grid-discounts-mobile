@@ -13,8 +13,9 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   currentDeal, 
   allDeals, 
   onDealClick 
-}) => {
+) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const similarDeals = useMemo(() => {
@@ -157,11 +158,17 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   }
 
   const handleCloseClick = () => {
+    if (isToggling) return;
+    setIsToggling(true);
     setIsExpanded(false);
+    setTimeout(() => setIsToggling(false), 100);
   };
 
   const handleToggleClick = () => {
+    if (isToggling) return;
+    setIsToggling(true);
     setIsExpanded(true);
+    setTimeout(() => setIsToggling(false), 100);
   };
 
   return (
@@ -169,6 +176,7 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
       <button 
         onClick={handleToggleClick}
         className="compare-toggle"
+        disabled={isToggling}
       >
         Compare Similar ({similarDeals.length} found)
       </button>
