@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Deal } from '../types/Deal';
 import { APP_CONSTANTS } from '../constants/app';
 import './CompareSimilar.css';
@@ -166,6 +167,12 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     }, 200);
   };
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleCloseClick();
+    }
+  };
+
   const handleToggleClick = () => {
     if (isTogglingRef.current) return;
     isTogglingRef.current = true;
@@ -185,13 +192,16 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
         Compare Similar ({similarDeals.length} found)
       </button>
       
-      {isExpanded && (
+      {isExpanded && createPortal(
         <div 
           key="compare-modal" 
           className="compare-overlay"
-          onMouseMove={(e) => e.stopPropagation()}
+          onClick={handleBackdropClick}
         >
-          <div className="compare-popup">
+          <div 
+            className="compare-popup"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="popup-header">
               <h3>Similar Products</h3>
               <button 
@@ -256,7 +266,8 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
               })}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
