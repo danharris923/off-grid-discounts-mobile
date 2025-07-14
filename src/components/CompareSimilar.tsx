@@ -15,7 +15,7 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   onDealClick 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isToggling, setIsToggling] = useState(false);
+  const isTogglingRef = useRef(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const similarDeals = useMemo(() => {
@@ -158,17 +158,21 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   }
 
   const handleCloseClick = () => {
-    if (isToggling) return;
-    setIsToggling(true);
+    if (isTogglingRef.current) return;
+    isTogglingRef.current = true;
     setIsExpanded(false);
-    setTimeout(() => setIsToggling(false), 100);
+    setTimeout(() => {
+      isTogglingRef.current = false;
+    }, 200);
   };
 
   const handleToggleClick = () => {
-    if (isToggling) return;
-    setIsToggling(true);
+    if (isTogglingRef.current) return;
+    isTogglingRef.current = true;
     setIsExpanded(true);
-    setTimeout(() => setIsToggling(false), 100);
+    setTimeout(() => {
+      isTogglingRef.current = false;
+    }, 200);
   };
 
   return (
@@ -176,13 +180,17 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
       <button 
         onClick={handleToggleClick}
         className="compare-toggle"
-        disabled={isToggling}
+        disabled={isTogglingRef.current}
       >
         Compare Similar ({similarDeals.length} found)
       </button>
       
       {isExpanded && (
-        <div className="compare-overlay">
+        <div 
+          key="compare-modal" 
+          className="compare-overlay"
+          onMouseMove={(e) => e.stopPropagation()}
+        >
           <div className="compare-popup">
             <div className="popup-header">
               <h3>Similar Products</h3>
