@@ -13,7 +13,7 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   currentDeal, 
   allDeals, 
   onDealClick 
-) => {
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
