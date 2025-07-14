@@ -178,7 +178,7 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
               {/* Show the original deal first */}
               <div 
                 key={currentDeal.id} 
-                className="popup-card original-deal"
+                className="popup-card"
                 onClick={() => handleDealClick(currentDeal)}
               >
                 <div className="popup-image-container">
@@ -190,7 +190,6 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
                   />
                   {currentDeal.featured && <span className="badge featured">Featured</span>}
                   {currentDeal.clearance && <span className="badge clearance">Clearance</span>}
-                  <div className="original-badge">Original</div>
                 </div>
                 
                 <div className="popup-info">
@@ -213,6 +212,9 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
                             <span className="regular-price">{formatPrice(currentDeal.regularPrice)}</span>
                           )}
                           <span className="sale-price">{formatPrice(displayPrice)}</span>
+                          {currentDeal.discountPercent && currentDeal.discountPercent > 0 && (
+                            <span className="savings-text">Save {currentDeal.discountPercent}%</span>
+                          )}
                         </>
                       );
                     })()}
@@ -261,6 +263,9 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
                               <span className="regular-price">{formatPrice(deal.regularPrice)}</span>
                             )}
                             <span className="sale-price">{formatPrice(displayPrice)}</span>
+                            {deal.discountPercent && deal.discountPercent > 0 && (
+                              <span className="savings-text">Save {deal.discountPercent}%</span>
+                            )}
                           </>
                         )}
                       </div>

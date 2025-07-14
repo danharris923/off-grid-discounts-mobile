@@ -87,10 +87,10 @@
 
 .regular-price {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: #c8102e;
   text-decoration: line-through;
   font-weight: 400;
-  text-decoration-color: var(--text-secondary);
+  text-decoration-color: #c8102e;
   order: 1;
 }
 
@@ -99,6 +99,15 @@
   font-weight: 700;
   color: var(--text-primary);
   order: 2;
+}
+
+.savings-text {
+  font-size: 12px;
+  color: #c8102e;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  order: 3;
 }
 
 .click-price {
