@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import Fuse from 'fuse.js';
 import { Deal } from '../types/Deal';
 import { APP_CONSTANTS } from '../constants/app';
 import './CompareSimilar.css';
@@ -20,148 +21,32 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const similarDeals = useMemo(() => {
-    // Add stability check to prevent unnecessary recalculations
     if (!currentDeal?.productName || !allDeals?.length) return [];
-    const productTitle = currentDeal.productName.toLowerCase();
     
-    // Function-based product categorization (avoiding house brands)
-    const productFunctions = {
-      powerStorage: {
-        powerStations: ['power station', 'portable power', 'solar generator'],
-        goalZero: ['goal zero yeti', 'yeti'],
-        jackery: ['jackery explorer', 'jackery'],
-        bluetti: ['bluetti ac', 'bluetti eb', 'bluetti'],
-        capacitySpecs: ['wh', 'watt hour', 'amp hour', 'ah']
-      },
-      solarEquipment: {
-        panels: ['solar panel', 'photovoltaic', 'pv panel'],
-        technology: ['monocrystalline', 'polycrystalline', 'flexible solar'],
-        wattage: ['100w', '200w', '300w', '400w', 'watt'],
-        kits: ['solar kit', 'solar system']
-      },
-      generators: {
-        types: ['generator', 'inverter generator', 'dual fuel'],
-        honda: ['honda eu', 'eu2200', 'eu3000'],
-        champion: ['champion dual fuel', 'champion inverter'],
-        specs: ['2200w', '3000w', '4000w', 'watts', 'running watts']
-      },
-      batteries: {
-        chemistry: ['lifepo4', 'lithium iron', 'agm', 'gel', 'deep cycle'],
-        capacity: ['100ah', '200ah', '300ah', 'amp hour'],
-        voltage: ['12v', '24v', '48v', 'volt']
-      },
-      heating: {
-        woodStoves: ['wood stove', 'wood burning', 'tent stove'],
-        propane: ['propane stove', 'camp stove', 'portable stove'],
-        specs: ['btu', 'cubic mini', 'chimney']
-      }
-    };
+    // Filter out current deal
+    const otherDeals = allDeals.filter(deal => deal.id !== currentDeal.id);
     
-    // House brands and generic marketing terms to ignore
-    const ignoreWords = [
-      'the', 'and', 'or', 'with', 'for', 'of', 'in', 'to', 'a', 'an', 'is', 'are',
-      'new', 'used', 'refurbished', 'open', 'box', 'pack', 'set', 'bundle',
-      'inch', 'cm', 'mm', 'lbs', 'oz', 'ft', 'yard', 'meter',
-      // House brands and generic terms
-      'pro', 'premium', 'custom', 'signature', 'elite', 'series', 'collection',
-      'cabela', 'cabelas', 'bass', 'basspro', 'redhead', 'ascend', 'white', 'river',
-      'uncle', 'bucks', 'mens', 'womens', 'youth', 'adult', 'size', 'color',
-      // Clothing/non-power terms
-      'jacket', 'shirt', 'pants', 'boots', 'gloves', 'hat', 'coat', 'vest',
-      'fishing', 'hunting', 'camo', 'camouflage', 'outdoor', 'tactical'
-    ];
-    
-    // Extract meaningful keywords, preserving important product identifiers
-    const keywords = productTitle
-      .replace(/[^\w\s]/g, ' ')
-      .split(/\s+/)
-      .filter(word => 
-        word.length > 2 &&
-        !ignoreWords.includes(word)
-      )
-      .slice(0, APP_CONSTANTS.MAX_KEYWORDS_TO_EXTRACT);
-    
-    if (keywords.length === 0) return [];
-    
-    // Detect product function and subtype
-    const detectProductFunction = (title: string) => {
-      for (const [functionType, subtypes] of Object.entries(productFunctions)) {
-        for (const [subtype, terms] of Object.entries(subtypes)) {
-          if (terms.some(term => title.includes(term))) {
-            return { functionType, subtype };
-          }
+    // Configure Fuse.js for fuzzy search
+    const fuse = new Fuse(otherDeals, {
+      keys: [
+        {
+          name: 'productName',
+          weight: 1.0
         }
-      }
-      return null;
-    };
+      ],
+      threshold: 0.4, // Lower = more strict matching (0.0 = exact, 1.0 = match anything)
+      distance: 100,   // Maximum character distance for matches
+      minMatchCharLength: 3, // Minimum character length to match
+      includeScore: true
+    });
     
-    const currentFunction = detectProductFunction(productTitle);
+    // Search for similar products
+    const results = fuse.search(currentDeal.productName);
     
-    const matches = allDeals
-      .filter(deal => deal.id !== currentDeal.id)
-      .map(deal => {
-        const dealTitle = deal.productName.toLowerCase();
-        const dealFunction = detectProductFunction(dealTitle);
-        
-        // Skip if different product functions (no power station vs fishing rod matches)
-        if (currentFunction && dealFunction && 
-            currentFunction.functionType !== dealFunction.functionType) {
-          return null;
-        }
-        
-        // Score based on meaningful keyword matches
-        const matchedKeywords = keywords.filter(keyword => 
-          dealTitle.includes(keyword)
-        );
-        let score = matchedKeywords.length;
-        
-        // Bonus for exact phrase matches (technical terms)
-        keywords.forEach((keyword, index) => {
-          if (index < keywords.length - 1) {
-            const nextKeyword = keywords[index + 1];
-            if (dealTitle.includes(keyword + ' ' + nextKeyword)) {
-              score += 2; // Higher bonus for technical phrase matches
-            }
-          }
-        });
-        
-        // Function matching bonuses
-        if (currentFunction && dealFunction) {
-          if (currentFunction.functionType === dealFunction.functionType) {
-            score += 3; // Same function type bonus (both power storage)
-            if (currentFunction.subtype === dealFunction.subtype) {
-              score += 4; // Same subtype bonus (both Goal Zero Yeti)
-            }
-          }
-        }
-        
-        // Technical specification matching
-        const techTerms = ['wh', 'ah', 'watt', 'volt', 'btu', 'amp', 'lithium'];
-        const currentTechTerms = techTerms.filter(term => productTitle.includes(term));
-        const dealTechTerms = techTerms.filter(term => dealTitle.includes(term));
-        const matchedTechTerms = currentTechTerms.filter(term => dealTechTerms.includes(term));
-        score += matchedTechTerms.length * 2; // Bonus for matching technical specs
-        
-        return { 
-          deal, 
-          score, 
-          matchedKeywords: matchedKeywords.length,
-          functionType: dealFunction,
-          title: dealTitle 
-        };
-      })
-      .filter((item): item is NonNullable<typeof item> => item !== null)
-      .filter(item => {
-        // More flexible filtering - allow single strong matches for specific products
-        if (item.matchedKeywords >= APP_CONSTANTS.MINIMUM_KEYWORD_MATCHES) return true;
-        if (item.matchedKeywords >= 1 && item.score >= APP_CONSTANTS.MINIMUM_COMPARISON_SCORE) return true;
-        return false;
-      })
-      .sort((a, b) => b.score - a.score)
+    // Return top matches, limited by MAX_COMPARISON_RESULTS
+    return results
       .slice(0, APP_CONSTANTS.MAX_COMPARISON_RESULTS)
-      .map(item => item.deal);
-    
-    return matches;
+      .map(result => result.item);
   }, [currentDeal, allDeals]);
 
   const formatPrice = (price: number | undefined | null): string => {
