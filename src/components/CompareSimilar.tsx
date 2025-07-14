@@ -175,6 +175,54 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
               ref={scrollContainerRef}
               className="popup-scroll"
             >
+              {/* Show the original deal first */}
+              <div 
+                key={currentDeal.id} 
+                className="popup-card original-deal"
+                onClick={() => handleDealClick(currentDeal)}
+              >
+                <div className="popup-image-container">
+                  <img 
+                    src={currentDeal.imageUrl} 
+                    alt={currentDeal.productName}
+                    className="popup-image"
+                    loading="lazy"
+                  />
+                  {currentDeal.featured && <span className="badge featured">Featured</span>}
+                  {currentDeal.clearance && <span className="badge clearance">Clearance</span>}
+                  <div className="original-badge">Original</div>
+                </div>
+                
+                <div className="popup-info">
+                  <h4 className="popup-title">{currentDeal.productName}</h4>
+                  
+                  <div className="popup-price">
+                    {(() => {
+                      const displayPrice = getCurrentPrice(currentDeal);
+                      const validPrice = displayPrice && displayPrice > 0;
+                      
+                      return !validPrice ? (
+                        <span className="click-price">
+                          {currentDeal.clearance ? "See clearance price" : 
+                           currentDeal.featured ? "See special price" : 
+                           `See price at ${currentDeal.retailer}`}
+                        </span>
+                      ) : (
+                        <>
+                          {currentDeal.regularPrice && currentDeal.salePrice && currentDeal.regularPrice > currentDeal.salePrice && (
+                            <span className="regular-price">{formatPrice(currentDeal.regularPrice)}</span>
+                          )}
+                          <span className="sale-price">{formatPrice(displayPrice)}</span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                  
+                  <span className="popup-retailer">{currentDeal.retailer}</span>
+                </div>
+              </div>
+              
+              {/* Show similar deals */}
               {similarDeals.map(deal => {
                 const displayPrice = getCurrentPrice(deal);
                 const shouldHidePrice = !displayPrice || displayPrice <= 0;
