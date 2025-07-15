@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import Fuse from 'fuse.js';
 import { Deal } from '../types/Deal';
 import { APP_CONSTANTS } from '../constants/app';
+import { getBestArticleForProduct } from '../utils/articleMatcher';
 import './CompareSimilar.css';
 
 interface CompareSimilarProps {
@@ -112,6 +113,9 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     }
   }, []);
 
+  // Get the best article for this product category
+  const relatedArticle = getBestArticleForProduct(currentDeal);
+
   if (similarDeals.length === 0) {
     return null;
   }
@@ -161,7 +165,19 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="popup-header">
-              <h3>Similar Products</h3>
+              <div className="popup-header-content">
+                <h3>Similar Products</h3>
+                {relatedArticle && (
+                  <a 
+                    href={`/compare/${relatedArticle.slug}`}
+                    className="comparison-guide-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    📊 Full Comparison Guide →
+                  </a>
+                )}
+              </div>
               <button 
                 className="close-btn"
                 onClick={handleCloseClick}

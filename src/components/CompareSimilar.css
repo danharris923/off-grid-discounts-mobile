@@ -164,6 +164,13 @@
   border-radius: 20px 20px 0 0;
 }
 
+.popup-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
 .popup-header h3 {
   font-size: 20px;
   font-weight: 400;
@@ -171,6 +178,29 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.comparison-guide-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #c8102e;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(200, 16, 46, 0.1);
+  border: 1px solid rgba(200, 16, 46, 0.2);
+  width: fit-content;
+}
+
+.comparison-guide-link:hover {
+  background: rgba(200, 16, 46, 0.15);
+  border-color: rgba(200, 16, 46, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(200, 16, 46, 0.2);
 }
 
 .close-btn {
@@ -308,6 +338,19 @@
 @media (max-width: 768px) {
   .popup-header {
     padding: 16px 20px;
+  }
+  
+  .popup-header-content {
+    gap: 6px;
+  }
+  
+  .popup-header h3 {
+    font-size: 18px;
+  }
+  
+  .comparison-guide-link {
+    font-size: 12px;
+    padding: 3px 6px;
   }
   
   .popup-scroll {

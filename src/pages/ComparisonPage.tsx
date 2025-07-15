@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
@@ -6,16 +6,36 @@ import { SEO } from '../components/SEO';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ArticleProductGrid from '../components/ArticleProductGrid';
+import ArticleStructuredData from '../components/ArticleStructuredData';
 import { getArticleBySlug } from '../data/comparisonArticles';
+import { useDeals } from '../hooks/useDeals';
+import { Deal } from '../types/Deal';
 import './ComparisonPage.css';
 
 interface ComparisonPageProps {}
 
 const ComparisonPage: React.FC<ComparisonPageProps> = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { deals } = useDeals();
+  const [filteredProducts, setFilteredProducts] = useState<Deal[]>([]);
   
   // Load article data based on slug
   const article = slug ? getArticleBySlug(slug) : undefined;
+  
+  // Get filtered products for this article
+  useEffect(() => {
+    if (article && deals.length > 0) {
+      const keywords = article.products.productKeywords;
+      const filtered = deals.filter(deal => {
+        const productName = deal.productName.toLowerCase();
+        return keywords.some(keyword => 
+          productName.includes(keyword.toLowerCase())
+        );
+      }).slice(0, article.products.maxResults);
+      
+      setFilteredProducts(filtered);
+    }
+  }, [article, deals]);
   
   // Redirect to home if article not found
   if (slug && !article) {
@@ -32,6 +52,14 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
             url={`https://offgriddiscounts.vercel.app/compare/${slug}`}
             keywords={article?.keywords.join(', ')}
           />
+          
+          {article && (
+            <ArticleStructuredData
+              article={article}
+              products={filteredProducts}
+              url={`https://offgriddiscounts.vercel.app/compare/${slug}`}
+            />
+          )}
           
           <Header onSearch={() => {}} />
           
