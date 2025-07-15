@@ -1,0 +1,142 @@
+.article-product-grid {
+  margin: 48px 0;
+  padding: 32px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.article-products-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.article-products-header h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+}
+
+.products-description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.products-meta {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 16px 0 0 0;
+}
+
+.products-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.deal-count {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.update-info {
+  color: #c8102e;
+  font-weight: 600;
+}
+
+.article-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin: 0;
+}
+
+.article-products-footer {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.disclaimer {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Loading and error states */
+.article-products-loading,
+.article-products-error,
+.article-products-empty {
+  padding: 48px 32px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.article-products-loading .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--text-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.article-products-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+}
+
+.article-products-empty {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .article-product-grid {
+    margin: 32px 0;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  .article-products-header {
+    margin-bottom: 24px;
+  }
+  
+  .article-products-header h3 {
+    font-size: 20px;
+  }
+  
+  .products-meta {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+  }
+  
+  .article-products-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .article-products-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+  }
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Deal } from '../types/Deal';
 import { APP_CONSTANTS } from '../constants/app';
 import CompareSimilar from './CompareSimilar';
+import FeaturedInBanner from './FeaturedInBanner';
 import './SingleDealCard.css';
 
 interface SingleDealCardProps {
@@ -78,6 +79,8 @@ const SingleDealCard: React.FC<SingleDealCardProps> = ({ deal, allDeals = [], on
             <span className="savings-text">Save {deal.discountPercent}%</span>
           ) : null}
         </div>
+        
+        <FeaturedInBanner deal={deal} compact />
         
         <div className="button-section">
           <CompareSimilar 

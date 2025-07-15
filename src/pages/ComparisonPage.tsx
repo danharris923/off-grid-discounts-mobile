@@ -5,6 +5,7 @@ import { Footer } from '../components/Footer';
 import { SEO } from '../components/SEO';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import ErrorBoundary from '../components/ErrorBoundary';
+import ArticleProductGrid from '../components/ArticleProductGrid';
 import { getArticleBySlug } from '../data/comparisonArticles';
 import './ComparisonPage.css';
 
@@ -63,15 +64,13 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
                         </div>
                       )}
                       
-                      <div className="products-section">
-                        <h2>Top Picks - Current Deals</h2>
-                        <p>🔥 <strong>Live deals</strong> updated daily from Amazon & Cabela's</p>
-                        {/* TODO: Embed filtered product cards here */}
-                        <div className="products-placeholder">
-                          <p>Product cards matching: {article.products.productKeywords.join(', ')}</p>
-                          <p>Showing top {article.products.maxResults} results sorted by {article.products.sortBy}</p>
-                        </div>
-                      </div>
+                      <ArticleProductGrid
+                        keywords={article.products.productKeywords}
+                        maxResults={article.products.maxResults}
+                        sortBy={article.products.sortBy}
+                        title="🏆 Top Picks - Current Deals"
+                        description="Live deals updated daily from Amazon & Cabela's. Prices and availability change frequently."
+                      />
                       
                       <div className="article-conclusion">
                         <h2>Final Thoughts</h2>

@@ -83,6 +83,40 @@
   color: var(--text-primary);
 }
 
+.article-intro {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border-left: 4px solid #c8102e;
+}
+
+.buyers-guide {
+  margin: 48px 0;
+  padding: 32px;
+  background: var(--bg-primary);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.buyers-guide h2 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+.article-conclusion {
+  margin-top: 48px;
+  padding: 32px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.article-conclusion h2 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .comparison-content {
