@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Fuse from 'fuse.js';
+import * as stringSimilarity from 'string-similarity';
 import { Deal } from '../types/Deal';
 import { APP_CONSTANTS } from '../constants/app';
 import { getBestArticleForProduct } from '../utils/articleMatcher';
@@ -27,75 +28,154 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
     // Filter out current deal
     const otherDeals = allDeals.filter(deal => deal.id !== currentDeal.id);
     
-    // Extract important keywords from product name
-    const extractKeywords = (productName: string): string[] => {
-      const importantWords = [
-        'jacket', 'coat', 'vest', 'hoodie', 'sweater', 'fleece', 'parka',
-        'boots', 'shoes', 'sandals', 'sneakers', 'hiking', 'running',
-        'backpack', 'bag', 'pack', 'duffel', 'tote', 'messenger',
-        'tent', 'sleeping', 'bag', 'pad', 'mattress', 'pillow',
-        'knife', 'multi-tool', 'flashlight', 'headlamp', 'lantern',
-        'cooler', 'thermos', 'bottle', 'mug', 'tumbler',
-        'gloves', 'hat', 'beanie', 'cap', 'scarf',
-        'pants', 'shorts', 'jeans', 'leggings', 'tights',
-        'shirt', 't-shirt', 'polo', 'tank', 'top',
-        'watch', 'sunglasses', 'wallet', 'belt',
-        'fishing', 'hunting', 'camping', 'hiking', 'outdoor'
-      ];
-      
-      const words = productName.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, ' ')
-        .split(/\s+/)
-        .filter(word => word.length > 2);
-      
-      const keywords = words.filter(word => importantWords.includes(word));
-      
-      // Add brand names and model numbers
-      const brands = ['north', 'face', 'carhartt', 'yeti', 'under', 'armour', 'nike', 'adidas', 'columbia', 'patagonia'];
-      const brandKeywords = words.filter(word => brands.includes(word));
-      
-      return Array.from(new Set([...keywords, ...brandKeywords]));
+    // Enhanced category and brand detection
+    const PRODUCT_CATEGORIES = {
+      'power': ['power', 'station', 'battery', 'portable', 'solar', 'generator', 'charger', 'bank'],
+      'clothing': ['jacket', 'coat', 'vest', 'hoodie', 'sweater', 'fleece', 'parka', 'shirt', 'pants', 'shorts'],
+      'footwear': ['boots', 'shoes', 'sandals', 'sneakers', 'hiking', 'running', 'waterproof'],
+      'bags': ['backpack', 'bag', 'pack', 'duffel', 'tote', 'messenger', 'daypack', 'tactical'],
+      'camping': ['tent', 'sleeping', 'pad', 'mattress', 'pillow', 'camping', 'outdoor', 'survival'],
+      'tools': ['knife', 'multi-tool', 'flashlight', 'headlamp', 'lantern', 'axe', 'saw', 'tool'],
+      'cooking': ['stove', 'cooler', 'thermos', 'bottle', 'mug', 'tumbler', 'cookware', 'grill'],
+      'accessories': ['gloves', 'hat', 'beanie', 'cap', 'scarf', 'watch', 'sunglasses', 'wallet', 'belt']
     };
     
-    const currentKeywords = extractKeywords(currentDeal.productName);
+    const PREMIUM_BRANDS = [
+      'north face', 'patagonia', 'arc\'teryx', 'yeti', 'goal zero', 'jackery', 'bluetti', 'ecoflow',
+      'carhartt', 'filson', 'benchmade', 'leatherman', 'surefire', 'pelican', 'osprey', 'deuter',
+      'columbia', 'under armour', 'nike', 'adidas', 'merrell', 'salomon', 'keen', 'danner',
+      'rei', 'msr', 'big agnes', 'nemo', 'therm-a-rest', 'kelty', 'gregory', 'black diamond'
+    ];
     
-    // If we have important keywords, search by those first
-    if (currentKeywords.length > 0) {
-      const keywordMatches = otherDeals.filter(deal => {
-        const dealKeywords = extractKeywords(deal.productName);
-        return dealKeywords.some(keyword => currentKeywords.includes(keyword));
-      });
+    // Enhanced keyword extraction with category awareness
+    const extractFeatures = (productName: string) => {
+      const text = productName.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ');
+      const words = text.split(/\s+/).filter(word => word.length > 1);
       
-      if (keywordMatches.length > 0) {
-        // Use fuse.js on keyword matches for better ranking
-        const fuse = new Fuse(keywordMatches, {
-          keys: [{ name: 'productName', weight: 1.0 }],
-          threshold: 0.8, // Very lenient since we pre-filtered by keywords
-          distance: 300,
-          minMatchCharLength: 3,
-          includeScore: true
-        });
-        
-        const results = fuse.search(currentDeal.productName);
-        return results
-          .slice(0, APP_CONSTANTS.MAX_COMPARISON_RESULTS)
-          .map(result => result.item);
+      // Find category
+      let category = 'general';
+      for (const [cat, keywords] of Object.entries(PRODUCT_CATEGORIES)) {
+        if (keywords.some(keyword => words.includes(keyword))) {
+          category = cat;
+          break;
+        }
       }
-    }
+      
+      // Find brand
+      let brand = '';
+      for (const brandName of PREMIUM_BRANDS) {
+        const brandWords = brandName.split(' ');
+        if (brandWords.every(brandWord => words.includes(brandWord))) {
+          brand = brandName;
+          break;
+        }
+      }
+      
+      // Extract key descriptors
+      const descriptors = words.filter(word => 
+        word.length > 3 && 
+        !['with', 'and', 'for', 'the', 'inch', 'size'].includes(word)
+      );
+      
+      // Extract model numbers and sizes
+      const modelNumbers = words.filter(word => /\d/.test(word));
+      
+      return {
+        category,
+        brand,
+        descriptors,
+        modelNumbers,
+        allWords: words,
+        cleanText: text
+      };
+    };
     
-    // Fallback to regular fuzzy search if no keyword matches
-    const fuse = new Fuse(otherDeals, {
-      keys: [{ name: 'productName', weight: 1.0 }],
-      threshold: 0.4,
-      distance: 200,
-      minMatchCharLength: 3,
-      includeScore: true
-    });
+    // Multi-factor similarity scoring
+    const calculateSimilarity = (deal1: Deal, deal2: Deal) => {
+      const features1 = extractFeatures(deal1.productName);
+      const features2 = extractFeatures(deal2.productName);
+      
+      let score = 0;
+      let maxScore = 0;
+      
+      // 1. Category match (25% weight)
+      maxScore += 25;
+      if (features1.category === features2.category && features1.category !== 'general') {
+        score += 25;
+      }
+      
+      // 2. Brand match (20% weight)
+      maxScore += 20;
+      if (features1.brand && features2.brand && features1.brand === features2.brand) {
+        score += 20;
+      } else if (features1.brand && features2.brand) {
+        // Partial brand similarity
+        const brandSim = stringSimilarity.compareTwoStrings(features1.brand, features2.brand);
+        score += brandSim * 20;
+      }
+      
+      // 3. String similarity of full names (20% weight)
+      maxScore += 20;
+      const nameSimilarity = stringSimilarity.compareTwoStrings(
+        features1.cleanText, 
+        features2.cleanText
+      );
+      score += nameSimilarity * 20;
+      
+      // 4. Descriptor overlap (15% weight)
+      maxScore += 15;
+      const commonDescriptors = features1.descriptors.filter(desc => 
+        features2.descriptors.includes(desc)
+      );
+      if (features1.descriptors.length > 0 || features2.descriptors.length > 0) {
+        const descriptorRatio = (commonDescriptors.length * 2) / 
+          (features1.descriptors.length + features2.descriptors.length);
+        score += descriptorRatio * 15;
+      }
+      
+      // 5. Model number similarity (10% weight)
+      maxScore += 10;
+      if (features1.modelNumbers.length > 0 && features2.modelNumbers.length > 0) {
+        const modelMatches = features1.modelNumbers.filter(model => 
+          features2.modelNumbers.some(model2 => 
+            model === model2 || stringSimilarity.compareTwoStrings(model, model2) > 0.8
+          )
+        );
+        const modelRatio = (modelMatches.length * 2) / 
+          (features1.modelNumbers.length + features2.modelNumbers.length);
+        score += modelRatio * 10;
+      }
+      
+      // 6. Price range similarity (10% weight)
+      maxScore += 10;
+      const price1 = deal1.salePrice || deal1.amazonPrice || deal1.cabelasPrice || deal1.regularPrice || 0;
+      const price2 = deal2.salePrice || deal2.amazonPrice || deal2.cabelasPrice || deal2.regularPrice || 0;
+      
+      if (price1 > 0 && price2 > 0) {
+        const priceDiff = Math.abs(price1 - price2);
+        const avgPrice = (price1 + price2) / 2;
+        const priceRatio = Math.max(0, 1 - (priceDiff / avgPrice));
+        score += priceRatio * 10;
+      }
+      
+      return maxScore > 0 ? (score / maxScore) : 0;
+    };
     
-    const results = fuse.search(currentDeal.productName);
-    return results
+    // Calculate similarities for all deals
+    const dealSimilarities = otherDeals.map(deal => ({
+      deal,
+      similarity: calculateSimilarity(currentDeal, deal)
+    }));
+    
+    // Sort by similarity and filter out low scores
+    const minSimilarity = 0.15; // 15% minimum similarity
+    const sortedDeals = dealSimilarities
+      .filter(item => item.similarity >= minSimilarity)
+      .sort((a, b) => b.similarity - a.similarity)
       .slice(0, APP_CONSTANTS.MAX_COMPARISON_RESULTS)
-      .map(result => result.item);
+      .map(item => item.deal);
+    
+    return sortedDeals;
   }, [currentDeal, allDeals]);
 
   const formatPrice = (price: number | undefined | null): string => {
