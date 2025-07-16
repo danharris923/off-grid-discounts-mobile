@@ -40,18 +40,6 @@ const BestOfMenu: React.FC<BestOfMenuProps> = ({ onNavigate }) => {
     onNavigate?.();
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'heating': return '🔥';
-      case 'cooking': return '🍳';
-      case 'power': return '⚡';
-      case 'bags': return '🎒';
-      case 'clothing': return '👕';
-      case 'tools': return '🔧';
-      case 'camping': return '⛺';
-      default: return '📋';
-    }
-  };
 
   return (
     <div className="best-of-menu">
@@ -62,7 +50,6 @@ const BestOfMenu: React.FC<BestOfMenuProps> = ({ onNavigate }) => {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <span className="menu-icon">📊</span>
         <span className="menu-text">Best Of Guides</span>
         <span className={`arrow ${isOpen ? 'up' : 'down'}`}>▼</span>
       </button>
@@ -82,9 +69,6 @@ const BestOfMenu: React.FC<BestOfMenuProps> = ({ onNavigate }) => {
                 className="dropdown-item"
                 onClick={handleItemClick}
               >
-                <div className="item-icon">
-                  {getCategoryIcon(article.category)}
-                </div>
                 <div className="item-content">
                   <h4>{article.title}</h4>
                   <p>{article.description}</p>
