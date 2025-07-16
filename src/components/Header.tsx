@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Disclaimer } from './Disclaimer';
+import BestOfMenu from './BestOfMenu';
 import './Header.css';
 
 interface HeaderProps {
@@ -75,7 +76,8 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           
           <div className="controls-container">
-            <div className="center-controls">            
+            <div className="center-controls">
+              <BestOfMenu />
               {onRefresh && (
                 <button 
                   onClick={onRefresh}

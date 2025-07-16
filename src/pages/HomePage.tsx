@@ -7,6 +7,7 @@ import { StructuredData } from '../components/StructuredData';
 import { SEO } from '../components/SEO';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import ErrorBoundary from '../components/ErrorBoundary';
+import FloatingGuidesButton from '../components/FloatingGuidesButton';
 import { useDeals } from '../hooks/useDeals';
 
 const HomePage: React.FC = () => {
@@ -122,6 +123,7 @@ const HomePage: React.FC = () => {
           <Header onSearch={setSearchTerm} />
           <ProductGrid deals={filteredDeals} />
           <Footer />
+          <FloatingGuidesButton />
         </div>
       </ErrorBoundary>
     </ThemeProvider>
