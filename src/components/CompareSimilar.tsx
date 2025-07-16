@@ -47,46 +47,60 @@ const CompareSimilar: React.FC<CompareSimilarProps> = ({
       'rei', 'msr', 'big agnes', 'nemo', 'therm-a-rest', 'kelty', 'gregory', 'black diamond'
     ];
     
-    // Enhanced keyword extraction with category awareness
+    // Enhanced keyword extraction with category awareness and word limiting
     const extractFeatures = (productName: string) => {
       const text = productName.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ');
-      const words = text.split(/\s+/).filter(word => word.length > 1);
+      const allWords = text.split(/\s+/).filter(word => word.length > 1);
+      
+      // Stop words to ignore
+      const stopWords = [
+        'with', 'and', 'for', 'the', 'inch', 'size', 'perfect', 'great', 'best', 'top',
+        'gifts', 'gift', 'men', 'women', 'kids', 'adults', 'handy', 'useful', 'essential',
+        'outdoor', 'survival', 'camping', 'hiking', 'hunting', 'fishing', 'travel',
+        'heavy', 'duty', 'quality', 'premium', 'professional', 'durable', 'lightweight',
+        'compact', 'portable', 'adjustable', 'comfortable', 'waterproof', 'breathable'
+      ];
+      
+      // Take only first 8 words after removing stop words to limit comparison scope
+      const filteredWords = allWords.filter(word => 
+        word.length > 2 && !stopWords.includes(word)
+      ).slice(0, 8);
       
       // Find category
       let category = 'general';
       for (const [cat, keywords] of Object.entries(PRODUCT_CATEGORIES)) {
-        if (keywords.some(keyword => words.includes(keyword))) {
+        if (keywords.some(keyword => filteredWords.includes(keyword))) {
           category = cat;
           break;
         }
       }
       
-      // Find brand
+      // Find brand (use all words for brand detection)
       let brand = '';
       for (const brandName of PREMIUM_BRANDS) {
         const brandWords = brandName.split(' ');
-        if (brandWords.every(brandWord => words.includes(brandWord))) {
+        if (brandWords.every(brandWord => allWords.includes(brandWord))) {
           brand = brandName;
           break;
         }
       }
       
-      // Extract key descriptors
-      const descriptors = words.filter(word => 
-        word.length > 3 && 
-        !['with', 'and', 'for', 'the', 'inch', 'size'].includes(word)
-      );
+      // Extract key descriptors (from filtered words only)
+      const descriptors = filteredWords.filter(word => word.length > 3);
       
-      // Extract model numbers and sizes
-      const modelNumbers = words.filter(word => /\d/.test(word));
+      // Extract model numbers and sizes (from all words)
+      const modelNumbers = allWords.filter(word => /\d/.test(word));
+      
+      // Create clean text from filtered words only
+      const cleanText = filteredWords.join(' ');
       
       return {
         category,
         brand,
         descriptors,
         modelNumbers,
-        allWords: words,
-        cleanText: text
+        allWords: filteredWords, // Use filtered words instead of all words
+        cleanText
       };
     };
     
