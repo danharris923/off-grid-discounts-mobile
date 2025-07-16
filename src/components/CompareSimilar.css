@@ -200,7 +200,7 @@
   font-weight: 600;
   transition: all 0.2s ease;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 0;
   background: rgba(200, 16, 46, 0.1);
   border: 1px solid rgba(200, 16, 46, 0.2);
   width: fit-content;
@@ -220,7 +220,7 @@
   font-size: 24px;
   cursor: pointer;
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 0;
   min-width: 40px;
   min-height: 40px;
   display: flex;
