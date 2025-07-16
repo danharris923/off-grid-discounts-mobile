@@ -125,7 +125,7 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
             />
           )}
           
-          <Header onSearch={setSearchTerm} />
+          <Header onSearch={() => {}} />
           
           <main className="comparison-content">
             <div className="container">
