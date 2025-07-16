@@ -14,7 +14,7 @@
   border: 1px solid var(--border-color);
   border-radius: 0;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
   font-family: inherit;
   transition: all 0.2s ease;
@@ -35,7 +35,7 @@
 
 
 .menu-text {
-  font-size: 14px;
+  font-size: 12px;
   white-space: nowrap;
 }
 
@@ -205,8 +205,8 @@
   text-decoration: none;
   border: 1px solid var(--border-color);
   border-radius: 0;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   font-family: inherit;
   transition: all 0.2s ease;
 }
@@ -227,8 +227,8 @@
   text-decoration: none;
   border: 1px solid var(--border-color);
   border-radius: 0;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   font-family: inherit;
   transition: all 0.2s ease;
 }
