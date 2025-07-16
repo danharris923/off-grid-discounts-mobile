@@ -187,36 +187,10 @@
   touch-action: manipulation;
 }
 
-.single-deal-card .get-deal-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--text-secondary);
-  transition: left 0.3s ease;
-  z-index: 0;
-}
-
-.single-deal-card .get-deal-button:hover::before {
-  left: 0;
-}
-
 .single-deal-card .get-deal-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  color: var(--button-text) !important;
-}
-
-.single-deal-card .get-deal-button:active {
-  transform: scale(0.98);
-}
-
-.single-deal-card .get-deal-button > * {
-  position: relative;
-  z-index: 1;
-  color: var(--button-text) !important;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
 }
 
 
