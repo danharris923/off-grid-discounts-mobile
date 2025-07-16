@@ -99,9 +99,14 @@ const BestOfMenu: React.FC<BestOfMenuProps> = ({ onNavigate }) => {
           </div>
 
           <div className="dropdown-footer">
-            <Link to="/guides" className="view-all-link" onClick={handleItemClick}>
-              View All Guides →
-            </Link>
+            <div className="footer-links">
+              <Link to="/" className="footer-home-link" onClick={handleItemClick}>
+                ← Back to Deals
+              </Link>
+              <Link to="/guides" className="view-all-link" onClick={handleItemClick}>
+                View All Guides →
+              </Link>
+            </div>
           </div>
         </div>
       )}

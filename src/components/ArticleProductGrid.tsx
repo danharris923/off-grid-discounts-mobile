@@ -11,6 +11,8 @@ interface ArticleProductGridProps {
   sortBy: 'discount' | 'price' | 'relevance';
   title?: string;
   description?: string;
+  searchTerm?: string;
+  filteredProducts?: Deal[];
 }
 
 const ArticleProductGrid: React.FC<ArticleProductGridProps> = ({
@@ -18,11 +20,18 @@ const ArticleProductGrid: React.FC<ArticleProductGridProps> = ({
   maxResults,
   sortBy,
   title = "Featured Products",
-  description
+  description,
+  searchTerm,
+  filteredProducts: providedProducts
 }) => {
   const { deals, loading, error } = useDeals();
 
   const filteredProducts = useMemo(() => {
+    // Use provided filtered products if available (from search)
+    if (providedProducts) {
+      return providedProducts.slice(0, maxResults);
+    }
+
     if (!deals?.length || !keywords?.length) return [];
 
     // Filter products by keywords
@@ -71,7 +80,7 @@ const ArticleProductGrid: React.FC<ArticleProductGridProps> = ({
     }
 
     return sortedProducts.slice(0, maxResults);
-  }, [deals, keywords, maxResults, sortBy]);
+  }, [deals, keywords, maxResults, sortBy, providedProducts]);
 
   if (loading) {
     return (

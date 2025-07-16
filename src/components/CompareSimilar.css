@@ -4,25 +4,35 @@
 
 .compare-toggle {
   width: 100%;
-  background: var(--button-text);
-  border: 1px solid var(--button-text);
-  border-radius: 8px;
-  color: var(--button-bg);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  color: var(--text-secondary);
   padding: 12px 16px;
   font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-weight: 400;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: normal;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   touch-action: manipulation;
+  transition: all 0.2s ease;
+}
+
+.compare-toggle:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
 }
 
 .compare-toggle:active {
   transform: scale(0.98);
-  background: var(--text-secondary);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .compare-toggle:disabled {

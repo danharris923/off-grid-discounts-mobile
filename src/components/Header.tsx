@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { Disclaimer } from './Disclaimer';
 import BestOfMenu from './BestOfMenu';
@@ -16,6 +17,11 @@ export const Header: React.FC<HeaderProps> = ({
   const [searchTerm, setSearchTerm] = React.useState('');
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+  
+  // Check if we're on homepage to show different navigation
+  const isHomePage = location.pathname === '/';
+  const isComparisonPage = location.pathname.startsWith('/compare/');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -58,10 +64,31 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
         <div className="header-container">
           <div className="header-top">
-            <h1 className="site-title">Off-Grid Discounts</h1>
-            <p className="site-tagline">
-              Compare prices from Amazon, Cabela's & more! - <span className="savings-highlight">Save up to 80%</span>
-            </p>
+            <div className="site-branding">
+              {!isHomePage && (
+                <Link to="/" className="home-link" title="Back to home">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9,22 9,12 15,12 15,22"/>
+                  </svg>
+                </Link>
+              )}
+              <Link to="/" className="site-title-link">
+                <h1 className="site-title">Off-Grid Discounts</h1>
+              </Link>
+            </div>
+            {isHomePage && (
+              <p className="site-tagline">
+                Compare prices from Amazon, Cabela's & more! - <span className="savings-highlight">Save up to 80%</span>
+              </p>
+            )}
+            {isComparisonPage && (
+              <nav className="breadcrumb-nav">
+                <Link to="/" className="breadcrumb-link">Home</Link>
+                <span className="breadcrumb-separator">›</span>
+                <span className="breadcrumb-current">Buying Guide</span>
+              </nav>
+            )}
           </div>
         
         <div className="header-controls">

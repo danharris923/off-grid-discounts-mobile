@@ -21,6 +21,42 @@
 }
 
 
+.site-branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+}
+
+.home-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.home-link:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.site-title-link {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.site-title-link:hover {
+  opacity: 0.8;
+}
+
 .site-title {
   font-size: 32px;
   font-weight: 300;
@@ -38,6 +74,38 @@
   font-weight: 400;
   letter-spacing: 0.02em;
   transition: color 0.3s ease;
+}
+
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.breadcrumb-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.breadcrumb-link:hover {
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.breadcrumb-separator {
+  color: var(--text-secondary);
+  font-weight: 300;
+  opacity: 0.6;
+}
+
+.breadcrumb-current {
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .savings-highlight {
@@ -234,6 +302,25 @@
     font-size: 12px;
   }
   
+  .site-branding {
+    gap: 8px;
+  }
+  
+  .home-link {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .home-link svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .breadcrumb-nav {
+    font-size: 12px;
+    gap: 6px;
+    margin-top: 4px;
+  }
   
   .header-controls {
     flex-direction: column;

@@ -9,13 +9,13 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: var(--button-bg);
-  color: var(--button-text);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
   border: 1px solid var(--border-color);
   border-radius: 0;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   font-family: inherit;
   transition: all 0.2s ease;
   box-shadow: none;
@@ -24,13 +24,13 @@
 .best-of-toggle:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  border-color: var(--text-primary);
+  border-color: var(--text-secondary);
 }
 
 .best-of-toggle.active {
-  background: var(--accent-color);
-  color: white;
-  border-color: var(--accent-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .menu-icon {
@@ -204,6 +204,35 @@
   text-align: center;
 }
 
+.footer-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.footer-home-link:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
 .view-all-link {
   display: inline-flex;
   align-items: center;
@@ -244,5 +273,16 @@
   
   .item-content p {
     font-size: 12px;
+  }
+  
+  .footer-links {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .footer-home-link,
+  .view-all-link {
+    width: 100%;
+    justify-content: center;
   }
 }

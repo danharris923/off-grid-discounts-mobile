@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
+import Fuse from 'fuse.js';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SEO } from '../components/SEO';
@@ -17,12 +18,13 @@ interface ComparisonPageProps {}
 const ComparisonPage: React.FC<ComparisonPageProps> = () => {
   const { slug } = useParams<{ slug: string }>();
   const { deals } = useDeals();
-  const [filteredProducts, setFilteredProducts] = useState<Deal[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [baseProducts, setBaseProducts] = useState<Deal[]>([]);
   
   // Load article data based on slug
   const article = slug ? getArticleBySlug(slug) : undefined;
   
-  // Get filtered products for this article
+  // Get base filtered products for this article
   useEffect(() => {
     if (article && deals.length > 0) {
       const keywords = article.products.productKeywords;
@@ -33,9 +35,71 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
         );
       }).slice(0, article.products.maxResults);
       
-      setFilteredProducts(filtered);
+      setBaseProducts(filtered);
     }
   }, [article, deals]);
+
+  // Apply search filter to base products
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm || searchTerm.trim().length === 0) {
+      return baseProducts;
+    }
+
+    // Extract important keywords from search term
+    const extractKeywords = (text: string): string[] => {
+      const importantWords = [
+        'diesel', 'heater', 'heating', 'planar', 'webasto', 'portable', 'van', 'rv',
+        'power', 'station', 'battery', 'solar', 'generator', 'charger', 'bank',
+        'camping', 'stove', 'cookware', 'grill', 'outdoor', 'cooking',
+        'backpack', 'bag', 'pack', 'tactical', 'hiking', 'travel',
+        'jacket', 'coat', 'pants', 'boots', 'clothing', 'gear',
+        'knife', 'tool', 'flashlight', 'headlamp', 'survival'
+      ];
+      
+      const words = text.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 2);
+      
+      return words.filter(word => importantWords.includes(word));
+    };
+
+    const searchKeywords = extractKeywords(searchTerm);
+    
+    // If we have important keywords, prioritize keyword matches
+    if (searchKeywords.length > 0) {
+      const keywordMatches = baseProducts.filter(deal => {
+        const productName = deal.productName.toLowerCase();
+        return searchKeywords.some(keyword => productName.includes(keyword));
+      });
+      
+      if (keywordMatches.length > 0) {
+        // Use fuzzy search on keyword matches for better ranking
+        const fuse = new Fuse(keywordMatches, {
+          keys: [{ name: 'productName', weight: 1.0 }],
+          threshold: 0.6,
+          distance: 200,
+          minMatchCharLength: 2,
+          includeScore: true
+        });
+        
+        const results = fuse.search(searchTerm);
+        return results.map(result => result.item);
+      }
+    }
+    
+    // Fallback to regular fuzzy search
+    const fuse = new Fuse(baseProducts, {
+      keys: [{ name: 'productName', weight: 1.0 }],
+      threshold: 0.4,
+      distance: 150,
+      minMatchCharLength: 2,
+      includeScore: true
+    });
+    
+    const results = fuse.search(searchTerm);
+    return results.map(result => result.item);
+  }, [baseProducts, searchTerm]);
   
   // Redirect to home if article not found
   if (slug && !article) {
@@ -61,7 +125,7 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
             />
           )}
           
-          <Header onSearch={() => {}} />
+          <Header onSearch={setSearchTerm} />
           
           <main className="comparison-content">
             <div className="container">
@@ -96,8 +160,10 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
                         keywords={article.products.productKeywords}
                         maxResults={article.products.maxResults}
                         sortBy={article.products.sortBy}
-                        title="🏆 Top Picks - Current Deals"
-                        description="Live deals updated daily from Amazon & Cabela's. Prices and availability change frequently."
+                        title={searchTerm ? `🔍 Search Results for "${searchTerm}" (${filteredProducts.length} found)` : "🏆 Top Picks - Current Deals"}
+                        description={searchTerm ? `Showing ${filteredProducts.length} products matching your search within this category.` : "Live deals updated daily from Amazon & Cabela's. Prices and availability change frequently."}
+                        searchTerm={searchTerm}
+                        filteredProducts={filteredProducts}
                       />
                       
                       <div className="article-conclusion">
