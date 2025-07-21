@@ -28,7 +28,7 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
   
   // Process comparison table HTML to add affiliate links
   useEffect(() => {
-    if (article && article.content && article.content.comparisonTable) {
+    if (article?.content?.comparisonTable) {
       // Replace placeholder links with actual affiliate links
       let processedHtml = article.content.comparisonTable;
       
