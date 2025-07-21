@@ -140,3 +140,282 @@
     margin-bottom: 24px;
   }
 }
+
+/* Comparison Table Styles */
+.comparison-table-section {
+  margin: 40px 0;
+  overflow-x: auto;
+}
+
+.comparison-table-wrapper {
+  min-width: 100%;
+}
+
+.comparison-table-wrapper h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.comparison-table thead {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.comparison-table th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.comparison-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.comparison-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.comparison-table td {
+  padding: 16px 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.comparison-table .product-name {
+  font-weight: 500;
+}
+
+.comparison-table .affiliate-link {
+  color: #c8102e;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.comparison-table .affiliate-link:hover {
+  color: #a00d24;
+  text-decoration: underline;
+}
+
+.comparison-table .quiet {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.comparison-table .low {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.comparison-table .moderate {
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+.comparison-table .noisier {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.table-note {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Source Links Section */
+.article-sources {
+  margin-top: 60px;
+  padding: 32px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+}
+
+.article-sources h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  font-size: 20px;
+}
+
+.source-note {
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.source-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.source-links li {
+  margin: 0;
+}
+
+.source-link {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.source-link:hover {
+  background: var(--bg-hover);
+  border-color: #c8102e;
+  color: #c8102e;
+}
+
+.affiliate-disclosure {
+  padding: 16px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.affiliate-disclosure p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .comparison-table {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .comparison-table thead {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .comparison-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Products Section */
+.products-section {
+  margin: 48px 0 32px 0;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.products-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.search-wrapper {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 36px 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #c8102e;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  transition: color 0.2s ease;
+}
+
+.clear-search:hover {
+  color: var(--text-primary);
+}
+
+.products-description {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* Mobile table responsiveness */
+@media (max-width: 768px) {
+  .comparison-table-section {
+    margin: 24px -24px;
+    padding: 0 24px;
+  }
+  
+  .comparison-table {
+    font-size: 12px;
+  }
+  
+  .comparison-table th,
+  .comparison-table td {
+    padding: 12px 8px;
+  }
+  
+  .source-links {
+    grid-template-columns: 1fr;
+  }
+  
+  .article-sources {
+    padding: 24px;
+  }
+  
+  .products-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-wrapper {
+    width: 100%;
+  }
+}

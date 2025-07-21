@@ -11,6 +11,7 @@ import ArticleStructuredData from '../components/ArticleStructuredData';
 import { getArticleBySlug } from '../data/comparisonArticles';
 import { useDeals } from '../hooks/useDeals';
 import { Deal } from '../types/Deal';
+import { generateAffiliateLink } from '../utils/affiliateLinks';
 import './ComparisonPage.css';
 
 interface ComparisonPageProps {}
@@ -20,9 +21,46 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
   const { deals } = useDeals();
   const [searchTerm, setSearchTerm] = useState('');
   const [baseProducts, setBaseProducts] = useState<Deal[]>([]);
+  const [processedTableHtml, setProcessedTableHtml] = useState<string>('');
   
   // Load article data based on slug
   const article = slug ? getArticleBySlug(slug) : undefined;
+  
+  // Process comparison table HTML to add affiliate links
+  useEffect(() => {
+    if (article?.content.comparisonTable) {
+      // Replace placeholder links with actual affiliate links
+      let processedHtml = article.content.comparisonTable;
+      
+      // Find all affiliate link placeholders and replace with actual links
+      processedHtml = processedHtml.replace(
+        /href="#"\s+class="affiliate-link"\s+data-product="([^"]+)">([^<]+)<\/a>/g,
+        (match, productId, productName) => {
+          // Check if there's a retailers column in the same row to determine retailer
+          const rowMatch = processedHtml.match(new RegExp(`<tr[^>]*>.*?${productName}.*?<td[^>]*>([^<]*(?:Amazon|Cabela's|MEC|REI|Planar)[^<]*)</td>.*?</tr>`, 's'));
+          let retailer = 'amazon'; // default
+          
+          if (rowMatch && rowMatch[1]) {
+            const retailerText = rowMatch[1].toLowerCase();
+            if (retailerText.includes('cabela')) {
+              retailer = 'cabelas';
+            } else if (retailerText.includes('mec')) {
+              retailer = 'mec';
+            } else if (retailerText.includes('rei')) {
+              retailer = 'rei';
+            } else if (retailerText.includes('planar')) {
+              retailer = 'planar';
+            }
+          }
+          
+          const affiliateUrl = generateAffiliateLink(productName, retailer);
+          return `href="${affiliateUrl}" class="affiliate-link" target="_blank" rel="noopener noreferrer sponsored">${productName}</a>`;
+        }
+      );
+      
+      setProcessedTableHtml(processedHtml);
+    }
+  }, [article]);
   
   // Get base filtered products for this article
   useEffect(() => {
@@ -149,19 +187,56 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
                         <p>{article.content.intro}</p>
                       </div>
                       
+                      {processedTableHtml && (
+                        <div 
+                          className="comparison-table-section"
+                          dangerouslySetInnerHTML={{ __html: processedTableHtml }}
+                        />
+                      )}
+                      
                       {article.content.buyersGuide && (
                         <div className="buyers-guide">
                           <h2>Buyer's Guide</h2>
-                          <p>{article.content.buyersGuide}</p>
+                          <div dangerouslySetInnerHTML={{ __html: article.content.buyersGuide.replace(/\n/g, '<br/>') }} />
                         </div>
                       )}
+                      
+                      <div className="products-section">
+                        <div className="products-header">
+                          <h2>{searchTerm ? `🔍 Search Results for "${searchTerm}"` : "🏆 Top Picks - Current Deals"}</h2>
+                          <div className="search-wrapper">
+                            <input
+                              type="text"
+                              className="search-input"
+                              placeholder="Search products..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              aria-label="Search products"
+                            />
+                            {searchTerm && (
+                              <button
+                                className="clear-search"
+                                onClick={() => setSearchTerm('')}
+                                aria-label="Clear search"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <p className="products-description">
+                          {searchTerm 
+                            ? `Showing ${filteredProducts.length} products matching your search within this category.` 
+                            : "Live deals updated daily from Amazon & Cabela's. Prices and availability change frequently."}
+                        </p>
+                      </div>
                       
                       <ArticleProductGrid
                         keywords={article.products.productKeywords}
                         maxResults={article.products.maxResults}
                         sortBy={article.products.sortBy}
-                        title={searchTerm ? `🔍 Search Results for "${searchTerm}" (${filteredProducts.length} found)` : "🏆 Top Picks - Current Deals"}
-                        description={searchTerm ? `Showing ${filteredProducts.length} products matching your search within this category.` : "Live deals updated daily from Amazon & Cabela's. Prices and availability change frequently."}
+                        title=""
+                        description=""
                         searchTerm={searchTerm}
                         filteredProducts={filteredProducts}
                       />
@@ -169,6 +244,28 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
                       <div className="article-conclusion">
                         <h2>Final Thoughts</h2>
                         <p>{article.content.conclusion}</p>
+                      </div>
+                      
+                      <div className="article-sources">
+                        <h3>Sources & References</h3>
+                        <p className="source-note">This comparison guide aggregates data from trusted outdoor gear retailers and expert reviews to help you make informed purchasing decisions.</p>
+                        {article.content.sources && article.content.sources.length > 0 && (
+                          <ul className="source-links">
+                            {article.content.sources.map((source, index) => {
+                              const domain = new URL(source).hostname.replace('www.', '');
+                              return (
+                                <li key={index}>
+                                  <a href={source} target="_blank" rel="noopener noreferrer nofollow" className="source-link">
+                                    {domain}
+                                  </a>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                        <div className="affiliate-disclosure">
+                          <p><strong>Affiliate Disclosure:</strong> As an Amazon Associate and Cabela's affiliate, we earn from qualifying purchases at no additional cost to you.</p>
+                        </div>
                       </div>
                     </>
                   ) : (
