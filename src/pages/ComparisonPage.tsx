@@ -8,7 +8,7 @@ import { ThemeProvider } from '../contexts/ThemeContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ArticleProductGrid from '../components/ArticleProductGrid';
 import ArticleStructuredData from '../components/ArticleStructuredData';
-import { getArticleBySlug } from '../data/comparisonArticles';
+import { getArticleBySlug, ComparisonArticle } from '../data/comparisonArticles';
 import { useDeals } from '../hooks/useDeals';
 import { Deal } from '../types/Deal';
 import { generateAffiliateLink } from '../utils/affiliateLinks';
@@ -24,7 +24,7 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
   const [processedTableHtml, setProcessedTableHtml] = useState<string>('');
   
   // Load article data based on slug
-  const article = slug ? getArticleBySlug(slug) : undefined;
+  const article: ComparisonArticle | undefined = slug ? getArticleBySlug(slug) : undefined;
   
   // Process comparison table HTML to add affiliate links
   useEffect(() => {
