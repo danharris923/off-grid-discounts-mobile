@@ -21,46 +21,9 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
   const { deals } = useDeals();
   const [searchTerm, setSearchTerm] = useState('');
   const [baseProducts, setBaseProducts] = useState<Deal[]>([]);
-  const [processedTableHtml, setProcessedTableHtml] = useState<string>('');
   
   // Load article data based on slug
   const article: ComparisonArticle | undefined = slug ? getArticleBySlug(slug) : undefined;
-  
-  // Process comparison table HTML to add affiliate links
-  useEffect(() => {
-    if (article?.content?.comparisonTable) {
-      // Replace placeholder links with actual affiliate links
-      let processedHtml = article.content.comparisonTable;
-      
-      // Find all affiliate link placeholders and replace with actual links
-      processedHtml = processedHtml.replace(
-        /href="#"\s+class="affiliate-link"\s+data-product="([^"]+)">([^<]+)<\/a>/g,
-        (match, productId, productName) => {
-          // Check if there's a retailers column in the same row to determine retailer
-          const rowMatch = processedHtml.match(new RegExp(`<tr[^>]*>.*?${productName}.*?<td[^>]*>([^<]*(?:Amazon|Cabela's|MEC|REI|Planar)[^<]*)</td>.*?</tr>`, 's'));
-          let retailer = 'amazon'; // default
-          
-          if (rowMatch && rowMatch[1]) {
-            const retailerText = rowMatch[1].toLowerCase();
-            if (retailerText.includes('cabela')) {
-              retailer = 'cabelas';
-            } else if (retailerText.includes('mec')) {
-              retailer = 'mec';
-            } else if (retailerText.includes('rei')) {
-              retailer = 'rei';
-            } else if (retailerText.includes('planar')) {
-              retailer = 'planar';
-            }
-          }
-          
-          const affiliateUrl = generateAffiliateLink(productName, retailer);
-          return `href="${affiliateUrl}" class="affiliate-link" target="_blank" rel="noopener noreferrer sponsored">${productName}</a>`;
-        }
-      );
-      
-      setProcessedTableHtml(processedHtml);
-    }
-  }, [article]);
   
   // Get base filtered products for this article
   useEffect(() => {
@@ -187,12 +150,7 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
                         <p>{article.content.intro}</p>
                       </div>
                       
-                      {processedTableHtml && (
-                        <div 
-                          className="comparison-table-section"
-                          dangerouslySetInnerHTML={{ __html: processedTableHtml }}
-                        />
-                      )}
+                      {/* Comparison table would go here if needed */}
                       
                       {article.content.buyersGuide && (
                         <div className="buyers-guide">
