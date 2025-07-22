@@ -207,7 +207,7 @@ const ComparisonPage: React.FC<ComparisonPageProps> = () => {
                       <div className="article-sources">
                         <h3>Sources & References</h3>
                         <p className="source-note">This comparison guide aggregates data from trusted outdoor gear retailers and expert reviews to help you make informed purchasing decisions.</p>
-                        {article.content.sources && article.content.sources.length > 0 && (
+                        {article.content && 'sources' in article.content && article.content.sources && article.content.sources.length > 0 && (
                           <ul className="source-links">
                             {article.content.sources.map((source, index) => {
                               const domain = new URL(source).hostname.replace('www.', '');
